@@ -1,0 +1,128 @@
+{"data":{"ticketSales":[
+        {
+          "objectId": "60a73c66b8bce667e4724d18",
+          "eventRef": "60a73c92b8bce667e4724d1e",
+          "name": "Denis Willson",
+          "email": "dennywilly@yahoo.com",
+          "phone": "+234903294243",
+          "dateOfPurchase": "2024-02-04:1732",
+          "referenceNumber": "0111382929394911",
+          "ticketCategory": "VIP",
+          "amountPaid": "600000",
+          "numberOfTickets": "2"
+        },
+        {
+          "objectId": "60a73c66b8bce667e4724d19",
+          "eventRef": "60a73c92b8bce667e4724d1f",
+          "name": "Alice Johnson",
+          "email": "alicejohnson@example.com",
+          "phone": "+1234567890",
+          "dateOfPurchase": "2024-02-05:0945",
+          "referenceNumber": "0211471938201332",
+          "ticketCategory": "Regular",
+          "amountPaid": "20000",
+          "numberOfTickets": "4"
+        },
+        {
+          "objectId": "60a73c66b8bce667e4724d1a",
+          "eventRef": "60a73c92b8bce667e4724d20",
+          "name": "Michael Brown",
+          "email": "michaelbrown@example.com",
+          "phone": "+9876543210",
+          "dateOfPurchase": "2024-02-06:1200",
+          "referenceNumber": "0312948327492919",
+          "ticketCategory": "Table for 5",
+          "amountPaid": "1200000",
+          "numberOfTickets": "1"
+        },
+        {
+          "objectId": "60a73c66b8bce667e4724d1b",
+          "eventRef": "60a73c92b8bce667e4724d21",
+          "name": "Emma Davis",
+          "email": "emma.davis@example.com",
+          "phone": "+1122334455",
+          "dateOfPurchase": "2024-02-07:1500",
+          "referenceNumber": "0413654975820202",
+          "ticketCategory": "VIP",
+          "amountPaid": "300000",
+          "numberOfTickets": "3"
+        },
+        {
+          "objectId": "60a73c66b8bce667e4724d1c",
+          "eventRef": "60a73c92b8bce667e4724d22",
+          "name": "Sarah Smith",
+          "email": "sarahsmith@example.com",
+          "phone": "+9988776655",
+          "dateOfPurchase": "2024-02-08:0800",
+          "referenceNumber": "0514376102947383",
+          "ticketCategory": "Regular",
+          "amountPaid": "10000",
+          "numberOfTickets": "5"
+        },
+        {
+          "objectId": "60a73c66b8bce667e4724d1d",
+          "eventRef": "60a73c92b8bce667e4724d23",
+          "name": "John Doe",
+          "email": "johndoe@example.com",
+          "phone": "+1122334455",
+          "dateOfPurchase": "2024-02-09:1100",
+          "referenceNumber": "0615092748163924",
+          "ticketCategory": "Regular",
+          "amountPaid": "15000",
+          "numberOfTickets": "2"
+        },
+        {
+          "objectId": "60a73c66b8bce667e4724d1e",
+          "eventRef": "60a73c92b8bce667e4724d24",
+          "name": "Lisa Green",
+          "email": "lisagreen@example.com",
+          "phone": "+9988776655",
+          "dateOfPurchase": "2024-02-10:1400",
+          "referenceNumber": "0716429372056295",
+          "ticketCategory": "VIP",
+          "amountPaid": "500000",
+          "numberOfTickets": "1"
+        },
+        {
+          "objectId": "60a73c66b8bce667e4724d1f",
+          "eventRef": "60a73c92b8bce667e4724d25",
+          "name": "David Brown",
+          "email": "davidbrown@example.com",
+          "phone": "+1122334455",
+          "dateOfPurchase": "2024-02-11:1600",
+          "referenceNumber": "0817530519402937",
+          "ticketCategory": "Regular",
+          "amountPaid": "20000",
+          "numberOfTickets": "3"
+        },
+        {
+          "objectId": "60a73c66b8bce667e4724d20",
+          "eventRef": "60a73c92b8bce667e4724d26",
+          "name": "Emily White",
+          "email": "emilywhite@example.com",
+          "phone": "+9988776655",
+          "dateOfPurchase": "2024-02-12:1800",
+          "referenceNumber": "0918641656739568",
+          "ticketCategory": "Regular",
+          "amountPaid": "30000",
+          "numberOfTickets": "2"
+        },
+        {
+          "objectId": "60a73c66b8bce667e4724d21",
+          "eventRef": "60a73c92b8bce667e4724d27",
+          "name": "Daniel Johnson",
+          "email": "danieljohnson@example.com",
+          "phone": "+1122334455",
+          "dateOfPurchase": "2024-02-13:2000",
+          "referenceNumber": "1019752794016398",
+          "ticketCategory": "VIP",
+          "amountPaid": "400000",
+          "numberOfTickets": "2"
+        }
+      ]
+      
+},
+    "nbHits":"10"
+}
+
+
