@@ -1,0 +1,28 @@
+import React from 'react';
+
+export const NotFoundIcon = () => {
+    return (
+        <svg
+            height={96}
+            id='icon'
+            viewBox='0 0 32 32'
+            width={96}
+            className='fill-primary'
+            xmlns='http://www.w3.org/2000/svg'
+        >
+            <defs>
+                <style dangerouslySetInnerHTML={{ __html: '.cls-1{fill:none;}' }} />
+            </defs>
+            <title />
+            <path d='M28,6h-.5859L30,3.4141,28.5859,2,2,28.5859,3.4141,30l4-4H28a2.0027,2.0027,0,0,0,2-2V19a1,1,0,0,0-1-1,2,2,0,0,1,0-4,1,1,0,0,0,1-1V8A2.0023,2.0023,0,0,0,28,6Zm0,6.1265a4,4,0,0,0,0,7.7465V24H21V21H19v3H9.4141L19,14.4141V19h2V12.4141L25.4141,8H28Z' />
+            <path d='M4,12.1265V8H19V6H4A2.0023,2.0023,0,0,0,2,8v5a1,1,0,0,0,1,1,2,2,0,0,1,0,4,1,1,0,0,0-1,1v5H4V19.873a4,4,0,0,0,0-7.7465Z' />
+            <rect
+                className='cls-1'
+                data-name='<Transparent Rectangle>'
+                height={32}
+                id='_Transparent_Rectangle_'
+                width={32}
+            />
+        </svg>
+    );
+};
