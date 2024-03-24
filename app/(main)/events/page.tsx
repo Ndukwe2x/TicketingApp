@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import * as React from 'react';
 import { Text } from '@/components/ui/text';
 import { Card, CardContent } from '@/components/ui/card';
 // import { DataTable } from '@/components/ui/data-table';
@@ -25,11 +25,11 @@ export default function Events() {
             {
                 events.length 
                     ? (
-                        <div className='row-with-4-cols gutters-3 nmx-3 flex flex-row flex-wrap'>
-                        {events.map((event, index) => <div className="px-3">
-                            <div className="mb-5"><EventCard event={event} key={index} /></div>
-                            </div>)}
-                        </div>
+                        <ul role='list' className='row-with-4-cols gutters-3 nmx-3 grid-cols-4 grid gap-5'>
+                        {events.map((event, index) => <li key={index}>
+                            <EventCard event={event} />
+                            </li>)}
+                        </ul>
                     ) : (
                         <div className="no-data text-center">
                             <Text variant='h3'>There are no events right now... </Text>
@@ -40,21 +40,4 @@ export default function Events() {
             }
         </div>
     )
-    // if (events.length) {
-    //         <div className='flex flex-col gap-5'>
-    //             <Text variant='h1'>Events</Text>
-    //             {
-    //                 events.map((event, index) => <EventCard event={event} key={index} />)
-    //             }
-    //         </div>
-    // } else {
-    //     return (
-    //         <div className='flex flex-col gap-5'>
-    //             <div className="no-data text-center">
-    //                 <Text variant='h3'>There are no events right now... </Text>
-    //                 <Text variant='p'>Looking for a particular event? Check back later.</Text>
-    //             </div>
-    //         </div>
-    //     );
-    // }
 }

@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { LoginForm } from './login-form';
+import * as React from 'react';
 
 export const metadata: Metadata = {
     title: 'Login',
@@ -8,6 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default function AuthenticationPage() {
+    
     return (
         <div className='lg:p-8'>
             <div className='mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]'>

@@ -9,22 +9,47 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Text, textVariants } from '@/components/ui/text';
 import Link from 'next/link';
+import { usePathname, useSearchParams, useRouter } from 'next/navigation';
+import { Api, HttpRequest } from '@/lib/api';
+import { Session } from "@/lib/session";
 
-export function RegisterForm() {
+export function LoginForm() {
+    const router = useRouter();
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
+    const [isSuccess, setIsSuccess] = React.useState<boolean>(false);
+    const [userId, setUserId] = React.useState<string>('');
+    const [pass, setPass] = React.useState<string>('');
+    const url = Api.server + Api.endpoints.admin.login;
+    
 
-    async function onSubmit(event: React.SyntheticEvent) {
+    const handleSubmit = async (event: React.SyntheticEvent) => {
         event.preventDefault();
         setIsLoading(true);
 
-        setTimeout(() => {
+        try {
+            const response = await HttpRequest(url, 'POST', {email: userId, password: pass});
+        
+            if (response.ok) {
+                response.json().then((data) => {
+                    localStorage.setItem('user', JSON.stringify(data));
+                    setIsLoading(false);
+                    setIsSuccess(true);
+                });
+                router.push('/dashboard');
+
+            } else {
+                // Error handling code...
+                setIsLoading(false);
+            }
+        } catch (error) {
             setIsLoading(false);
-        }, 3000);
+            console.error('Error logging in:', error);
+        }
     }
 
     return (
         <div className={cn('grid gap-6')}>
-            <form onSubmit={onSubmit}>
+            <form onSubmit={handleSubmit}>
                 <div className='grid gap-4'>
                     <div className='grid gap-2'>
                         <Label className='sr-only' htmlFor='email'>
@@ -38,6 +63,7 @@ export function RegisterForm() {
                             autoComplete='email'
                             autoCorrect='off'
                             disabled={isLoading}
+                            onChange={(ev) => setUserId(ev.target.value)}
                         />
 
                         <Label className='sr-only' htmlFor='email'>
@@ -50,11 +76,13 @@ export function RegisterForm() {
                             autoCapitalize='none'
                             autoCorrect='off'
                             disabled={isLoading}
+                            onChange={(ev) => setPass(ev.target.value)}
                         />
                     </div>
                     <Button disabled={isLoading}>
-                        {isLoading && <Icons.spinner className='mr-2 h-4 w-4 animate-spin' />}
-                        Sign Up
+                        {isLoading && <><Icons.spinner className='mr-2 h-4 w-4 animate-spin' /> Loading...</>}
+                        {isSuccess && <><Icons.userChecked className='mr-2 h-4 w-4 text-white' /> Successful</>}
+                        { ! (isLoading || isSuccess) && <span>Sign In</span> }
                     </Button>
                 </div>
             </form>
@@ -65,9 +93,9 @@ export function RegisterForm() {
                     textVariants({ asLabel: true })
                 )}
             >
-                <Text>Already have an account?</Text>
-                <Link href='/auth/login' className='text-primary underline'>
-                    Login
+                <Text>Don&apos;t have an account?</Text>
+                <Link href='/register' className='text-primary underline'>
+                    Sign Up
                 </Link>
             </div>
 
@@ -90,4 +118,3 @@ export function RegisterForm() {
         </div>
     );
 }
-
