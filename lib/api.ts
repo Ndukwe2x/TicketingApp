@@ -9,8 +9,8 @@ export const Api = {
             ticket: '/tickets/:id'
         },
         admin: {
-            auth: '/login',
-            createAccount: '/admin',
+            login: '/login',
+            register: '/admin',
             search: '/admin/accounts/search',
             singleUser: '/admin/accounts/:id',
             events: '/admin/events',
@@ -37,7 +37,7 @@ export const HttpRequest = async (
             "Content-Type": contentType ?? "application/json",
         },
         redirect: "follow",
-        referrerPolicy: "no-referrer",
+        referrerPolicy: "strict-origin-when-cross-origin",
         body: (data ? JSON.stringify(data) : null)
     }
 

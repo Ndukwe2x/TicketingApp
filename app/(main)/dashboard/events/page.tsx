@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import * as React from 'react';
 import { Text } from '@/components/ui/text';
 import { Card, CardContent } from '@/components/ui/card';
 import { DataTable } from '@/components/ui/data-table';
@@ -19,7 +19,7 @@ export default async function Events() {
         return;
     }, []);
 
-    if (result.length && typeof result.data.events !== 'undefined') {
+    if (result && typeof result.data !== 'undefined') {
         setEvents(result.data.events);
     }
 

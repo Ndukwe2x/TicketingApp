@@ -19,10 +19,13 @@ import {
     MenubarTrigger,
 } from '@/components/ui/menubar';
 import { HamburgerMenuIcon } from '@radix-ui/react-icons';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { AppLogo } from './app-logo';
 import { Cart } from './cart';
+import { Session } from "@/lib/session";
+import Image from 'next/image';
+import { NavbarUserDashboard } from './navbar-user-dashboard';
 
 const components: { title: string; href: string }[] = [
     {
@@ -76,8 +79,10 @@ export function MainNav() {
 
                     <DesktopNav />
                 </div>
-
-                <UserNav />
+                <div className='flex items-center gap-4'>
+                    <Cart />
+                    <NavbarUserDashboard />
+                </div>
             </div>
         </nav>
     );
@@ -135,16 +140,3 @@ function DesktopNav() {
     );
 }
 
-function UserNav() {
-    return (
-        <div className='flex items-center space-x-4'>
-            <Cart />
-            <Link href='/auth/login' className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 h-9 px-4 py-2">
-                Login
-            </Link>
-            <Link href='/auth/register' className='hidden md:block'>
-                Register
-            </Link>
-        </div>
-    );
-}
