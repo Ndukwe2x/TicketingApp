@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Session } from "@/lib/session";
+import { usePathname, useRouter } from "next/navigation";
+import { deleteCookie } from "cookies-next";
 import { 
     DropdownMenuGroup, 
     DropdownMenu, 
@@ -13,17 +12,13 @@ import {
 
 import Link from "next/link";
 import Image from "next/image";
+import { User } from "@/lib/logged-user";
+import { APPCONFIG } from "@/lib/app-config";
+import { MdArrowDropDown } from "react-icons/md";
 
 export const NavbarUserDashboard = () => {
-    const isAuthenticated = Session.isAuthenticated();
+    const isAuthenticated = User() ? true : false;
     const router = useRouter();
-
-    
-
-    const logout = () => {
-        localStorage.removeItem('user');
-        router.push('./login')
-    }
 
     return (
         isAuthenticated 
@@ -47,16 +42,14 @@ function AuthActions() {
     );
 }
 
-function ActiveUserDropdown({router}) {
-    const logout = () => {
-        localStorage.removeItem('user'); 
-        router.push('./login')
-    }
+function ActiveUserDropdown() {
+    const user = User();
+    
     return (
         <DropdownMenuGroup>
             <DropdownMenu>
                 <DropdownMenuTrigger>
-                    <Image src={'/user/'} alt='User' width={45} height={45}/>
+                    <span className="active-user flex gap-2 items-center">{ user.user.userEmail } <MdArrowDropDown /> </span>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                     <DropdownMenuItem>
@@ -65,7 +58,7 @@ function ActiveUserDropdown({router}) {
                         </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                        <Link href='#' onClick={logout} className='hidden md:block'>
+                        <Link href='/auth/logout' className='hidden md:block'>
                             Logout
                         </Link>
                     </DropdownMenuItem>

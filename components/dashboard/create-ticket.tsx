@@ -10,41 +10,42 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { MdSettings } from 'react-icons/md';
+import { MdAdd } from 'react-icons/md';
 import { Textarea } from '@/components/ui/textarea';
 
-export function AddCategory() {
+export function CreateTicket({eventRef}: {eventRef?: string}) {
     return (
         <Dialog>
-            <DialogTrigger>
-                <MdSettings />
+            <DialogTrigger className='border flex flex-row hover:bg-accent items-center px-3 py-1 rounded-md shadow text-sm'>
+                <MdAdd size={26} /> Add New Ticket
             </DialogTrigger>
             <DialogContent className='sm:max-w-md'>
                 <DialogHeader>
-                    <DialogTitle>Add Ticket Category</DialogTitle>
+                    <DialogTitle>Create Ticket</DialogTitle>
                 </DialogHeader>
                 <div className='flex flex-col gap-4 py-4'>
+                    {eventRef && <Input type='hidden' name='eventRef' value={ eventRef } /> }
                     <div className='flex flex-col gap-2'>
                         <Label htmlFor='title'>Title</Label>
-                        <Input id='title' placeholder='Category Title' />
+                        <Input id='title' name='title' placeholder='Ticket Title' />
+                    </div>
+                    <div className='flex flex-col gap-2'>
+                        <Label htmlFor='description'>Description</Label>
+                        <Textarea id='description' name='description' placeholder='About this category' />
                     </div>
                     <div className='flex gap-4'>
                         <div className='flex flex-col gap-2'>
                             <Label>No. of Persons</Label>
-                            <Input type='number' placeholder='10' />
+                            <Input type='number' name='no_of_persons' placeholder='10' />
                         </div>
                         <div className='flex flex-col gap-2'>
                             <Label>Price</Label>
-                            <Input placeholder='1000' />
+                            <Input type='number' name='price' placeholder='1000' />
                         </div>
-                    </div>
-                    <div className='flex flex-col gap-2'>
-                        <Label>Description</Label>
-                        <Textarea placeholder='About this category' />
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button type='submit'>Save Category</Button>
+                    <Button type='submit'>Save Ticket</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

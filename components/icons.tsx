@@ -145,17 +145,124 @@ export const Icons = {
             <path d='M21 12a9 9 0 1 1-6.219-8.56' />
         </svg>
     ),
-    userChecked: (props: IconProps) => (
+    user: (props: IconProps) => (
         <svg 
             xmlns="http://www.w3.org/2000/svg" 
             height="24px" 
             viewBox="0 0 24 24" 
             width="24px" 
-            fill="#ffffff">
+            fill="currentColor"
+            {...props}
+            >
             <path d="M0 0h24v24H0z" fill="none" fill-rule="evenodd"/>
             <g fill-rule="evenodd">
             <path d="M9 17l3-2.94c-.39-.04-.68-.06-1-.06-2.67 0-8 1.34-8 4v2h9l-3-3zm2-5c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4"/>
             <path d="M15.47 20.5L12 17l1.4-1.41 2.07 2.08 5.13-5.17 1.4 1.41z"/></g>
         </svg>
     ),
+    userChecked: (props: IconProps) => (
+        <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            height="24px" 
+            viewBox="0 0 24 24" 
+            width="24px" 
+            fill="currentColor"
+            {...props}
+            >
+            <path d="M0 0h24v24H0z" fill="none" fill-rule="evenodd"/>
+            <g fill-rule="evenodd">
+            <path d="M9 17l3-2.94c-.39-.04-.68-.06-1-.06-2.67 0-8 1.34-8 4v2h9l-3-3zm2-5c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4"/>
+            <path d="M15.47 20.5L12 17l1.4-1.41 2.07 2.08 5.13-5.17 1.4 1.41z"/></g>
+        </svg>
+    ),
+    layoutStack: (props: IconProps) => (
+        <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            height="24px" 
+            viewBox="0 0 24 24" 
+            width="24px" 
+            fill="currentColor"
+            {...props}
+            >
+            <path d="M0 0h24v24H0z" fill="none" fill-rule="evenodd"/>
+            <g fill-rule="evenodd">
+            <path d="M9 17l3-2.94c-.39-.04-.68-.06-1-.06-2.67 0-8 1.34-8 4v2h9l-3-3zm2-5c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4"/>
+            <path d="M15.47 20.5L12 17l1.4-1.41 2.07 2.08 5.13-5.17 1.4 1.41z"/></g>
+        </svg>
+    ),
+    layoutGrid: (props: IconProps) => (
+        <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            height="24px" 
+            viewBox="0 0 24 24" 
+            width="24px" 
+            fill="currentColor" {...props}>
+            <path d="M0 0h24v24H0z" fill="none" fill-rule="evenodd"/>
+            <g fill-rule="evenodd">
+            <path d="M9 17l3-2.94c-.39-.04-.68-.06-1-.06-2.67 0-8 1.34-8 4v2h9l-3-3zm2-5c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4"/>
+            <path d="M15.47 20.5L12 17l1.4-1.41 2.07 2.08 5.13-5.17 1.4 1.41z"/></g>
+        </svg>
+    ),
+    options: (props: IconProps) => (
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" 
+        width="24px" fill="currentColor" {...props}>
+            <path d="M0 0h24v24H0z" fill="none"/>
+            <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+        </svg>
+    ),
+    backward: (props: IconProps) => (
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" 
+        width="24px" fill="currentColor" {...props}>
+            <path d="M0 0h24v24H0z" fill="none"/>
+            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+        </svg>
+    ),
+    forward: (props: IconProps) => (
+        <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            height="24px" 
+            viewBox="0 0 24 24" 
+            width="24px" 
+            fill="currentColor" {...props}>
+                <path d="M0 0h24v24H0z" fill="none"/>
+                <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+        </svg>
+    ),
+    backwardIOS: (props: IconProps) => (
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" 
+        width="24px" fill="currentColor" {...props}>
+            <path d="M0 0h24v24H0z" fill="none"/>
+            <path d="M11.67 3.87L9.9 2.1 0 12l9.9 9.9 1.77-1.77L3.54 12z"/>
+        </svg>
+    ),
+    forwardIOS: (props: IconProps) => (
+        <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            enable-background="new 0 0 24 24" 
+            height="24px" viewBox="0 0 24 24" 
+            width="24px" fill="currentColor" {...props}>
+                <g><path d="M0,0h24v24H0V0z" fill="none"/></g>
+                <g><polygon points="6.23,20.23 8,22 18,12 8,2 6.23,3.77 14.46,12"/></g>
+        </svg>
+    ),
+    imagePlus: (props: IconProps) => (
+        <svg xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" 
+        viewBox="0 0 24 24" width="24px" fill="currentColor" {...props}>
+            <rect fill="none" height="24" width="24"/>
+            <path d="M3,4V1h2v3h3v2H5v3H3V6H0V4H3z M6,10V7h3V4h7l1.83,2H21c1.1,0,2,0.9,2,2v12c0,1.1-0.9,2-2,2H5c-1.1,0-2-0.9-2-2V10H6z M13,19c2.76,0,5-2.24,5-5s-2.24-5-5-5s-5,2.24-5,5S10.24,19,13,19z M9.8,14c0,1.77,1.43,3.2,3.2,3.2s3.2-1.43,3.2-3.2 s-1.43-3.2-3.2-3.2S9.8,12.23,9.8,14z"/></svg>
+    ),
+    plus: (props: IconProps) => (
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" 
+        fill="currentColor" {...props}>
+            <path d="M0 0h24v24H0z" fill="none"/>
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+        </svg>
+    ),
+    edit: (props: IconProps) => (
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" 
+        fill="currentColor" {...props}>
+            <path d="M0 0h24v24H0z" fill="none"/>
+            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+        </svg>
+    )
 };

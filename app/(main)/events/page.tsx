@@ -13,6 +13,8 @@ import { FilterTools } from '@/components/filter-tools';
 export default function Events() {
     const [result, setResult] = React.useState({});
     const {events, ...res} = getPublicEvents();
+
+    
     
 
     return (
