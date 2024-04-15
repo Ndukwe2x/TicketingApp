@@ -50,7 +50,7 @@ type Tickets = {
     numberOfTickets: number
 }
 
-type DashboardAttendees = {
+type DashboardUsers = {
     id: string;
     name: string;
     date: Date | string;
@@ -72,6 +72,19 @@ type DashboardSales = {
     dueDate: Date | string;
     admitted: boolean;
 };
+type Ticket = {
+    _id: string;
+    eventRef: string;
+    name: string;
+    email: string;
+    phone: string;
+    dateOfPurchase: string; //"2024-03-01T10:43:30.521Z",
+    ticketCategory: string;
+    amountPaid: number;
+    numberOfTickets: number;
+    referenceNo: number;
+    __v: 0
+}
 
 type DashboardSummaryItem = {
     value: number;
@@ -92,3 +105,31 @@ type FetchApiOptions = {
     redirect: string;
     referrerPolicy: string;
 }
+
+
+type UserInfo = {
+    email: string;
+    firstname: string;
+    lastname: string;
+    phone: string;
+    accountType: string;
+    eventRef: string[];
+    userStatus: string;
+    userRole: string;
+    avatar: string;
+    createdAt: Date | string;
+}
+
+type AuthInfo = {
+    user: {
+        userEmail: string;
+        firstName: string;
+        lastName: string;
+        userRole: string;
+        userStatus: string;
+    };
+    token: string;
+    isOwner: () => boolean;
+}
+
+type Callback = (param: Any) => void;

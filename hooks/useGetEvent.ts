@@ -1,8 +1,10 @@
-import { dummyEvents } from '@/lib/data';
+import NotFoundPage from '@/app/(main)/dashboard/[...not-found]/page';
+import { Api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 
-export const useGetEventById = (id: string) => {
-    const eventQuery = useQuery({ queryKey: ['events', id], queryFn: () => getEventById(id) });
+export const useGetEventById = (id: string, user: AuthInfo) => {
+    const eventQuery = useQuery({ queryKey: ['events', id], queryFn: () => getEventById(id, user) });
 
     const { data, ...rest } = eventQuery;
 
@@ -12,11 +14,20 @@ export const useGetEventById = (id: string) => {
     };
 };
 
-export const getEventById = async (id: string) => {
-    await new Promise((resolve)=> {
-        setTimeout(() => {
-            resolve(true)
-        }, 2000)
+export const getEventById = async (id: string, user: AuthInfo) => {
+    
+    const url = Api.server + Api.endpoints.admin.event;
+
+    // if (!(user && user.token)) {
+    //     // return NotFoundPage();
+    //     // return null;
+    // }
+    
+    url.replace(':id', id);
+    await axios.get(url, {
+        headers: {
+            Authorization: `Bearer ${user.token}`,
+        }
     })
-    return dummyEvents.find((event) => event.id === id);
+    // return dummyEvents.find((event) => event.id === id);
 };

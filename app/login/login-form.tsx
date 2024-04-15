@@ -11,35 +11,39 @@ import { Text, textVariants } from '@/components/ui/text';
 import Link from 'next/link';
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
 import { Api, HttpRequest } from '@/lib/api';
-import { Session } from "@/lib/session";
+import axios from 'axios';
+import * as CookiesNext from 'cookies-next';
+import { APPCONFIG } from '@/lib/app-config';
 
 export function LoginForm() {
     const router = useRouter();
+    const route = usePathname();
+    const searchParams = useSearchParams();
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
     const [isSuccess, setIsSuccess] = React.useState<boolean>(false);
     const [userId, setUserId] = React.useState<string>('');
     const [pass, setPass] = React.useState<string>('');
     const url = Api.server + Api.endpoints.admin.login;
-    
 
     const handleSubmit = async (event: React.SyntheticEvent) => {
         event.preventDefault();
         setIsLoading(true);
 
         try {
-            const response = await HttpRequest(url, 'POST', {email: userId, password: pass});
-        
-            if (response.ok) {
-                response.json().then((data) => {
-                    localStorage.setItem('user', JSON.stringify(data));
-                    setIsLoading(false);
-                    setIsSuccess(true);
-                });
-                router.push('/dashboard');
+            const response = await axios.post(url, {email: userId, password: pass});
+            if (response.status === 200) {
+                console.log('', typeof response.data);
+                CookiesNext.setCookie('app_user', JSON.stringify(response.data), APPCONFIG.cookieOptions);
 
-            } else {
-                // Error handling code...
                 setIsLoading(false);
+                setIsSuccess(true);
+                let nextDestination = searchParams.get('redir');
+                console.log(nextDestination);
+                if (nextDestination) {
+                    router.push(nextDestination)
+                } else {
+                    router.push('/');
+                }
             }
         } catch (error) {
             setIsLoading(false);

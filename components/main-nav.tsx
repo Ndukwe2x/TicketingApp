@@ -22,10 +22,10 @@ import { HamburgerMenuIcon } from '@radix-ui/react-icons';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { AppLogo } from './app-logo';
-import { Cart } from './cart';
-import { Session } from "@/lib/session";
-import Image from 'next/image';
 import { NavbarUserDashboard } from './navbar-user-dashboard';
+import DataCreatorButton from './buttons/data-creator-button';
+import CreateUserButton from './buttons/create-user';
+import CreateEventButton from './buttons/create-event';
 
 const components: { title: string; href: string }[] = [
     {
@@ -69,18 +69,17 @@ export function MainNav() {
                 hasScrolled && 'shadow-md bg-background'
             )}
         >
-            <div className='flex items-center justify-between p-4 max-w-7xl mx-auto'>
+            <div className='flex items-center justify-between p-4 px-8 mx-auto'>
                 <div className='flex items-center gap-4'>
-                    <MobileNav />
-
                     <Link href='/'>
                         <AppLogo />
                     </Link>
-
-                    <DesktopNav />
                 </div>
-                <div className='flex items-center gap-4'>
-                    <Cart />
+                <div className='flex items-center gap-10'>
+                    <div className='flex flex-row items-center gap-6'>
+                        <CreateUserButton />
+                        <CreateEventButton />
+                    </div>
                     <NavbarUserDashboard />
                 </div>
             </div>

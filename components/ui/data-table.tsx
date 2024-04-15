@@ -60,16 +60,16 @@ export function DataTable<TData, TValue>({ columns, data, fallback }: DataTableP
 
     return (
         <div className='w-full'>
-            {/*<div className='flex items-center pb-4'>
+            <div className='flex items-center pb-4'>
                 <Input
                     placeholder='Filter...'
                     value={(table.getColumn('email')?.getFilterValue() as string) ?? ''}
                     onChange={(event) =>
                         table.getColumn('email')?.setFilterValue(event.target.value)
                     }
-                    className='max-w-sm'
+                    // className='max-w-sm'
                 />
-            </div>*/}
+            </div>
             <div className='overflow-auto'>
                 <Table className='min-w-[50rem]'>
                     <TableHeader>
@@ -146,11 +146,15 @@ export function DataTable<TData, TValue>({ columns, data, fallback }: DataTableP
     );
 }
 
-export function DataTableLoading() {
+export function DataTableLoading({columnCount}: {columnCount: number}) {
+    let columns = [];
+    for (let i = 0; i < columnCount; i++) {
+        columns.push(i);      
+    }
     return (
         <div>
             <div className='flex gap-4'>
-                {Array.from([1, 2, 3, 4, 5]).map((i) => (
+                {columns.map((i) => (
                     <Skeleton key={i} className='w-full h-6' />
                 ))}
             </div>

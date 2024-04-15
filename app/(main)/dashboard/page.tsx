@@ -5,10 +5,10 @@ import { Text } from '@/components/ui/text';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { SummaryCardList } from '@/components/dashboard/summary-card-list';
 import { getDashboardSummary } from '@/hooks/useGetDashboard';
-import { SalesTable } from './sales-table';
+// import { SalesTable } from '../tickets/page';
 import { DataTableLoading } from '@/components/ui/data-table';
-import { AddTicket } from '@/components/dashboard/add-ticket';
-import { AddCategory } from '@/components/dashboard/add-category';
+import { AddTicket } from '@/components/dashboard/old-add-ticket';
+import { AddCategory } from '@/components/dashboard/create-ticket';
 
 
 export default async function Dashboard() {
@@ -26,7 +26,7 @@ export default async function Dashboard() {
                 </CardHeader>
                 <CardContent className='overflow-auto'>
                     <Suspense fallback={<DataTableLoading />}>
-                        <SalesTable />
+                        {/* <SalesTable /> */}
                     </Suspense>
                 </CardContent>
             </Card>

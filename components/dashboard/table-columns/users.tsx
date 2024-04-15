@@ -12,39 +12,71 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { CaretSortIcon, DotsVerticalIcon } from '@radix-ui/react-icons';
-import { formatDate } from '@/lib/utils';
+import { formatDate, formatNumber, humanReadableDateFormat } from '@/lib/utils';
+import { Icons } from '@/components/icons';
+import Image from 'next/image';
+import styles from '@/components/styles/styles.module.css';
 
-export const columns: ColumnDef<DashboardAttendees>[] = [
+export const columns: ColumnDef<UserInfo | []>[] = [
     {
-        accessorKey: 'name',
-        header: 'Name',
-        cell: ({ row }) => <div className='capitalize'>{row.getValue('name')}</div>,
+        accessorKey: 'avatar',
+        header: () => {
+            return <Icons.user />
+        },
+        cell: ({ row }) => <div className='capitalize'>
+            {/* <Image src={ row.getValue('avatar') } width='45' height='45' alt={ row.getValue('firstname') + ' ' + row.getValue('lastname') } className={ styles.avatar} /> */}
+        </div>,
     },
     {
-        accessorKey: 'date',
+        accessorKey: 'firstname',
+        header: 'Firstname',
+        cell: ({ row }) => <div className='capitalize'>{row.getValue('firstname')}</div>,
+    },
+    {
+        accessorKey: 'lastname',
+        header: 'Lastname',
+        cell: ({ row }) => <div className='capitalize'>{row.getValue('lastname')}</div>,
+    },
+    {
+        accessorKey: 'email',
+        header: 'Email',
+        cell: ({ row }) => <div className='capitalize'>{row.getValue('email')}</div>,
+    },
+    {
+        accessorKey: 'phone',
+        header: 'Phone',
+        cell: ({ row }) => <div className='capitalize'>{row.getValue('phone')}</div>,
+    },
+    {
+        accessorKey: 'accountType',
         header: ({ column }) => {
             return (
                 <div
                     className='flex gap-2 items-center cursor-pointer'
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
                 >
-                    Date/Time
+                    Account Type
                     <CaretSortIcon className='ml-2 h-4 w-4' />
                 </div>
             );
         },
-        cell: ({ row }) => <div>{formatDate(row.getValue('date'), 'MMM DD YYYY, hh:mm A')}</div>,
+        cell: ({ row }) => <div className='capitalize'>{row.getValue('accountType') }</div>,
     },
     {
-        accessorKey: 'totalEvents',
-        header: 'Total Events',
-        cell: ({ row }) => <div>{row.getValue('totalEvents')}</div>,
-    },
-    {
-        accessorKey: 'status',
-        header: 'Account Status',
+        accessorKey: 'userStatus',
+        header: ({ column }) => {
+            return (
+                <div
+                    className='flex gap-2 items-center cursor-pointer'
+                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+                >
+                    User Status
+                    <CaretSortIcon className='ml-2 h-4 w-4' />
+                </div>
+            );
+        },
         cell: ({ row }) => {
-            const status = row.getValue('status') as DashboardAttendees['status'];
+            const status = row.getValue('userStatus') as UserInfo['userStatus'];
 
             return (
                 <div className='flex gap-1 flex-wrap'>
@@ -61,6 +93,50 @@ export const columns: ColumnDef<DashboardAttendees>[] = [
             );
         },
     },
+    {
+        accessorKey: 'eventRef',
+        header: 'Total Events',
+        cell: ({ row }) => {
+            const userEvents = row.getValue('eventRef') as UserInfo['eventRef'];
+            return (<div>{ userEvents.length }</div>)
+        },
+    },
+    {
+        accessorKey: 'createdAt',
+        header: ({ column }) => {
+            return (
+                <div
+                    className='flex gap-2 items-center cursor-pointer'
+                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+                >
+                    Date/Time
+                    <CaretSortIcon className='ml-2 h-4 w-4' />
+                </div>
+            );
+        },
+        cell: ({ row }) => <div>{humanReadableDateFormat(row.getValue('createdAt'))}</div>,
+    },
+    // {
+    //     accessorKey: 'userStatus',
+    //     header: 'Account Status',
+    //     cell: ({ row }) => {
+    //         const status = row.getValue('userStatus') as UserInfo['userStatus'];
+
+    //         return (
+    //             <div className='flex gap-1 flex-wrap'>
+    //                 <div
+    //                     className={`px-2 py-1 rounded-full text-xs ${
+    //                         status === 'active'
+    //                             ? 'bg-green-100 text-green-800'
+    //                             : 'bg-red-100 text-red-800'
+    //                     }`}
+    //                 >
+    //                     {status}
+    //                 </div>
+    //             </div>
+    //         );
+    //     },
+    // },
     {
         id: 'actions',
         enableHiding: false,
