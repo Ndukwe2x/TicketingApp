@@ -14,7 +14,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { User } from "@/lib/logged-user";
 import { APPCONFIG } from "@/lib/app-config";
-import { MdArrowDropDown } from "react-icons/md";
+import { MdAccountCircle, MdArrowDropDown, MdImage, MdVerifiedUser } from "react-icons/md";
+import { DropdownMenuLabel, DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 
 export const NavbarUserDashboard = () => {
     const isAuthenticated = User() ? true : false;
@@ -46,19 +47,25 @@ function ActiveUserDropdown() {
     const user = User();
     
     return (
-        <DropdownMenuGroup>
+        <DropdownMenuGroup className="flex items-center">
             <DropdownMenu>
-                <DropdownMenuTrigger>
-                    <span className="active-user flex gap-2 items-center">{ user.user.userEmail } <MdArrowDropDown /> </span>
+                <DropdownMenuTrigger className="outline-none">
+                    <span className="active-user flex gap-2 items-center">
+                        <MdAccountCircle size={40} className="text-primary" />
+                    </span>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
+                    <DropdownMenuLabel className="px-3 py-2">
+                        <span className="hidden md:inline">{ user.user.userEmail }</span> 
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator className="border-b" />
                     <DropdownMenuItem>
-                        <Link href='/user/profile' className='hidden md:block'>
+                        <Link href='/user/profile'>
                             Profile
                         </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                        <Link href='/auth/logout' className='hidden md:block'>
+                        <Link href='/auth/logout'>
                             Logout
                         </Link>
                     </DropdownMenuItem>

@@ -126,3 +126,10 @@
     background-color: rgb(0 0 0 / 71%);
     color: #fff !important;
 }
+.px-1 {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+}
+@media screen and (min-width: 1024px) {
+    
+}

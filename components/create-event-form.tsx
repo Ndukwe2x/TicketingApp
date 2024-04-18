@@ -1,63 +1,51 @@
-import React, { MouseEvent, ReactHTMLElement } from "react"
-import { Button } from "../ui/button"
-import Modal from "../ui/modal";
-import { Label } from "../ui/label";
-import { Input } from "../ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import React from "react";
+import { Button } from "./ui/button";
+import { Label } from "./ui/label";
+import { Input } from "./ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Api } from "@/lib/api";
-import { Text } from "../ui/text";
-import { Textarea } from "../ui/textarea";
-import { ButtonIcon } from "@radix-ui/react-icons";
-import { Icons } from "../icons";
-import styles from '../styles/styles.module.css';
-import MediaUploader from "./media-uploader-2";
+import { Text } from "./ui/text";
+import { Icons } from "./icons";
+import styles from './styles/styles.module.css';
+import MediaUploader from "./buttons/media-uploader-2";
 import axios from "axios";
 import { User } from "@/lib/logged-user";
-import { Checkbox } from "../ui/checkbox";
-import Link from "next/link";
-import { MdCalendarViewDay, MdCalendarViewMonth, MdCalendarViewWeek, MdEditCalendar, MdEvent, MdPermContactCalendar } from "react-icons/md";
+import { Checkbox } from "./ui/checkbox";
+import { v4 as uuidv4 } from 'uuid';
 
-const CreateEventButton = () => {
-    const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-
-    const initDialog = () => {
-        setIsDialogOpen(true);
-    }
-
-    const handleClose = () => {
-        setIsDialogOpen(false);
-    }
-
-    const handleSave = () => {
-        setIsDialogOpen(false);
-    }
-
-    return (
-        <>
-            <Modal title="Create Event" 
-                displayText={ <Link href={'#'} onClick={ () => initDialog() } className="bg-primary border border-primary flex flex-row gap-1.5 hover:bg-primary/90 items-end px-4 py-2 rounded-full text-white">
-                    <MdEvent size={26} />
-                    Create Event</Link> 
-                } 
-                content={ <ModalContent /> } 
-                onSave={ handleSave } 
-                onClose={ handleClose }
-                style={ { width: '40rem' } } />
-        </>
-    )
-}
-
-const ModalContent = () => {
+const CreateEventForm = () => {
     const [isFirstPage, setIsFirstPage] = React.useState<boolean>(true);
     const [isLastPage, setIsLastPage] = React.useState<boolean>(false);
     const [isCurrentPageCompleted, setIsCurrentPageCompleted] = React.useState<boolean>(false);
-    // const [eventTitle, setEventTitle] = React.useState<string>('');
     const [pageNumber, setPageNumber] = React.useState(1);
     const pageBaseClass = styles.event_form_page;
     const pageActiveClass = styles.current;
     const currentPageSelector = `.${pageBaseClass}.${pageActiveClass}`;
-    const allPages = () => document.querySelectorAll(`.${pageBaseClass}`);
     const dynamicCurrentPage = () => document.querySelector(currentPageSelector);
+    const [pages, setPages] = React.useState<Array<Element>>([]);
+    const [pageCount, setPageCount] = React.useState(1);
+    const formId = 'event-form_' + uuidv4();
+    const [eventTitle, setEventTitle] = React.useState('');
+
+    React.useEffect(() => {
+        const updatePages = () => {
+            const pageElements = document.querySelectorAll(`.${pageBaseClass}`);
+            setPages(Array.from(pageElements));
+            setPageCount(pageElements.length);
+        };
+
+        updatePages();
+
+        const observer = new MutationObserver(updatePages);
+        const config = { childList: true, subtree: true };
+        const targetNode = document.getElementById(formId);
+
+        observer.observe(targetNode, config);
+
+        return () => {
+            observer.disconnect();
+        };
+    }, []);
 
     const getInputsFromCurrentPage = () => {
         const fieldList = 'input:not([type="file"]), textarea, select';
@@ -100,15 +88,15 @@ const ModalContent = () => {
         updatePageStatus();
         setIsFirstPage(false);
 
-        const pagesArr = Array.from(allPages());
+        const pagesArr = Array.from(pages);
         if (pagesArr.pop()?.id == dynamicCurrentPage()?.id) {
             setIsLastPage(true)
         } else {
             setIsLastPage(false)
         }
         setPageNumber(state => {
-            if (state >= allPages().length) {
-                state = allPages().length;
+            if (state >= pageCount) {
+                state = pageCount;
             } else {
                 state += 1
             }
@@ -125,7 +113,7 @@ const ModalContent = () => {
         updatePageStatus();
         setIsLastPage(false);
 
-        const pagesArr = Array.from(allPages());
+        const pagesArr = Array.from(pages);
         if (pagesArr[0]?.id == dynamicCurrentPage()?.id) {
             setIsFirstPage(true);
         } else {
@@ -353,10 +341,10 @@ const ModalContent = () => {
 
     return (
         <>
-            <form id="event-form" action={ Api.server + Api.endpoints.admin.events } method="post" onSubmit={ handleSubmit }>
+            <form id={ formId } action={ Api.server + Api.endpoints.admin.events } method="post" onSubmit={ handleSubmit }>
                 <div className='flex flex-col gap-4 py-4'>
                     <div>
-                        <Text variant='p'>Step { pageNumber } of { allPages().length }</Text>
+                        <Text variant='p'>Step { pageNumber } of { pageCount }</Text>
                     </div>
                     <div id="event-form_page_a" className={ `${pageBaseClass} ${pageActiveClass} flex flex-col gap-4 flex-1`}>
                         <Text variant='h3'>Basic Info</Text>
@@ -364,12 +352,39 @@ const ModalContent = () => {
                             <Label htmlFor='title'>Title:</Label>
                             <Input id='title' name="title" onInput={ (ev) => { setEventTitle(ev.target.value); updatePageStatus(); return }} type='text' className="input h-14 text-lg" placeholder='The Big Friday Nights Party' />
                         </div>
-                        <div className='flex flex-col gap-2'>
+                        <div className="flex flex-col gap-4">
+                            <div className="flex flex-row flex-1 gap-4">
+                                <div className='flex flex-col gap-2 flex-1'>
+                                    <Label htmlFor='date'>Date:</Label>
+                                    <Input id='date' name="eventDate" type='date'  onInput={ () => updatePageStatus() } />
+                                </div>
+                                <div className='flex flex-col gap-2 flex-1'>
+                                    <Label htmlFor='time'>Time:</Label>
+                                    <Input id='time' name="time" type='time' onInput={ () => updatePageStatus() } />
+                                </div>
+                            </div>
+                            <div className="flex flex-col flex-1 gap-4">
+                                <div className='flex flex-col gap-2'>
+                                    <Label htmlFor='state'>State/Region:</Label>
+                                    <Input id='state' name="state" placeholder="State/Region:" onInput={ () => updatePageStatus() } />
+                                </div>
+                                <div className='flex flex-col gap-2'>
+                                    <Label htmlFor='city'>Town/City:</Label>
+                                    <Input id='city' name="city" placeholder="Town/City:" onInput={ () => updatePageStatus() } />
+                                </div>
+                                <div className='flex flex-col gap-2'>
+                                    <Label htmlFor='address'>Address:</Label>
+                                    <Input id='address' name="address" placeholder="Street address:" onInput={ () => updatePageStatus() } />
+                                </div>
+                            </div>
+                        </div>
+                        {/* <div className='flex flex-col gap-2'>
                             <Label htmlFor='description'>Description:</Label>
                             <Textarea id="description" name="description" rows={ 6 } onInput={ () => updatePageStatus() } className="input text-md" placeholder="Event description..."></Textarea>
                             <Text variant='p' className="text-muted-foreground text-xs" style={ { marginTop: '0' }}>Describe this event so that people will understand what the event is all about</Text>
-                        </div>
-                        <div className='flex flex-row gap-6'>
+                        </div> */}
+
+                        {/* <div className='flex flex-row gap-6'>
                             <div className="flex flex-col flex-1 gap-2">
                                 <Label>Category</Label>
                                 <Select name="event_category" onValueChange={ () => updatePageStatus() }>
@@ -400,38 +415,9 @@ const ModalContent = () => {
                                 </Select>
                                 <Text variant='p' className="text-muted-foreground text-xs" style={ { marginTop: '0' }}>Categorize the event to make it easy for people to discover.</Text>
                             </div>
-                        </div>
+                        </div> */}
                     </div>
                     <div id="event-form_page_b" className={ `${pageBaseClass} flex flex-col gap-4 flex-1` }>
-                        <Text variant='h4'>Date & Venue:</Text>
-                        <div className="flex flex-col gap-4">
-                            <div className="flex flex-row flex-1 gap-4">
-                                {/* <div className='flex flex-col gap-2 flex-1'>
-                                    <Label htmlFor='date'>Date:</Label>
-                                    <Input id='date' name="eventDate" type='date'  onInput={ () => updatePageStatus() } />
-                                </div> */}
-                                <div className='flex flex-col gap-2 flex-1'>
-                                    <Label htmlFor='time'>Time:</Label>
-                                    <Input id='time' name="time" type='time' onInput={ () => updatePageStatus() } />
-                                </div>
-                            </div>
-                            <div className="flex flex-col flex-1 gap-4">
-                                <div className='flex flex-col gap-2'>
-                                    <Label htmlFor='state'>State/Region:</Label>
-                                    <Input id='state' name="state" placeholder="State/Region:" onInput={ () => updatePageStatus() } />
-                                </div>
-                                <div className='flex flex-col gap-2'>
-                                    <Label htmlFor='city'>Town/City:</Label>
-                                    <Input id='city' name="city" placeholder="Town/City:" onInput={ () => updatePageStatus() } />
-                                </div>
-                                <div className='flex flex-col gap-2'>
-                                    <Label htmlFor='address'>Address:</Label>
-                                    <Input id='address' name="address" placeholder="Street address:" onInput={ () => updatePageStatus() } />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="event-form_page_c" className={ `${pageBaseClass} flex flex-col gap-4 flex-1` }>
                         <Text variant='h4'>Event banner:</Text>
                         <div className='flex flex-col gap-2'>
                             <div id='banner-box' className={ styles.banner_box }>
@@ -444,7 +430,7 @@ const ModalContent = () => {
                             {/* Accepts permalink to the banner image */}
                         </div>
                     </div>
-                    <div id="event-form_page_d" className={ `${pageBaseClass} flex flex-col gap-4 flex-1` }>
+                    <div id="event-form_page_c" className={ `${pageBaseClass} flex flex-col gap-4 flex-1` }>
                         <Text variant='h4'>Event posters:</Text>
                         <div className='flex flex-col gap-2'>
                             <div id="posters" className="poster-groups gap-3 grid grid-cols-3">
@@ -453,7 +439,7 @@ const ModalContent = () => {
                             </div>
                         </div>
                     </div>
-                    <div id="event-form_page_e" className={ `${pageBaseClass} flex flex-col gap-4 flex-1` }>
+                    <div id="event-form_page_d" className={ `${pageBaseClass} flex flex-col gap-4 flex-1` }>
                         <Text variant='h4'>Event Featuring</Text>
                         <div className='flex flex-col gap-2'>
                             <Label htmlFor='featured'><Checkbox id='featured' name="featured" value='true' /> Feature this event</Label>
@@ -470,12 +456,4 @@ const ModalContent = () => {
     )
 }
 
-// npm i @cloudinary/url-gen @cloudinary/react
-
-// import {Cloudinary} from "@cloudinary/url-gen";
-
-// const App = () => {
-//   const cld = new Cloudinary({cloud: {cloudName: 'dtuznvywy'}});
-// };
-
-export default CreateEventButton;
+export default CreateEventForm;

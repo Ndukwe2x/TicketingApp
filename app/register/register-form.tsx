@@ -10,8 +10,11 @@ import { Button } from '@/components/ui/button';
 import { Text, textVariants } from '@/components/ui/text';
 import Link from 'next/link';
 import { usePathname, useSearchParams, useRouter } from 'next/navigation';
-import { Api, HttpRequest } from '@/lib/api';
+import { Api } from '@/lib/api';
 import { Toaster } from '@/components/ui/sonner';
+import axios from 'axios';
+import { setCookie } from 'cookies-next';
+import { validateForm } from '@/lib/form-validator';
 
 export function RegisterForm() {
     const router = useRouter();
@@ -25,109 +28,160 @@ export function RegisterForm() {
         // if (!navigator.onLine) {
         //     return (<Toaster />)
         // }
+        const form = ev.target;
+        const validationRules = {
+            'firstname': 'required|min:3|max:45',
+            'lastname': 'required|min:3:Lastname can not be less than 3 characters.|max:45',
+        }
+        let {validated, errors} = validateForm(form, validationRules);
+        
+        if ( !validated ) {
+            // Show the error fields
+            return false;
+        }
         setIsLoading(true);
-
-        const formData = new FormData(ev.target);
         
-        formData.forEach((value, key) => {
-            if (key.search(/name/)) {
-                key.replace(/name/, 'Name');
-            }
-            userData[key] = value;
-        });
-
-        try {
-            const response = await HttpRequest(url, 'POST', userData);
+        // const formData = new FormData(form);
         
-            if (response.ok) {
-                response.json().then((data) => {
-                    localStorage.setItem('user', JSON.stringify(data));
-                    setIsLoading(false);
-                    setIsSuccess(true);
-                });
-                router.push('/');
+        // formData.forEach((value, key) => {
+        //     console.log(value);
+        //     if (key.search(/name/)) {
+        //         key.replace(/name/, 'Name');
+        //     }
+        //     userData[key] = value;
+        // });
+        // return false;
+        // try {
+            
+        
+            // if (response.ok) {
+            //     response.json().then((data) => {
+            //         localStorage.setItem('user', JSON.stringify(data));
+            //         setIsLoading(false);
+            //         setIsSuccess(true);
+            //     });
+            //     router.push('/');
 
-            } else {
+            // } else {
                 // Failure feedback...
+            //     setIsLoading(false);
+            // }
+        // } catch (error) {
+        //     setIsLoading(false);
+        //     console.error('Error logging in:', error);
+            // return (<FormFeedback />);
+        // }
+        axios.post(url, validated)
+        .then(
+            response => {
+                const data = response.data();
+                setCookie('app_user', JSON.stringify(data));
+                setIsLoading(false);
+                setIsSuccess(true);
+                router.push('/');
+            }, 
+            error => {
                 setIsLoading(false);
             }
-        } catch (error) {
+        )
+        .catch( error => {
             setIsLoading(false);
-            console.error('Error logging in:', error);
-            // return (<FormFeedback />);
-        }
+        })
     }
 
     return (
         <div className={cn('grid gap-6')}>
             <form onSubmit={handleSubmit}>
                 <div className='grid gap-4'>
-                    <div className='grid gap-2'>
-                        <Label className='sr-only' htmlFor='firstname'>
-                            First Name:
-                        </Label>
-                        <Input
-                            id='firstname'
-                            name='firstName'
-                            placeholder='First Name:'
-                            type='text'
-                            autoCapitalize='none'
-                            autoComplete='firstName'
-                            autoCorrect='off'
-                            disabled={isLoading}
-                        />
-                        <Label className='sr-only' htmlFor='lastname'>
-                            Last Name:
-                        </Label>
-                        <Input
-                            id='lastname'
-                            name='lastName'
-                            placeholder='Last Name:'
-                            type='text'
-                            autoCapitalize='none'
-                            autoComplete='lastName'
-                            autoCorrect='off'
-                            disabled={isLoading}
-                        />
-                        <Label className='sr-only' htmlFor='email'>
-                            Email
-                        </Label>
-                        <Input
-                            id='email'
-                            name='email'
-                            placeholder='Email:'
-                            type='email'
-                            autoCapitalize='none'
-                            autoComplete='email'
-                            autoCorrect='off'
-                            disabled={isLoading}
-                        />
-                        <Label className='sr-only' htmlFor='phone'>
-                            Phone
-                        </Label>
-                        <Input
-                            id='phone'
-                            name='phone'
-                            placeholder='Phone:'
-                            type='phone'
-                            autoCapitalize='none'
-                            autoComplete='phone'
-                            autoCorrect='off'
-                            disabled={isLoading}
-                        />
-
-                        <Label className='sr-only' htmlFor='password'>
-                            Password
-                        </Label>
-                        <Input
-                            id='password'
-                            name='password'
-                            placeholder='Password'
-                            type='password'
-                            autoCapitalize='none'
-                            autoCorrect='off'
-                            disabled={isLoading}
-                        />
+                    <div className='flex flex-col gap-4'>
+                        <div className='flex flex-col'>
+                            <Label className='sr-only' htmlFor='firstname'>
+                                First Name:
+                            </Label>
+                            <Input
+                                id='firstname'
+                                name='firstname'
+                                placeholder='First Name:'
+                                type='text'
+                                autoCapitalize='none'
+                                autoComplete='firstname'
+                                autoCorrect='off'
+                                disabled={isLoading}
+                            />
+                        </div>
+                        <div className='flex flex-col'>
+                            <Label className='sr-only' htmlFor='lastname'>
+                                Last Name:
+                            </Label>
+                            <Input
+                                id='lastname'
+                                name='lastname'
+                                placeholder='Last Name:'
+                                type='text'
+                                autoCapitalize='none'
+                                autoComplete='lastname'
+                                autoCorrect='off'
+                                disabled={isLoading}
+                            />
+                        </div>
+                        <div className='flex flex-col'>
+                            <Label className='sr-only' htmlFor='email'>
+                                Email
+                            </Label>
+                            <Input
+                                id='email'
+                                name='email'
+                                placeholder='Email:'
+                                type='email'
+                                autoCapitalize='none'
+                                autoComplete='email'
+                                autoCorrect='off'
+                                disabled={isLoading}
+                            />
+                        </div>
+                        <div className='flex flex-col'>
+                            <Label className='sr-only' htmlFor='phone'>
+                                Phone
+                            </Label>
+                            <Input
+                                id='phone'
+                                name='phone'
+                                placeholder='Phone:'
+                                type='phone'
+                                autoCapitalize='none'
+                                autoComplete='phone'
+                                autoCorrect='off'
+                                disabled={isLoading}
+                            />
+                        </div>
+                        <div className='flex flex-col'>
+                            <Label className='sr-only' htmlFor='password'>
+                                Password
+                            </Label>
+                            <Input
+                                id='password'
+                                name='password'
+                                placeholder='Password'
+                                type='password'
+                                autoCapitalize='none'
+                                autoCorrect='off'
+                                disabled={isLoading}
+                            />
+                        </div>
+                        <div className='flex flex-col'>
+                            <Label className='sr-only' htmlFor='password'>
+                                Re-Password
+                            </Label>
+                            <Input
+                                id='re_password'
+                                name='re_password'
+                                placeholder='Re-Password'
+                                type='password'
+                                autoCapitalize='none'
+                                autoCorrect='off'
+                                disabled={isLoading}
+                            />
+                        </div>
                     </div>
                     <Button disabled={isLoading}>
                         {isLoading && <><Icons.spinner className='mr-2 h-4 w-4 animate-spin' /> Loading...</>}
@@ -144,7 +198,7 @@ export function RegisterForm() {
                 )}
             >
                 <Text>Already have an account?</Text>
-                <Link href='/auth/login' className='text-primary underline'>
+                <Link href='/login' className='text-primary underline'>
                     Login
                 </Link>
             </div>
@@ -168,4 +222,3 @@ export function RegisterForm() {
         </div>
     );
 }
-

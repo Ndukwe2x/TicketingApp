@@ -13,25 +13,15 @@ import {User} from '@/lib/logged-user';
 
 export const DashboardNav = () => {
     const user = User();
-    const [open, toggleOpen] = useReducer((state) => !state, true);
 
     return (
-        <div id='dashboard-navigation' className={cn('w-14 lg:w-48 transition-[width]', open ? 'lg:w-48 expanded' : 'lg:w-16 collapsed')}>
+        <div id='dashboard-navigation' className={cn('transition-[width] lg:flex expanded')}>
             <div className='fixed top-16'>
-                <div
-                    className='absolute top-10 -right-3 bg-white border p-1 rounded-full hidden lg:block cursor-pointer'
-                    onClick={toggleOpen}
-                >
-                    <ChevronRightIcon
-                        className={cn('w-4 h-4 transition-all', open && 'rotate-180')}
-                    />
-                </div>
-
-                <nav className='pt-5 pr-2 lg:pr-7 border-r h-[90vh] flex flex-col gap-3'>
+                <nav className='py-8 px-4 lg:px-8 border-r h-[90vh] flex flex-col gap-3'>
                     {
                         user && user.token && user.user.userStatus === 'owner'
-                        ? displayMenu(ownerNavItems, open) 
-                        : displayMenu(userNavItems, open)
+                        ? displayMenu(ownerNavItems) 
+                        : displayMenu(userNavItems)
                     }
                 </nav>
             </div>
@@ -43,8 +33,9 @@ type NavItem = { title: string; href: string; icon: React.ReactNode };
 const ownerNavItems: NavItem[] = [
     { title: 'Dashboard', href: '/', icon: <MdHomeFilled /> },
     { title: 'Events', href: '/events', icon: <MdEvent /> },
+    { title: 'Tickets', href: '/tickets', icon: <FaMoneyBills /> },
     { title: 'Users', href: '/users', icon: <HiMiniUsers /> },
-    { title: 'Employees', href: '/users/employees', icon: <HiOfficeBuilding /> },
+    // { title: 'Employees', href: '/users/employees', icon: <HiOfficeBuilding /> },
 ];
 
 const userNavItems: NavItem[] = [
@@ -54,7 +45,7 @@ const userNavItems: NavItem[] = [
     { title: 'Team', href: '/team', icon: <HiMiniUsers /> },
 ];
 
-function displayMenu(menu: NavItem[], open: boolean) {
+function displayMenu(menu: NavItem[]) {
     const pathname = usePathname();
 
     return menu.map((item, index) => {
@@ -71,12 +62,8 @@ function displayMenu(menu: NavItem[], open: boolean) {
                 >
                     <span className='text-lg'>{item.icon}</span>
                     <div
-                        className={cn(
-                            'text-sm hidden lg:block overflow-hidden transition-[width]',
-                            open ? 'w-28' : 'w-0'
-                        )}
-                    >
-                        <span className='pl-2'>{item.title}</span>
+                        className={cn('text-sm overflow-hidden transition-[width]')}>
+                        <span className='pl-2 menu-text'>{item.title}</span>
                     </div>
                 </div>
             </Link>

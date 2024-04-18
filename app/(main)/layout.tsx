@@ -13,8 +13,8 @@ import React from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { AuthFreeRoutes } from '@/lib/auth-free-routes';
 import {User} from '@/lib/logged-user';
-import CreateEventButton from '@/components/buttons/create-event';
-import CreateUserButton from '@/components/buttons/create-user';
+import CreateEventButton from '@/components/buttons/create-event-button';
+import CreateUserButton from '@/components/buttons/create-user-button';
 
 
 export default function MainLayout({
@@ -35,10 +35,10 @@ export default function MainLayout({
         return (
             <div className={cn('relative min-h-screen flex flex-col justify-between pt-14')}>
                 <MainNav />
-                <div className='bg-secondary flex flex-1 flex-col md:py-16 mx-auto px-8 py-8 w-full'>
+                <div className='bg-secondary flex flex-1 flex-col md:py-16 py-8 w-full'>
                     <div className='flex relative'>
                         <DashboardNav />
-                        <div id="main" className='flex-1 overflow-y-auto pb-10 pl-10'>
+                        <div id="main" className='flex-1 overflow-y-auto lg:px-10'>
                             {children}
                         </div>
                     </div>

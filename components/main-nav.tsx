@@ -23,9 +23,12 @@ import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { AppLogo } from './app-logo';
 import { NavbarUserDashboard } from './navbar-user-dashboard';
+// import DataCreatorButton from './buttons/data-creator-button';
+import CreateUserButton from './buttons/create-user-button';
+import CreateEventButton from './buttons/create-event-button';
+import { MdAlignHorizontalLeft, MdAlignHorizontalRight, MdClose, MdExpandMore, MdMenu, MdOutlineMenu, MdOutlineMenuOpen } from 'react-icons/md';
 import DataCreatorButton from './buttons/data-creator-button';
-import CreateUserButton from './buttons/create-user';
-import CreateEventButton from './buttons/create-event';
+import { ToggleSidebar } from '@/lib/sidebar-toggle';
 
 const components: { title: string; href: string }[] = [
     {
@@ -48,6 +51,7 @@ const components: { title: string; href: string }[] = [
 
 export function MainNav() {
     const [hasScrolled, setHasScrolled] = React.useState(false);
+    const [open, toggleOpen] = React.useReducer((state) => !state, true);
 
     React.useEffect(() => {
         const setScrollHandler = () => {
@@ -69,17 +73,24 @@ export function MainNav() {
                 hasScrolled && 'shadow-md bg-background'
             )}
         >
-            <div className='flex items-center justify-between p-4 px-8 mx-auto'>
+            <div className='flex items-center justify-between p-4 lg:px-8 mx-auto'>
                 <div className='flex items-center gap-4'>
+                    <Button size={26} 
+                        onClick={ (ev) => {ToggleSidebar(ev); toggleOpen()}}
+                        className={ cn('text-primary outline-none bg-transparent shadow-none border-none')} style={{background: 'none'}}>
+                        {!open && <MdOutlineMenu size={26} /> }
+                        {open && <MdOutlineMenuOpen size={26} />}
+                    </Button>
                     <Link href='/'>
                         <AppLogo />
                     </Link>
                 </div>
-                <div className='flex items-center gap-10'>
-                    <div className='flex flex-row items-center gap-6'>
+                <div className='flex flex-row items-center gap-3'>
+                    <div className='hidden lg:flex items-center gap-3'>
                         <CreateUserButton />
                         <CreateEventButton />
                     </div>
+                    <div className='lg:hidden'><DataCreatorButton /></div>
                     <NavbarUserDashboard />
                 </div>
             </div>
