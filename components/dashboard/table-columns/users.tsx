@@ -47,60 +47,60 @@ export const columns: ColumnDef<UserInfo | []>[] = [
         header: 'Phone',
         cell: ({ row }) => <div className='capitalize'>{row.getValue('phone')}</div>,
     },
-    {
-        accessorKey: 'accountType',
-        header: ({ column }) => {
-            return (
-                <div
-                    className='flex gap-2 items-center cursor-pointer'
-                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                >
-                    Account Type
-                    <CaretSortIcon className='ml-2 h-4 w-4' />
-                </div>
-            );
-        },
-        cell: ({ row }) => <div className='capitalize'>{row.getValue('accountType') }</div>,
-    },
-    {
-        accessorKey: 'userStatus',
-        header: ({ column }) => {
-            return (
-                <div
-                    className='flex gap-2 items-center cursor-pointer'
-                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                >
-                    User Status
-                    <CaretSortIcon className='ml-2 h-4 w-4' />
-                </div>
-            );
-        },
-        cell: ({ row }) => {
-            const status = row.getValue('userStatus') as UserInfo['userStatus'];
+    // {
+    //     accessorKey: 'accountType',
+    //     header: ({ column }) => {
+    //         return (
+    //             <div
+    //                 className='flex gap-2 items-center cursor-pointer'
+    //                 onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+    //             >
+    //                 Account Type
+    //                 <CaretSortIcon className='ml-2 h-4 w-4' />
+    //             </div>
+    //         );
+    //     },
+    //     cell: ({ row }) => <div className='capitalize'>{row.getValue('accountType') }</div>,
+    // },
+    // {
+    //     accessorKey: 'userStatus',
+    //     header: ({ column }) => {
+    //         return (
+    //             <div
+    //                 className='flex gap-2 items-center cursor-pointer'
+    //                 onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+    //             >
+    //                 User Status
+    //                 <CaretSortIcon className='ml-2 h-4 w-4' />
+    //             </div>
+    //         );
+    //     },
+    //     cell: ({ row }) => {
+    //         const status = row.getValue('userStatus') as UserInfo['userStatus'];
 
-            return (
-                <div className='flex gap-1 flex-wrap'>
-                    <div
-                        className={`px-2 py-1 rounded-full text-xs ${
-                            status === 'active'
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-red-100 text-red-800'
-                        }`}
-                    >
-                        {status}
-                    </div>
-                </div>
-            );
-        },
-    },
-    {
-        accessorKey: 'eventRef',
-        header: 'Total Events',
-        cell: ({ row }) => {
-            const userEvents = row.getValue('eventRef') as UserInfo['eventRef'];
-            return (<div>{ userEvents.length }</div>)
-        },
-    },
+    //         return (
+    //             <div className='flex gap-1 flex-wrap'>
+    //                 <div
+    //                     className={`px-2 py-1 rounded-full text-xs ${
+    //                         status === 'active'
+    //                             ? 'bg-green-100 text-green-800'
+    //                             : 'bg-red-100 text-red-800'
+    //                     }`}
+    //                 >
+    //                     {status}
+    //                 </div>
+    //             </div>
+    //         );
+    //     },
+    // },
+    // {
+    //     accessorKey: 'eventRef',
+    //     header: 'Total Events',
+    //     cell: ({ row }) => {
+    //         const userEvents = row.getValue('eventRef') as UserInfo['eventRef'];
+    //         return (<div>{ userEvents.length }</div>)
+    //     },
+    // },
     {
         accessorKey: 'createdAt',
         header: ({ column }) => {
@@ -109,7 +109,7 @@ export const columns: ColumnDef<UserInfo | []>[] = [
                     className='flex gap-2 items-center cursor-pointer'
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
                 >
-                    Date/Time
+                    Date Registered
                     <CaretSortIcon className='ml-2 h-4 w-4' />
                 </div>
             );

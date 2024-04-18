@@ -73,4 +73,57 @@
     .price {
         @apply border border-primary w-fit px-3 py-1 text-primary rounded-md;
     }
+
+    .px-1 {
+        padding-left: 0.25rem;
+        padding-right: 0.25rem;
+    }
+    #dashboard-navigation, #dashboard-navigation.collapsed {
+        width: 7.2rem;
+    }
+    #dashboard-navigation:not(.expanded) {
+        display: none;
+    }
+    #dashboard-navigation.expanded {
+        width: 18rem;
+        box-shadow: 0 0 0 #000;
+    }
+    #dashboard-navigation .fixed {
+        width: inherit;
+    }
+    #dashboard-navigation .menu-text,
+    #dashboard-navigation.collapsed .menu-text {
+        display: none;
+    }
+    #dashboard-navigation.expanded .menu-text {
+        display: inline;
+    }
+    #dashboard-navigation + #main {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    @media screen and (min-width: 1024px) {
+        #dashboard-navigation {
+            width: 18rem;
+            display: flex;
+        }
+        #dashboard-navigation.collapsed {
+            display: flex;
+        }
+        #dashboard-navigation .menu-text {
+            display: inline;
+        }
+        #dashboard-navigation.collapsed .menu-text {
+            display: none;
+        }
+        
+        /* #dashboard-navigation.collapsed .fixed {
+            width: inherit;
+        } */
+        #dashboard-navigation + #main {
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+    }
 }

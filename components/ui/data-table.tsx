@@ -146,18 +146,23 @@ export function DataTable<TData, TValue>({ columns, data, fallback }: DataTableP
     );
 }
 
-export function DataTableLoading({columnCount}: {columnCount: number}) {
+export function DataTableLoading({showHeader, columnCount}: {showHeader?: boolean, columnCount?: number}) {
     let columns = [];
-    for (let i = 0; i < columnCount; i++) {
-        columns.push(i);      
+    if (showHeader && columnCount) {
+        for (let i = 0; i < columnCount; i++) {
+            columns.push(i);      
+        }
     }
     return (
         <div>
-            <div className='flex gap-4'>
-                {columns.map((i) => (
-                    <Skeleton key={i} className='w-full h-6' />
-                ))}
-            </div>
+            {
+                showHeader && columnCount && 
+                <div className='flex gap-4'>
+                    {columns.map((i) => (
+                        <Skeleton key={i} className='w-full h-6' />
+                    ))}
+                </div>
+            }
             <Skeleton className='mt-4 w-full h-4' />
             <Skeleton className='mt-4 w-full h-4' />
             <Skeleton className='mt-4 w-full h-4' />
