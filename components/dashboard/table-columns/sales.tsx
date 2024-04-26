@@ -10,24 +10,25 @@ import { User } from '@/lib/logged-user';
 // import * as TicketActions from '@/hooks/ticket-actions';
 // import Modal from '@/components/ui/modal';
 import TicketActionsDropdownMenu from '../ticket-actions-dropdown-menu';
+import Link from 'next/link';
 
 export const columns: ColumnDef<Ticket>[] = [
-    {
-        accessorKey: '_id',
-        header: 'ID.',
-        cell: ({ row }) => <div className='underline'>{row.getValue('_id')}</div>,
-    },
+    // {
+    //     accessorKey: '_id',
+    //     header: 'ID.',
+    //     cell: ({ row }) => <div>{row.getValue('_id')}</div>,
+    // },
     {
         accessorKey: 'eventRef',
-        header: 'Event Ref.',
-        cell: ({ row }) => <div className='underline'>{row.getValue('eventRef')}</div>,
+        header: () => <div className='px-4'>Event Ref.</div>,
+        cell: ({ row }) => <div>{row.getValue('eventRef')}</div>,
     },
     {
         accessorKey: 'name',
         header: ({ column }) => {
             return (
                 <div
-                    className='flex gap-2 items-center cursor-pointer'
+                    className='flex gap-2 items-center cursor-pointer px-4'
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
                 >
                     Customer
@@ -35,24 +36,24 @@ export const columns: ColumnDef<Ticket>[] = [
                 </div>
             );
         },
-        cell: ({ row }) => <div className='capitalize'>{row.getValue('name')}</div>,
+        cell: ({ row }) => <div className='capitalize px-4 whitespace-nowrap bold'>{row.getValue('name')}</div>,
     },
     {
         accessorKey: 'email',
-        header: 'Email',
-        cell: ({ row }) => <div>{row.getValue('email')}</div>,
+        header: () => <div className='px-4'>Email</div>,
+        cell: ({ row }) => <div className='px-4'>{row.getValue('email')}</div>,
     },
     {
         accessorKey: 'phone',
         header: 'Phone',
-        cell: ({ row }) => <div>{row.getValue('phone')}</div>,
+        cell: ({ row }) => <div className='px-4'>{row.getValue('phone')}</div>,
     },
     {
         accessorKey: 'dateOfPurchase',
         header: ({ column }) => {
             return (
                 <div
-                    className='flex gap-2 items-center cursor-pointer'
+                    className='flex gap-2 items-center cursor-pointer px-4'
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
                 >
                     Purchase Date
@@ -61,29 +62,40 @@ export const columns: ColumnDef<Ticket>[] = [
             );
         },
         cell: ({ row }) => (
-            <div style={{whiteSpace: "nowrap"}}>{humanReadableDateFormat(row.getValue('dateOfPurchase'))}</div>
+            <div className='whitespace-nowrap px-4'>{humanReadableDateFormat(row.getValue('dateOfPurchase'))}</div>
         ),
     },
     {
         accessorKey: 'ticketCategory',
-        header: () => <div className='capitalize whitespace-nowrap'>Ticket Category</div>,
-        cell: ({ row }) => <div>{row.getValue('ticketCategory')}</div>,
+        header: () => <div className='whitespace-nowrap px-4'>Ticket Category</div>,
+        cell: ({ row }) => <div className='px-4'>{row.getValue('ticketCategory')}</div>,
     },
     {
         accessorKey: 'amountPaid',
-        header: 'Amount Paid',
-        cell: ({ row }) => <div>{formatCurrency(row.getValue('amountPaid'))}</div>,
+        header: () => <div className='whitespace-nowrap px-4'>Amount Paid</div>,
+        cell: ({ row }) => <div className='px-4'>{formatCurrency(row.getValue('amountPaid'))}</div>,
     },
     {
         accessorKey: 'numberOfTickets',
-        header: 'Number of Tickets',
-        cell: ({ row }) => <div>{row.getValue('numberOfTickets')}</div>,
+        header: () => <div className='whitespace-nowrap px-4'>Number of Tickets</div>,
+        cell: ({ row }) => <div className='px-4'>{row.getValue('numberOfTickets')}</div>,
     },
     {
         accessorKey: 'referenceNo',
         header: 'Reference No',
-        cell: ({ row }) => <div>{row.getValue('referenceNo')}</div>,
+        cell: ({ row }) => <div className='px-4'>{row.getValue('referenceNo')}</div>,
     },
+    {
+        accessorKey: 'actions',
+        cell: ({ row }) => {
+            return (
+                <div className='text-right px-4'>
+                    <Link href={`/tickets/${row.original.referenceNo}/?option=mark_as_admitted`} className='border border-primary flex flex-row hover:bg-primary 
+                hover:text-primary-foreground items-end gap-1.5 py-1 md:py-2 px-1 md:px-2 lg:px-4 rounded-full text-primary'>View Ticket</Link>
+                </div>
+            )
+        }
+    }
     // {
     //     accessorKey: 'dueDate',
     //     header: ({ column }) => {
@@ -106,14 +118,13 @@ export const columns: ColumnDef<Ticket>[] = [
     // },
 ];
 
-const user = User();
+// const user = User;
 
-if (user && user.user.userStatus &&  'user') {
-    columns.push({
-        accessorKey: 'actions',
-        header: 'Actions',
-        cell: ({ row }) => {
-            return (<TicketActionsDropdownMenu row={ row } />)}
-    })
-}
+// if (user && user.user.userStatus &&  'user') {
+//     columns.push({
+//         accessorKey: 'actions',
+//         cell: ({ row }) => {
+//             return (<div className='text-right px-4'><TicketActionsDropdownMenu row={ row } /></div>)}
+//     })
+// }
 

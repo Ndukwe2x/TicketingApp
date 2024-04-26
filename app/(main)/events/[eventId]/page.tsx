@@ -13,7 +13,7 @@ import { formatDate } from '@/lib/utils';
 import { User } from '@/lib/logged-user';
 
 export default async function ViewEvent({ params }: { params: { eventId: string } }) {
-    const user = User();
+    const user = User;
     const { eventId } = params;
     const event = await useGetEventById(eventId, user);
 

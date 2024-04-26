@@ -11,11 +11,12 @@ import { HiOfficeBuilding } from 'react-icons/hi';
 import { MdEvent, MdHomeFilled } from 'react-icons/md';
 import {User} from '@/lib/logged-user';
 
+const deviceWidth = window.innerWidth;
 export const DashboardNav = () => {
-    const user = User();
-
+    const user = User;
+    const state = deviceWidth <= 768 ? 'collapsed' : 'expanded';
     return (
-        <div id='dashboard-navigation' className={cn('transition-[width] lg:flex expanded')}>
+        <div id='dashboard-navigation' className={cn(`transition-[width] lg:flex ${state}`)}>
             <div className='fixed top-16'>
                 <nav className='py-8 px-4 lg:px-8 border-r h-[90vh] flex flex-col gap-3'>
                     {
@@ -44,6 +45,7 @@ const userNavItems: NavItem[] = [
     { title: 'Tickets', href: '/tickets', icon: <FaMoneyBills /> },
     { title: 'Team', href: '/team', icon: <HiMiniUsers /> },
 ];
+
 
 function displayMenu(menu: NavItem[]) {
     const pathname = usePathname();

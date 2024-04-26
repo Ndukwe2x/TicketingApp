@@ -19,7 +19,7 @@ export default function AuthLayout({
     const [isAuthenticated, setIsAuthenticated] = React.useState(false);
 
     React.useEffect(() => {
-        const user = User();
+        const user = User;
         if (user) {
             setIsAuthenticated(true);
         }

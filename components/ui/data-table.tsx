@@ -25,19 +25,25 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Skeleton } from './skeleton';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select';
+import * as ChangeCase from "change-case";
+import '../../app/globals.css';
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
     fallback: string;
+    isFilteringEnabled?: boolean;
+    filterFields?: string[];
 }
 
-export function DataTable<TData, TValue>({ columns, data, fallback }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ columns, data, fallback, isFilteringEnabled = false, filterFields }: DataTableProps<TData, TValue>) {
     
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = React.useState({});
+    const [filterField, setFilterField] = React.useState('');
 
     const table = useReactTable({
         data,
@@ -58,18 +64,45 @@ export function DataTable<TData, TValue>({ columns, data, fallback }: DataTableP
         },
     });
 
+    // Event handler
+    const changeFilterField = (ev) => {
+
+    }
+
     return (
         <div className='w-full'>
-            <div className='flex items-center pb-4'>
-                <Input
-                    placeholder='Filter...'
-                    value={(table.getColumn('email')?.getFilterValue() as string) ?? ''}
-                    onChange={(event) =>
-                        table.getColumn('email')?.setFilterValue(event.target.value)
+            {
+                isFilteringEnabled && 
+                <div className='grid gap-3 sm:gap-5 md:grid-cols-3 pb-4 sm:grid-cols-2 sm:items-end lg:grid-cols-[2fr_3fr_4fr]'>
+                    {
+                        filterFields?.length &&
+                        <div className="filter-field w">
+                            <span>Filter by:</span>
+                            <Select name="field" onValueChange={ (value) => setFilterField(value) }>
+                                <SelectTrigger>
+                                    <SelectValue placeholder='Filter field' />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {
+                                        filterFields.map((field, index) => <SelectItem key={index} 
+                                        value={field}>{ ChangeCase.capitalCase(ChangeCase.camelCase(field)) }</SelectItem>)
+                                    }
+                                </SelectContent>
+                            </Select>
+                        </div>
                     }
-                    // className='max-w-sm'
-                />
-            </div>
+                    <div className="filter-value">
+                        <Input
+                            placeholder='Filter...'
+                            value={(table.getColumn(filterField)?.getFilterValue() as string) ?? ''}
+                            onChange={(event) =>
+                                table.getRow(filterField)?.setFilterValue(event.target.value)
+                            }
+                            // className='max-w-sm'
+                        />
+                    </div>
+                </div>
+            }
             <div className='overflow-auto'>
                 <Table className='min-w-[50rem]'>
                     <TableHeader>

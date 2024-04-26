@@ -24,7 +24,7 @@ export default function MainLayout({
 }>) {
     const router = useRouter();
     const route = usePathname();
-    const isAuthenticated = User() === undefined ? false : true;
+    const isAuthenticated = User === undefined ? false : true;
     // const summary = await getDashboardSummary();
 
     if ( !isAuthenticated && !AuthFreeRoutes.includes(route) ) {

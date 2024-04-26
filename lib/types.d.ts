@@ -20,15 +20,37 @@ type DashboardEvent = {
     state: string;
     country: string;
     featured: boolean;
-    eventDate: Date;
+    eventDate: string;
     totalTickets: number;
     ticketsSold: number;
     ticketCategories: TicketCategory[];
-    ticketClosingDate: Date | string;
+    ticketClosingDate: string;
     eventBanner: string;
     posters: string[];
-    createdAt: Date;
+    createdAt: string;
 };
+
+type ImageInfo = {
+    url: string;
+    public_id: string;
+    _id: string;
+}
+
+type SingleEvent = {
+    featured: boolean;
+    _id: string;
+    title: string;
+    eventDate: string;
+    address: string;
+    city: string;
+    state: string;
+    ticketCategories: TicketCategory[];
+    ticketClosingDate: string;
+    eventBanner: ImageInfo;
+    posters: ImageInfo[];
+    createdAt: string;
+    __v: number;
+}
 
 type TicketCategory = {
     name: string;
@@ -37,23 +59,24 @@ type TicketCategory = {
     discount: number;
 };
 
-type Tickets = {
-    objectId: string;
-    eventRef: string;
-    name: string;
-    email: string;
-    phone: string;
-    dateOfPurchase: Date | string;
-    referenceNumber: string;
-    ticketCategory: string;
-    amountPaid: number;
-    numberOfTickets: number
-}
+type Tickets = Ticket[];
+// {
+//     objectId: string;
+//     eventRef: string;
+//     name: string;
+//     email: string;
+//     phone: string;
+//     dateOfPurchase: Date | string;
+//     referenceNumber: string;
+//     ticketCategory: string;
+//     amountPaid: number;
+//     numberOfTickets: number
+// }
 
 type DashboardUsers = {
     id: string;
     name: string;
-    date: Date | string;
+    date: string;
     totalEvents: number;
     status: 'active' | 'suspended' | 'banned';
 };
@@ -68,8 +91,8 @@ type DashboardSales = {
     ticketCategory: string;
     numberOfTickets: number;
     amountPaid: number;
-    dateOfPurchase: Date | string;
-    dueDate: Date | string;
+    dateOfPurchase: string;
+    dueDate: string;
     admitted: boolean;
 };
 type Ticket = {
@@ -133,3 +156,26 @@ type AuthInfo = {
 }
 
 type Callback = (param: Any) => void;
+
+type CloudinaryResponseData = {
+    asset_id: string;
+    public_id: string;
+    version: string;
+    version_id: string;
+    signature: string;
+    width: string;
+    height: string;
+    format: string;
+    resource_type: string;
+    created_at: string;
+    tags: string;
+    bytes: string;
+    type: string;
+    etag: string;
+    placeholder: string;
+    url: string;
+    secure_url: string;
+    folder: string;
+    access_mode: string;
+    original_filename: string;
+}

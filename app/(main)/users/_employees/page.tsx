@@ -14,7 +14,7 @@ import LoadingDashboardUsers from '../loading'
 import NotFoundPage from '@/app/not-found';
 
 export default async function Employees() {
-    const user = User();
+    const user = User;
     if (!user.isOwner()) {
         return <NotFoundPage />
     }

@@ -17,10 +17,7 @@ import { parseUrl } from 'next/dist/shared/lib/router/utils/parse-url';
 export default function Tickets() {
     const [apiResponse, setApiResponse] = React.useState(null);
     const [tickets, setTickets] = React.useState([]);
-    const user = User();
-    // const router = useRouter();
-    // const uri = getURL();
-    // const params = parseUrl(uri);
+    const user = User;
 
     React.useEffect(() => {
         const url = user.user.userStatus === 'owner'
@@ -65,7 +62,7 @@ export default function Tickets() {
                 </CardHeader>
                 <CardContent className='overflow-auto'>
                     <Suspense fallback={<DataTableLoading />}>
-                        <DataTable columns={columns} data={ tickets } fallback='Nothing to show.' />
+                        <DataTable columns={columns} data={ tickets } fallback={ <DataTableLoading /> } isFilteringEnabled={true} filterFields={['name','email','phone','ticketCategory']} />
                     </Suspense>
                 </CardContent>
             </Card>

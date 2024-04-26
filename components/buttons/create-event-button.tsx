@@ -2,7 +2,7 @@ import React, { MouseEvent, ReactHTMLElement } from "react"
 import Modal from "../ui/modal";
 import Link from "next/link";
 import { MdEvent } from "react-icons/md";
-import CreateEventForm from "../create-event-form";
+import CreateEventForm from "../dashboard/create-event-form";
 import styles from '@/components/styles/styles.module.css';
 
 const CreateEventButton = () => {

@@ -28,19 +28,23 @@ export const columns: ColumnDef<UserInfo | []>[] = [
         </div>,
     },
     {
-        accessorKey: 'firstname',
-        header: 'Firstname',
-        cell: ({ row }) => <div className='capitalize'>{row.getValue('firstname')}</div>,
+        accessorKey: 'name',
+        header: 'Name',
+        cell: ({ row }) => <div className='capitalize'>{row.original.firstname} {row.original.lastname}</div>,
     },
-    {
-        accessorKey: 'lastname',
-        header: 'Lastname',
-        cell: ({ row }) => <div className='capitalize'>{row.getValue('lastname')}</div>,
-    },
+    // {
+    //     accessorKey: 'firstname',
+    //     header: 'Firstname',
+    //     cell: ({ row }) => <div className='capitalize'>{row.getValue('firstname')}</div>,
+    // },
+    // {
+    //     accessorKey: 'lastname',
+    //     header: 'Lastname',
+    //     cell: ({ row }) => <div className='capitalize'>{row.getValue('lastname')}</div>,
+    // },
     {
         accessorKey: 'email',
         header: 'Email',
-        cell: ({ row }) => <div className='capitalize'>{row.getValue('email')}</div>,
     },
     {
         accessorKey: 'phone',

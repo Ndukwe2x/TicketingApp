@@ -24,10 +24,11 @@ export const getEventById = async (id: string, user: AuthInfo) => {
     // }
     
     url.replace(':id', id);
-    await axios.get(url, {
+    const response = await axios.get(url, {
         headers: {
             Authorization: `Bearer ${user.token}`,
         }
     })
+    return response.data;
     // return dummyEvents.find((event) => event.id === id);
 };

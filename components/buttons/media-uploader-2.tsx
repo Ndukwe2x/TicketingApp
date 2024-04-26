@@ -82,7 +82,7 @@ const uploadSelectedFiles = async (
 };
 
 interface UploaderProps extends React.AllHTMLAttributes<HTMLElement> {
-    onSuccess: (data: object) => void;
+    onSuccess: (data: CloudinaryResponseData) => void;
     onInit?: () => void;
     assetFolder?: string;
 }

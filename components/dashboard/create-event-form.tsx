@@ -1,17 +1,20 @@
-import React from "react";
-import { Button } from "./ui/button";
-import { Label } from "./ui/label";
-import { Input } from "./ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import React, { FormEvent } from "react";
+import { Button } from "../ui/button";
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Api } from "@/lib/api";
-import { Text } from "./ui/text";
-import { Icons } from "./icons";
-import styles from './styles/styles.module.css';
-import MediaUploader from "./buttons/media-uploader-2";
+import { Text } from "../ui/text";
+import { Icons } from "../icons";
+import styles from '../styles/styles.module.css';
+import MediaUploader from "../buttons/media-uploader-2";
 import axios from "axios";
 import { User } from "@/lib/logged-user";
-import { Checkbox } from "./ui/checkbox";
+import { Checkbox } from "../ui/checkbox";
 import { v4 as uuidv4 } from 'uuid';
+import AddTicketCategory from "./add-ticket-category";
+import { pascalCase } from "change-case";
+import { parseInputName } from "@/lib/utils";
 
 const CreateEventForm = () => {
     const [isFirstPage, setIsFirstPage] = React.useState<boolean>(true);
@@ -26,6 +29,7 @@ const CreateEventForm = () => {
     const [pageCount, setPageCount] = React.useState(1);
     const formId = 'event-form_' + uuidv4();
     const [eventTitle, setEventTitle] = React.useState('');
+    const [formData, setFormData] = React.useState({});
 
     React.useEffect(() => {
         const updatePages = () => {
@@ -38,7 +42,7 @@ const CreateEventForm = () => {
 
         const observer = new MutationObserver(updatePages);
         const config = { childList: true, subtree: true };
-        const targetNode = document.getElementById(formId);
+        const targetNode = document.getElementById(formId) as Node;
 
         observer.observe(targetNode, config);
 
@@ -54,19 +58,32 @@ const CreateEventForm = () => {
 
     const updatePageStatus = (): void => {
         const inputs = getInputsFromCurrentPage();
+
+        // Update the formData state on every call on updatePageStatus
+        // This helps us currate all the form data as the user fills the form,
+        // and then use to create a summary of the entire user inputs
+        const unemptyFields = Array.from(inputs).filter(input => input.value != '');
+        unemptyFields.forEach(item => {
+            const {key, readable} = parseInputName(item.name);
+            setFormData({...formData, [key]: item.value});
+        });
+
+        // Check to see if the user has filled all the required fields on a the active page
+        // and activate/deactivate the forward button accordingly
         let totalUnfilled = 0;
 
         inputs?.forEach(item => {
-            let itemHasValue = item.value ?? false;
-            if (!itemHasValue) {
+            let elem = item as HTMLInputElement;
+            // let itemHasValue = elem.value ?? false;
+            if ( elem.required && !elem.value ) {
                 totalUnfilled += 1;
             }
         });
 
-        if (totalUnfilled == 0) {
-            setIsCurrentPageCompleted(true)
-        } else {
+        if (totalUnfilled > 0) {
             setIsCurrentPageCompleted(false)
+        } else {
+            setIsCurrentPageCompleted(true)
         }
     };
 
@@ -76,7 +93,7 @@ const CreateEventForm = () => {
         if ( !isCurrentPageCompleted ) {
             return;
         }
-        if ( ev.target.type == 'submit') {
+        if ( ev.target?.type == 'submit') {
             document.getElementById('event-form')?.dispatchEvent(
                 new Event('submit', )
             );
@@ -118,7 +135,6 @@ const CreateEventForm = () => {
             setIsFirstPage(true);
         } else {
             setIsFirstPage(false)
-            // setPageNumber(state => state - 1);
         }
         setPageNumber(state => {
             if (state <= 1) {
@@ -130,40 +146,8 @@ const CreateEventForm = () => {
         });
     }
 
-    type CloudinaryResponse = {
-        
-    }
-    const previewBanner = (data) => {
-        
-        // {
-        //     "asset_id": "96265ccb9be3e9f6c0d3236ffe962646",
-        //     "public_id": "dp8nbfwa0wysgaesfd3f",
-        //     "version": 1712421188,
-        //     "version_id": "9423ec5fc1eef53b7d7364799d4840f4",
-        //     "signature": "d6ac76a3136c1ac82d852dc7f68f554bc39accc0",
-        //     "width": 640,
-        //     "height": 426,
-        //     "format": "jpg",
-        //     "resource_type": "image",
-        //     "created_at": "2024-04-06T16:33:08Z",
-        //     "tags": [],
-        //     "bytes": 87139,
-        //     "type": "upload",
-        //     "etag": "d33cee3028a27bbb5b33b9b0dc165420",
-        //     "placeholder": false,
-        //     "url": "http://res.cloudinary.com/dtuznvywy/image/upload/v1712421188/dp8nbfwa0wysgaesfd3f.jpg",
-        //     "secure_url": "https://res.cloudinary.com/dtuznvywy/image/upload/v1712421188/dp8nbfwa0wysgaesfd3f.jpg",
-        //     "folder": "",
-        //     "access_mode": "public",
-        //     "original_filename": "models"
-        // }
-
-        
+    const previewBanner = (data: CloudinaryResponseData) => {
         const imageUrl = data.secure_url;
-                    // Create a thumbnail of the uploaded image, with 150px width
-                    // const tokens = url.split('/');
-                    // tokens.splice(-3, 0, 'w_150,c_scale');
-                    // console.log('File uploaded successfully:', response.data);
         const bannerPreview = document.getElementById('banner-preview') || document.createElement('div');
         const bannerBox = document.getElementById('banner-box');
 
@@ -181,9 +165,9 @@ const CreateEventForm = () => {
         img.alt = data.public_id;
         img.onload = () => {
             bannerPreview.replaceChild(img, bannerPreview.getElementsByClassName('suspense')[0]);
-            bannerPreview.getElementsByClassName(styles.edit_btn)[0].style.display = 'flex';
-
-            const bannerPermalink = document.getElementById('banner');
+            let btn = bannerPreview.getElementsByClassName(styles.edit_btn)[0] as HTMLElement;
+            btn.style.display = 'flex';
+            const bannerPermalink = document.getElementById('banner') as HTMLInputElement;
             if (bannerPermalink) bannerPermalink.value = imageUrl;
             updatePageStatus();
         }
@@ -200,8 +184,9 @@ const CreateEventForm = () => {
 
     
 
-    const previewPoster = (data) => {
-        const imagePreview = document.querySelectorAll('.poster-group.loading')[0];
+    const previewPoster = (data: any) => {
+        const imagePreview = document.querySelector('.poster-group.loading') as HTMLElement;
+
         if ( !imagePreview ) {
             console.error('Unable to preview image');
             return;
@@ -229,7 +214,7 @@ const CreateEventForm = () => {
             }
             // imagePreview.getElementsByClassName(styles.edit_btn)[0].style.display = 'flex';
 
-            const imagePermalink = imagePreview.querySelector('input.poster_permalink');
+            const imagePermalink = imagePreview.querySelector('input.poster_permalink') as HTMLInputElement;
             if (imagePermalink) imagePermalink.value = imageUrl;
             updatePageStatus();
             imagePreview.classList.remove('loading');
@@ -304,21 +289,23 @@ const CreateEventForm = () => {
         container.style.display = 'flex';
     };
 
-    const handleSubmit = (ev) => {
+    const handleSubmit = (ev: FormEvent) => {
         if ( !ev.isDefaultPrevented() ) {
             ev.preventDefault();
         }
 
-        const user = User();
-        const formElements = ev.target.elements;
+        const user = User;
+        const form = ev.target as HTMLFormElement
+        const formElements = form.elements as HTMLFormControlsCollection;
         const formData = new FormData();
         
-        Array.from(formElements).forEach((input: Element, key) => {
-            formData.append(input.name, input.value);
+        Array.from(formElements).forEach((input, key) => {
+            const inputElem = input as HTMLInputElement;
+            formData.append(inputElem.name, inputElem.value);
         });
 
         try {
-            axios.post(ev.target.action, formData, {
+            axios.post(form.action, formData, {
                 headers: {
                     Authorization: `Bearer ${user.token}`
                 }
@@ -339,6 +326,21 @@ const CreateEventForm = () => {
         }
     }
 
+    const RenderSummary = React.useCallback(() => {
+        return Object.entries(formData).map(([name, value]) => {
+            return (
+                <>
+                    <div className="border-b py-2">
+                        <p className="grid grid-cols-[2fr_5fr]">
+                            <label className="font-bold">{pascalCase(name)}:</label> 
+                            <span>{value}</span>
+                        </p>
+                    </div>
+                </>
+            )
+        })
+    }, [formData]);
+
     return (
         <>
             <form id={ formId } action={ Api.server + Api.endpoints.admin.events } method="post" onSubmit={ handleSubmit }>
@@ -346,38 +348,49 @@ const CreateEventForm = () => {
                     <div>
                         <Text variant='p'>Step { pageNumber } of { pageCount }</Text>
                     </div>
-                    <div id="event-form_page_a" className={ `${pageBaseClass} ${pageActiveClass} flex flex-col gap-4 flex-1`}>
+                    <div id="event-form_page_a" className={ `${pageBaseClass} ${pageActiveClass} flex-col gap-4 flex-1`}>
                         <Text variant='h3'>Basic Info</Text>
                         <div className='flex flex-col gap-2'>
                             <Label htmlFor='title'>Title:</Label>
-                            <Input id='title' name="title" onInput={ (ev) => { setEventTitle(ev.target.value); updatePageStatus(); return }} type='text' className="input h-14 text-lg" placeholder='The Big Friday Nights Party' />
+                            <Input id='title' name="title" 
+                            onInput={ (ev) => { setEventTitle(ev.target.value); updatePageStatus(); return }} 
+                            type='text' className="input h-14 text-lg" 
+                            placeholder='The Big Friday Nights Party' required aria-required="true" />
                         </div>
                         <div className="flex flex-col gap-4">
                             <div className="flex flex-row flex-1 gap-4">
                                 <div className='flex flex-col gap-2 flex-1'>
                                     <Label htmlFor='date'>Date:</Label>
-                                    <Input id='date' name="eventDate" type='date'  onInput={ () => updatePageStatus() } />
+                                    <Input id='date' name="eventDate" type='date'  
+                                    onInput={ () => updatePageStatus() } required aria-required='true' />
                                 </div>
                                 <div className='flex flex-col gap-2 flex-1'>
                                     <Label htmlFor='time'>Time:</Label>
-                                    <Input id='time' name="time" type='time' onInput={ () => updatePageStatus() } />
+                                    <Input id='time' name="time" type='time' 
+                                    onChange={ () => updatePageStatus() } required aria-required='true' />
                                 </div>
                             </div>
                             <div className="flex flex-col flex-1 gap-4">
                                 <div className='flex flex-col gap-2'>
                                     <Label htmlFor='state'>State/Region:</Label>
-                                    <Input id='state' name="state" placeholder="State/Region:" onInput={ () => updatePageStatus() } />
+                                    <Input id='state' name="state" placeholder="State/Region:" 
+                                    onChange={ () => updatePageStatus() } required aria-required='true' />
                                 </div>
                                 <div className='flex flex-col gap-2'>
                                     <Label htmlFor='city'>Town/City:</Label>
-                                    <Input id='city' name="city" placeholder="Town/City:" onInput={ () => updatePageStatus() } />
+                                    <Input id='city' name="city" placeholder="Town/City:" 
+                                    onInput={ () => updatePageStatus() } required aria-required='true' />
                                 </div>
                                 <div className='flex flex-col gap-2'>
                                     <Label htmlFor='address'>Address:</Label>
-                                    <Input id='address' name="address" placeholder="Street address:" onInput={ () => updatePageStatus() } />
+                                    <Input id='address' name="address" placeholder="Street address:" 
+                                    onInput={ () => updatePageStatus() } required aria-required='true' />
                                 </div>
                             </div>
                         </div>
+
+
+
                         {/* <div className='flex flex-col gap-2'>
                             <Label htmlFor='description'>Description:</Label>
                             <Textarea id="description" name="description" rows={ 6 } onInput={ () => updatePageStatus() } className="input text-md" placeholder="Event description..."></Textarea>
@@ -417,7 +430,7 @@ const CreateEventForm = () => {
                             </div>
                         </div> */}
                     </div>
-                    <div id="event-form_page_b" className={ `${pageBaseClass} flex flex-col gap-4 flex-1` }>
+                    <div id="event-form_page_b" className={ `${pageBaseClass} flex-col gap-4 flex-1` }>
                         <Text variant='h4'>Event banner:</Text>
                         <div className='flex flex-col gap-2'>
                             <div id='banner-box' className={ styles.banner_box }>
@@ -426,23 +439,32 @@ const CreateEventForm = () => {
                                 </div>
                                 <MediaUploader.uploadButton onSuccess={ previewBanner } onInit={ () => createSuspense('#banner-preview') } className={styles.banner} />
                             </div>
-                            <Input id='banner' name="eventBanner" type='hidden' onInput={ () => updatePageStatus() } /> 
-                            {/* Accepts permalink to the banner image */}
+                            <Input id='banner' name="eventBanner" type='hidden' 
+                            onInput={ () => updatePageStatus() } required aria-required='true' />
                         </div>
                     </div>
-                    <div id="event-form_page_c" className={ `${pageBaseClass} flex flex-col gap-4 flex-1` }>
+                    <div id="event-form_page_c" className={ `${pageBaseClass} flex-col gap-4 flex-1` }>
                         <Text variant='h4'>Event posters:</Text>
                         <div className='flex flex-col gap-2'>
                             <div id="posters" className="poster-groups gap-3 grid grid-cols-3">
-                                    <MediaUploader.uploadButton onSuccess={ previewPoster } onInit={ () => createPosterGroup('posters') } className={styles.poster} />
+                                    <MediaUploader.uploadButton onSuccess={ previewPoster } 
+                                    onInit={ () => createPosterGroup('posters') } className={styles.poster} />
                                
                             </div>
                         </div>
                     </div>
-                    <div id="event-form_page_d" className={ `${pageBaseClass} flex flex-col gap-4 flex-1` }>
+                    <div id="event-form_page_d" className={ `${pageBaseClass} flex-col gap-4 flex-1` }>
+                        <Text variant='h4'>Ticket Categories</Text>
+                        <AddTicketCategory />
                         <Text variant='h4'>Event Featuring</Text>
                         <div className='flex flex-col gap-2'>
                             <Label htmlFor='featured'><Checkbox id='featured' name="featured" value='true' /> Feature this event</Label>
+                        </div>
+                    </div>
+                    <div id="event-form_page_e" className={ `${pageBaseClass} flex-col gap-4 flex-1` }>
+                        <Text variant='h3'>Preview</Text>
+                        <div id="preview-form-data">
+                            { RenderSummary() }
                         </div>
                     </div>
                     <div className="flex flex-row justify-content-between pt-5">

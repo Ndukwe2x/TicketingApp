@@ -18,7 +18,7 @@ import { MdAccountCircle, MdArrowDropDown, MdImage, MdVerifiedUser } from "react
 import { DropdownMenuLabel, DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 
 export const NavbarUserDashboard = () => {
-    const isAuthenticated = User() ? true : false;
+    const isAuthenticated = User ? true : false;
     const router = useRouter();
 
     return (
@@ -44,7 +44,7 @@ function AuthActions() {
 }
 
 function ActiveUserDropdown() {
-    const user = User();
+    const user = User;
     
     return (
         <DropdownMenuGroup className="flex items-center">

@@ -14,7 +14,7 @@ import { User } from '@/lib/logged-user';
 
 
 export default function Dashboard() {
-    const user = User();
+    const user = User;
     const viewer = user.user.userStatus;
     const [layout, setLayout] = React.useState('');
 
