@@ -63,7 +63,7 @@ export const getDashboardUsers = async (user: AuthInfo): Promise<UserInfo[]> => 
 
 export const getDashboardSales = async (): Promise<Ticket[]> => {
 
-    const user = User();
+    const user = User;
     const url = user.user.userStatus === 'owner'
         ? Api.server + Api.endpoints.admin.tickets
         : Api.server + Api.endpoints.public.tickets;

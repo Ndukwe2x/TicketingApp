@@ -37,3 +37,25 @@ export const humanReadableDateFormat = (datetimeStr: string): string => {
     };
     return dt.toLocaleString('en-US', options);
 }
+
+export const getElementSiblings = (element: Element): Element[] => {
+    const parent = element.parentNode;
+    return parent ? Array.from(parent.children).filter(child => child !== element) : [];
+}
+
+export const parseInputName = (name: string): { key: string; readable: string } => {
+    let key = '', readable = '';
+    const matches = name.match(/\[(\w+)\]/g);
+    if (matches) {
+        key = matches.map(m => m.replace(/\[|\]/g, '')).join('.');
+  
+        readable = matches
+          .map(m => m.replace(/\[|\]/g, ''))
+          .map((s, i, arr) => (i === arr.length - 1 ? `name of category ${s}` : `category ${s}`))
+          .join(' > ');
+    } else {
+        key = name;
+    }
+  
+    return { key, readable };
+  }

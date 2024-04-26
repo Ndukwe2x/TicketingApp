@@ -8,7 +8,7 @@ export const APPCONFIG = {
     description: 'A ticketing system for managing events and tickets.',
     version: '0.0.1',
     cookieOptions: {
-        maxAge: (new Date()).getTime() + 24 * 60 * 1000,
+        maxAge: (new Date()).getTime() + 24 * 60,
         secure: false, // Set to true in production
         httpOnly: false, // Set true in production
         path: '/'

@@ -1,0 +1,73 @@
+/***** Rix-Ui Accordion Widget ******/
+.text-auto-scale {
+    font-size: calc(.63rem + 0.712vw);
+}
+
+.rix-ui_accordion {
+    max-width: 45rem;
+    color: black;
+    background-color: white;
+}
+
+.rix-ui_accordion .rix-ui_accordion-item {
+    position: relative;
+    display: -ms-flexbox;
+    display: flexbox;
+    display: -webkit-flex;
+    display: flex;
+    flex-direction: column;
+}
+.rix-ui_accordion .rix-ui_accordion-item .rix-ui_accordion-header {
+    font-size: 18px;
+    font-weight: 500;
+    background-color: #f5f5f5;
+}
+.rix-ui_accordion .accordion-title {
+    position: relative;
+    padding: 10px 0;
+    font-size: 30px;
+    color: black;
+    cursor: pointer;
+}
+
+.rix-ui_accordion .accordion-title::before {
+    content: '+';
+    color: black;
+    position: absolute;
+    top: 50%;
+    right: -5px;
+    font-size: 30px;
+    transform: translateY(-50%);
+}
+
+.rix-ui_accordion .rix-ui_accordion-item .rix-ui_accordion-content  {
+    position: relative;
+    background: white;
+    height: 0;
+    font-size: 20px;
+    text-align: justify;
+    overflow: hidden;
+    transition: 0.5s;
+    display: none;
+}
+
+.rix-ui_accordion hr {
+    width: 100;
+    margin-left: 0;
+    border: 1px solid grey;
+}
+
+.rix-ui_accordion .rix-ui_accordion-item.active .rix-ui_accordion-content  {
+    height: auto;
+    max-height: 20rem;
+    display: -ms-flexbox;
+    display: flexbox;
+    display: -webkit-flex;
+    display: flex;
+    flex-direction: column;
+}
+
+.rix-ui_accordion .rix-ui_accordion-item.active .accordion-title::before {
+    content: '-';
+    font-size: 30px;
+}

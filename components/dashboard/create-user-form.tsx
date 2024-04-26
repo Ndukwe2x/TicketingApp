@@ -1,21 +1,21 @@
 "use client";
 
 import * as React from "react"
-import { Button } from "./ui/button"
-import Modal from "./ui/modal";
-import { Label } from "./ui/label";
-import { Input } from "./ui/input";
+import { Button } from "../ui/button"
+import Modal from "../ui/modal";
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
 // import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Api } from "@/lib/api";
-import { Text } from "./ui/text";
-import { Textarea } from "./ui/textarea";
+import { Text } from "../ui/text";
+import { Textarea } from "../ui/textarea";
 // import { ButtonIcon } from "@radix-ui/react-icons";
-import { Icons } from "./icons";
-import styles from './styles/styles.module.css';
-import MediaUploader from "./buttons/media-uploader-2";
+import { Icons } from "../icons";
+import styles from '../styles/styles.module.css';
+import MediaUploader from "../buttons/media-uploader-2";
 import axios from "axios";
 import { User } from "@/lib/logged-user";
-import { Checkbox } from "./ui/checkbox";
+import { Checkbox } from "../ui/checkbox";
 import Link from "next/link";
 
 
@@ -173,7 +173,7 @@ const CreateUserForm = () => {
             ev.preventDefault();
         }
 
-        const user = User();
+        const user = User;
         const formElements = ev.target.elements;
         const formData = new FormData();
         

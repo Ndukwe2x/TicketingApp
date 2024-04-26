@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import * as React from 'react';
 import Link from 'next/link';
@@ -50,8 +50,10 @@ const components: { title: string; href: string }[] = [
 ];
 
 export function MainNav() {
+    const deviceWidth = window.innerWidth;
     const [hasScrolled, setHasScrolled] = React.useState(false);
-    const [open, toggleOpen] = React.useReducer((state) => !state, true);
+    const defaultState = deviceWidth <= 768 ? false : true;
+    const [open, toggleOpen] = React.useReducer((state) => !state, defaultState);
 
     React.useEffect(() => {
         const setScrollHandler = () => {

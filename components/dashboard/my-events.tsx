@@ -9,7 +9,7 @@ import { User } from "@/lib/logged-user";
 import { usePathname, useRouter, useParams, useSearchParams, ReadonlyURLSearchParams } from "next/navigation";
 
 export default function MyEvents({layout}: string) {
-    const user = User();
+    const user = User;
     const [events, setEvents] = React.useState([]);
 
     React.useEffect(() => {

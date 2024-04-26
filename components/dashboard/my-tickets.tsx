@@ -9,7 +9,7 @@ import { User } from "@/lib/logged-user";
 import { usePathname, useRouter, useParams, useSearchParams, ReadonlyURLSearchParams } from "next/navigation";
 
 export default function MyTickets() {
-    const user = User();
+    const user = User;
     const [apiResponse, setApiResponse] = React.useState(null);
     const [tickets, setTickets] = React.useState([]);
 

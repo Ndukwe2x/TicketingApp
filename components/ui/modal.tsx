@@ -24,7 +24,7 @@ interface ModalProps {
     description?: string|null;
 }
 
-const Modal: React.FC<ModalProps> = ({title, content, displayText, onSave, onClose, style, footerButtons = false, description, ...props}) => {
+const Modal: React.FC<ModalProps> = ({title, content, displayText, onSave, onClose, style, description, footerButtons = false, ...props}) => {
     return (
         <Dialog>
             <DialogTrigger asChild>
