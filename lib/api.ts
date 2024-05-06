@@ -1,23 +1,23 @@
 export const Api = {
-    server: 'https://ticketing-app-api-5f23135e89f2.herokuapp.com/api/v1',
+    server: 'https://ticketing-app-api-5f23135e89f2.herokuapp.com',
     endpoints: {
         public: {
-            events: '/events',
-            search: '/events/search',
-            singleEvent: '/events/:id',
-            tickets: '/tickets',
-            ticket: '/tickets/:id'
+            events: '/api/v1/events',
+            search: '/api/v1/events/search',
+            singleEvent: '/api/v1/events/:id',
+            tickets: '/api/v1/tickets',
+            ticket: '/api/v1/tickets/:id'
         },
         admin: {
-            login: '/login',
-            register: '/admin',
-            search: '/admin/accounts/search',
-            singleUser: '/admin/accounts/:id',
-            events: '/admin/events',
-            event: '/admin/events/:id',
-            tickets: '/admin/tickets',
-            searchTickets: '/admin/tickets/search',
-            singleTicket: '/admin/tickets/:id',
+            login: '/api/v1/login',
+            register: '/api/v1/admin',
+            search: '/api/v1/admin/accounts/search',
+            singleUser: '/api/v1/admin/accounts/:id',
+            events: '/api/v1/admin/events',
+            event: '/api/v1/admin/events/:id',
+            tickets: '/api/v1/admin/tickets',
+            searchTickets: '/api/v1/admin/tickets/search',
+            singleTicket: '/api/v1/admin/tickets/:id',
         }
     }
 }

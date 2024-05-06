@@ -22,9 +22,24 @@ const UserInfo = (): AuthInfo => {
 
     let userInfo = cookieInfo === undefined ? undefined : JSON.parse(cookieInfo);
     if (userInfo) {
-        userInfo.isOwner = function () {
-            return userInfo.user.userStatus === 'owner';
-        }
+        userInfo.isSuper =  userInfo.user.userRole === 'Super';
+        userInfo.isRegular =  userInfo.user.userRole === 'Regular';
+        userInfo.isBasic =  userInfo.user.userRole === 'Basic';
+        userInfo.isOwner =  userInfo.user.userStatus === 'owner';
+        userInfo.isSuperOwner =  userInfo.isOwner && userInfo.isSuper;
+        userInfo.isRegularOwner =  userInfo.isOwner && userInfo.isRegular;
+        userInfo.isBasicOwner =  userInfo.isOwner && userInfo.isBasic;
+        userInfo.isUser =  userInfo.user.userStatus === 'user';
+        userInfo.isSuperUser =  userInfo.isUser && userInfo.isSuper;
+        userInfo.isRegularUser =  userInfo.isUser && userInfo.isRegular;
+        userInfo.isBasicUser =  userInfo.isUser && userInfo.isBasic;
+        userInfo.canCreateUser =  userInfo.isSuperOwner || userInfo.isSuperUser;
+        userInfo.canUpdateUser =  userInfo.isSuperOwner || userInfo.isRegularOwner || userInfo.isSuperUser
+        userInfo.canDeleteUser =  userInfo.isSuperOwner || userInfo.isRegularOwner || userInfo.isSuperUser;
+        userInfo.canCreateEvent =  userInfo.isSuperOwner || userInfo.isSuperUser;
+        userInfo.canUpdateEvent =  userInfo.isSuperOwner || userInfo.isRegularOwner || userInfo.isSuperUser;
+        userInfo.canDeleteEvent =  userInfo.isSuperOwner;
+        userInfo.canDeleteTicket =  userInfo.isSuperOwner;
     }
 
     return userInfo;

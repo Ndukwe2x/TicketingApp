@@ -21,8 +21,8 @@ const CreateUserButton = () => {
     const handleSave = () => {
         setIsDialogOpen(false);
     }
-    const viewer = user.user.userStatus;
-    const btnText = viewer === 'owner'
+    
+    const btnText = user.isOwner
         ? 'Create New User'
         : 'Add Team Member'
 
@@ -33,7 +33,7 @@ const CreateUserButton = () => {
                 hover:text-primary-foreground items-end gap-1.5 py-1 md:py-2 px-1 md:px-2 lg:px-4 rounded-full text-primary'>
                     <MdPersonAdd size={24}/> <span className="hidden lg:inline">{ btnText }</span>
                     </Link> } 
-                content={ <CreateUserForm /> } 
+                description={ <CreateUserForm user={ user } /> } 
                 onSave={ handleSave } 
                 onClose={ handleClose }
                 style={ { maxWidth: '45rem' } } />

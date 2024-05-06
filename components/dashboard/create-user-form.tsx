@@ -5,7 +5,7 @@ import { Button } from "../ui/button"
 import Modal from "../ui/modal";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Api } from "@/lib/api";
 import { Text } from "../ui/text";
 import { Textarea } from "../ui/textarea";
@@ -14,19 +14,23 @@ import { Icons } from "../icons";
 import styles from '../styles/styles.module.css';
 import MediaUploader from "../buttons/media-uploader-2";
 import axios from "axios";
-import { User } from "@/lib/logged-user";
 import { Checkbox } from "../ui/checkbox";
 import Link from "next/link";
+import { APPCONFIG } from "@/lib/app-config";
+import { camelCase, capitalCase } from "change-case";
+import generateRandomString from "@/lib/random-string-generator";
+import PasswordGenerator from "../password-generator";
 
 
-const CreateUserForm = () => {
+const CreateUserForm = ({ user }) => {
     const [isFirstPage, setIsFirstPage] = React.useState<boolean>(true);
     const [isLastPage, setIsLastPage] = React.useState<boolean>(false);
     const [isCurrentPageCompleted, setIsCurrentPageCompleted] = React.useState<boolean>(false);
     const [pageNumber, setPageNumber] = React.useState(1);
-    const pageBaseClass = styles.event_form_page;
-    const pageActiveClass = styles.current;
+    const pageBaseClass = 'user-form-page';
+    const pageActiveClass = 'active';
     const currentPageSelector = `.${pageBaseClass}.${pageActiveClass}`;
+    const { accountTypes, userRoles } = APPCONFIG;
     
     const dynamicCurrentPage = () => document.querySelector(currentPageSelector);
 
@@ -37,12 +41,18 @@ const CreateUserForm = () => {
     
     const [pages, setPages] = React.useState<Array<Element>>([]);
     const [pageCount, setPageCount] = React.useState(1);
+    // const [randomPassword, setRandomPassword] = React.useState(
+    //     generateRandomString(10, 'alphanumeric', true)
+    // );
 
     React.useEffect(() => {
         const updatePages = () => {
             const pageElements = document.querySelectorAll(`.${pageBaseClass}`);
             setPages(Array.from(pageElements));
             setPageCount(pageElements.length);
+            setIsLastPage(
+                pageElements.length === 1
+            )
         };
 
         updatePages();
@@ -57,6 +67,14 @@ const CreateUserForm = () => {
             observer.disconnect();
         };
     }, []);
+
+    getInputsFromCurrentPage()?.forEach(input => {
+        ['input','change'].map((type) => {
+            input.addEventListener(type, ev => {
+                updatePageStatus();
+            });
+        });
+    })
 
     const updatePageStatus = (): void => {
         const inputs = getInputsFromCurrentPage();
@@ -84,7 +102,7 @@ const CreateUserForm = () => {
         }
         if ( ev.target.type == 'submit') {
             document.getElementById('user-form')?.dispatchEvent(
-                new Event('submit', )
+                new Event('submit')
             );
             return;
         }
@@ -94,8 +112,8 @@ const CreateUserForm = () => {
         updatePageStatus();
         setIsFirstPage(false);
 
-        const pagesArr = Array.from(pages);
-        if (pagesArr.pop()?.id == dynamicCurrentPage()?.id) {
+        // const pagesArr = Array.from(pages);
+        if (pages.pop()?.id == dynamicCurrentPage()?.id) {
             setIsLastPage(true)
         } else {
             setIsLastPage(false)
@@ -173,13 +191,12 @@ const CreateUserForm = () => {
             ev.preventDefault();
         }
 
-        const user = User;
         const formElements = ev.target.elements;
-        const formData = new FormData();
+        const formData = new FormData(ev.target);
         
-        Array.from(formElements).forEach((input, key) => {
-            formData.append(input.name, input.value);
-        });
+        // Array.from(formElements).forEach((input, key) => {
+        //     formData.append(input.name, input.value);
+        // });
 
         try {
             axios.post(ev.target.action, formData, {
@@ -203,6 +220,9 @@ const CreateUserForm = () => {
         }
     }
 
+    const passRef = React.useRef(null);
+    const rePassRef = React.useRef(null);
+
     return (
         <>
             <form id="user-form" action={ Api.server + Api.endpoints.admin.register } method="post" onSubmit={ handleSubmit }>
@@ -211,32 +231,80 @@ const CreateUserForm = () => {
                         <Text variant='p'>Step { pageNumber } of { pageCount }</Text>
                     </div>
                     <div id="user-form_page_a" className={ `${pageBaseClass} ${pageActiveClass} flex flex-col gap-4 flex-1`}>
-                        <Text variant='h3'>Basic Info</Text>
+                        <Text variant='h3'>User Info</Text>
+                        <p className="text-muted-foreground text-xs required">All fields are required except otherwise indicated</p>
                         <div className="grid md:grid-cols-2 gap-5">
                             <div className='flex flex-col gap-2 flex-1'>
                                 <Label htmlFor='firstname'>Firstname:</Label>
-                                <Input id='firstname' name="firstname" type='text' className="input h-14 text-lg" placeholder='Firstname:' />
+                                <Input id='firstname' name="firstname" type='text' className="text-lg text-auto-scale" placeholder='Firstname:' required aria-required='true' />
                             </div>
                             <div className='flex flex-col gap-2 flex-1'>
                                 <Label htmlFor='lastname'>Lastname:</Label>
-                                <Input id='lastname' name="lastname" type='text' className="input h-14 text-lg" placeholder='Lastname:' />
+                                <Input id='lastname' name="lastname" type='text' className="text-lg text-auto-scale" placeholder='Lastname:' required aria-required='true' />
                             </div>
                         </div>
                         
                         <div className='flex flex-col gap-2'>
                             <Label htmlFor='email'>Email:</Label>
-                            <Input id='email' name="email" type='email' className="input h-14 text-lg" placeholder='Email:' />
+                            <Input id='email' name="email" type='email' className="text-lg text-auto-scale" placeholder='Email:' required aria-required='true' />
                         </div>
                         <div className='flex flex-col gap-2'>
                             <Label htmlFor='phone'>Phone:</Label>
-                            <Input id='phone' name="phone" type='tel' className="input h-14 text-lg" placeholder='Phone:' />
+                            <Input id='phone' name="phone" type='tel' className="text-lg text-auto-scale" placeholder='Phone:' required aria-required='true' />
                         </div>
+                        <div className="gap-5 grid md:grid-cols-2">
+                            {
+                                user.isOwner ? 
+                                <div className='flex flex-col gap-2'>
+                                    <Label htmlFor='account-type'>Account Type:</Label>
+                                    <Select name="accountType" required aria-required='true'>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder='Select account type' />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {
+                                                accountTypes.map(
+                                                    (accountType, index) => <SelectItem key={ index } value={ accountType }>{ capitalCase( accountType ) }</SelectItem>
+                                                )
+                                            }
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                :
+                                <Input name="accountType" type='hidden' value='user' />
+
+                            }
+                            <div className='flex flex-col gap-2'>
+                                <Label htmlFor='account-role'>Role:</Label>
+                                <Select name="role" required aria-required='true'>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder='Select user role' />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {
+                                            userRoles.map(
+                                                (role, index) => <SelectItem key={ index } value={ role }>{ role }</SelectItem>
+                                            )
+                                        }
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                        <div className='flex flex-col gap-2'>
+                            <Label htmlFor='password'>Password:</Label>
+                            <Input id='password' name="password" type='text' onChange={updatePageStatus} ref={passRef} className="text-lg text-auto-scale" placeholder='Password:' required aria-required='true' />
+                        </div>
+                        <div className='flex flex-col gap-2'>
+                            <Label htmlFor='re-password'>Re-Password:</Label>
+                            <Input id='re-password' name="re_password" type='text' onChange={updatePageStatus} ref={rePassRef} className="text-lg text-auto-scale" placeholder='Re-Password:' required aria-required='true' />
+                        </div>
+                        <PasswordGenerator onClick={ updatePageStatus } outputRef={[passRef, rePassRef]} options={ {length: 16} } />
                     </div>
                     
                     <div className="flex flex-row justify-content-between pt-5">
-                        { !isFirstPage && <Button type="button" onClick={ backToPreviousPage } className="max-w-max"><Icons.backward /> Back</Button> }
+                        {/* { !isFirstPage && <Button type="button" onClick={ backToPreviousPage } className="max-w-max"><Icons.backward /> Back</Button> } */}
                         { isLastPage && <Button type='submit' disabled={ !isCurrentPageCompleted } className="max-w-max ml-auto">Submit <Icons.forward /></Button> }
-                        { !isLastPage && <Button type='button' disabled={ !isCurrentPageCompleted } onClick={ gotoNextPage } className="max-w-max ml-auto">Next <Icons.forward /></Button> }
+                        {/* { !isLastPage && <Button type='button' disabled={ !isCurrentPageCompleted } onClick={ gotoNextPage } className="max-w-max ml-auto">Next <Icons.forward /></Button> } */}
                     </div>
                 </div>
             </form>

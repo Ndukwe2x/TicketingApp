@@ -3,6 +3,8 @@ const sessionTimeOut = (timeout: number) => {
     date.setTime(date.getTime() + timeout * 60 * 1000);
     return date.getTime();
 }
+
+
 export const APPCONFIG = {
     title: 'Tickets',
     description: 'A ticketing system for managing events and tickets.',
@@ -13,13 +15,19 @@ export const APPCONFIG = {
         httpOnly: false, // Set true in production
         path: '/'
     },
-    cloudinary: {
+    cloudinaryConfig: {
         cloudName: 'dtuznvywy',
-        apiEndpoint: 'https://api.cloudinary.com/v1_1/{cloudName}/upload',
+        api: {
+            endpoint: 'https://api.cloudinary.com/v1_1/dtuznvywy/upload',
+            key: '811318738171199',
+            secret: ''
+        },
         uploadSettings: {
             upload_preset: 'lightup_ticketing_upload',
-            // asset_folder: '',
-            // use_asset_folder_as_public_id_prefix: true,
+            asset_folder: 'lightup-ticketing',
+            use_asset_folder_as_public_id_prefix: true,
         }
-    }
+    },
+    accountTypes: ['owner','user'],
+    userRoles: ['Super','Regular','Basic'],
 };

@@ -1,28 +1,44 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Button } from "../ui/button";
 import { Icons } from "../icons";
 import { ReadonlyURLSearchParams, useParams, usePathname, useRouter } from "next/navigation";
+import { ButtonIcon } from "@radix-ui/react-icons";
+import { MdGridView, MdTableView, MdViewList } from "react-icons/md";
 
-export default function LayoutToggle({layout, callback}) {
+export default function LayoutToggle(
+    {callback, layout}: 
+    {callback: (layout: string) => void; layout?: string}
+    ) {
     const currentLayout: string|null = sessionStorage.getItem('events_layout') ?? 'stack';
-    // const [layout, setLayout] = React.useState(currentLayout);
+    
     const route = useRouter();
     const path = usePathname();
     const query = useParams();
-    // console.log(query);
-    const toggleLayout = () => {
-        if (layout === 'stack') setLayout('grid');
-        else setLayout('stack');
+    const table = 'table', grid = 'grid';
+
+    
+
+    const toggleLayout = (layout: string) => {
         // route.push(path + '?layout=' + layout);
-        sessionStorage.setItem('events_layout', layout);
-        
+        // sessionStorage.setItem('events_layout', layout);
+        callback(layout);
     }
 
+    useEffect(() => {
+        layout = layout || currentLayout;
+        callback(layout);
+    })
+
     return (
-        <Button onClick={ () => {toggleLayout(callback, layout)} }>
-            <span className="sr-only">Toggle Layout</span>
-            {layout === 'grid' && <Icons.layoutStack className='mr-2 h-4 w-4 animate-spin' />}
-            {layout === 'stack' && <Icons.layoutGrid className='mr-2 h-4 w-4 text-white' />}
-        </Button>
+        <div className="button-group flex gap-3">
+            <Button type="button" variant='outline' className={ (layout === table ? 'active' : '') + ' px-2'} onClick={ () => { toggleLayout(table)} }>
+                <span className="sr-only">Table</span>
+                <MdViewList size='20' />
+            </Button>
+            <Button type="button" variant='outline' className={ (layout === grid ? 'active' : '') + ' px-2'} onClick={ () => {toggleLayout(grid)} }>
+                <span className="sr-only">Grid</span>
+                <MdGridView size='20' />
+            </Button>
+        </div>
     )
 }

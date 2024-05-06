@@ -22,11 +22,13 @@ export const useGetDashboardSummary = () => {
 };
 
 export const getDashboardSummary = async () => {
+    let events, tickets;
     await new Promise((resolve) => {
         setTimeout(() => {
             resolve(true);
         }, 2000);
     });
+
     return dummySummary;
 };
 

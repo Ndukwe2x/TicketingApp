@@ -152,7 +152,24 @@ type AuthInfo = {
         userStatus: string;
     };
     token: string;
-    isOwner: () => boolean;
+    isOwner: boolean;
+    isSuper: boolean;
+    isRegular: boolean;
+    isBasic: boolean;
+    isSuperOwner: boolean;
+    isRegularOwner: boolean;
+    isBasicOwner: boolean;
+    isUser: boolean;
+    isSuperUser: boolean;
+    isRegularUser: boolean;
+    isBasicUser: boolean;
+    canCreateUser: boolean;
+    canUpdateUser: boolean;
+    canDeleteUser: boolean;
+    canCreateEvent: boolean;
+    canUpdateEvent: boolean;
+    canDeleteEvent: boolean;
+    canDeleteTicket: boolean;
 }
 
 type Callback = (param: Any) => void;

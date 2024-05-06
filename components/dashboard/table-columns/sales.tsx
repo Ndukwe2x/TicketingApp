@@ -1,27 +1,23 @@
 'use client';
 import * as React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
-
 import { CaretSortIcon } from '@radix-ui/react-icons';
 import { formatCurrency, formatDate, humanReadableDateFormat } from '@/lib/utils';
-// import CommonDropdownMenu from '@/components/dropdown-menu';
-// import { Icons } from '@/components/icons';
 import { User } from '@/lib/logged-user';
-// import * as TicketActions from '@/hooks/ticket-actions';
-// import Modal from '@/components/ui/modal';
 import TicketActionsDropdownMenu from '../ticket-actions-dropdown-menu';
 import Link from 'next/link';
 
-export const columns: ColumnDef<Ticket>[] = [
-    // {
-    //     accessorKey: '_id',
-    //     header: 'ID.',
-    //     cell: ({ row }) => <div>{row.getValue('_id')}</div>,
-    // },
+export const columns: ColumnDef<Ticket & {event: SingleEvent | null; event_title: string | null}>[] = [
     {
-        accessorKey: 'eventRef',
-        header: () => <div className='px-4'>Event Ref.</div>,
-        cell: ({ row }) => <div>{row.getValue('eventRef')}</div>,
+        accessorKey: 'event_title',
+        header: () => <div className='px-4'>Event</div>,
+        cell: ({ row }) => (<div className='whitespace-nowrap'>
+            <Link href={ `/events/?id=${row.original.event._id}`}>
+            {
+                row.original.event_title
+            }
+            </Link>
+        </div>),
     },
     {
         accessorKey: 'name',
@@ -83,15 +79,15 @@ export const columns: ColumnDef<Ticket>[] = [
     {
         accessorKey: 'referenceNo',
         header: 'Reference No',
-        cell: ({ row }) => <div className='px-4'>{row.getValue('referenceNo')}</div>,
+        cell: ({ row }) => <div>{row.getValue('referenceNo')}</div>,
     },
     {
         accessorKey: 'actions',
         cell: ({ row }) => {
             return (
-                <div className='text-right px-4'>
-                    <Link href={`/tickets/${row.original.referenceNo}/?option=mark_as_admitted`} className='border border-primary flex flex-row hover:bg-primary 
-                hover:text-primary-foreground items-end gap-1.5 py-1 md:py-2 px-1 md:px-2 lg:px-4 rounded-full text-primary'>View Ticket</Link>
+                <div className='text-right'>
+                    <Link href={`/tickets/${row.original.referenceNo}/`} className='border border-primary flex flex-row hover:bg-primary 
+                hover:text-primary-foreground items-end gap-1.5 py-1 px-1 md:px-2 lg:px-4 rounded-full text-primary whitespace-nowrap'>View Ticket</Link>
                 </div>
             )
         }

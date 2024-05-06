@@ -4,8 +4,10 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import styles from '../styles/styles.module.css';
 import { APPCONFIG } from "@/lib/app-config";
-import React, { AllHTMLAttributes, ChangeEvent, HTMLAttributes, ReactEventHandler } from "react";
+import React, { ChangeEvent } from "react";
 import axios from "axios";
+import signUpload from "../../lib/cloudinary-signature";
+import { snakeCase, trainCase } from "change-case";
 
 // interface ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
 // interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -13,37 +15,48 @@ import axios from "axios";
 // }
 // type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
 
-const uploadFile = async (file: File, onSuccess: (data: object) => void, attempts = 0, assetFolder?: string) => {
-    const cloudName = APPCONFIG.cloudinary.cloudName;
-    const cloudinary = APPCONFIG.cloudinary.apiEndpoint.replace('{cloudName}', cloudName);
+const uploadFile = async (file: File, onSuccess: (data: object) => void, attempts = 0, folder?: string) => {
+    const { title, cloudinaryConfig } = APPCONFIG;
+    const cloudName = cloudinaryConfig.cloudName;
     
-    let uploadSettings: object = APPCONFIG.cloudinary.uploadSettings;
-    if ( assetFolder ) {
-        uploadSettings = {...uploadSettings, asset_folder: assetFolder};
-    }
-    const formData = new FormData();
-    formData.append('file', file);
+    let uploadSettings: {} = cloudinaryConfig.uploadSettings;
 
-    // Applying the cloudinary upload settings for the asset
-    for (const [key, value] of Object.entries(uploadSettings)) {
-        formData.append(key, value);
+    if ( folder ) {
+        uploadSettings = {
+            ...uploadSettings, 
+            folder: trainCase(title), 
+            public_id: snakeCase(folder)
+        };
+    }
+
+    const signables = {
+        ...uploadSettings,
+        source: cloudName
+    };
+
+    const { sortedUploadParams, signature } = signUpload(signables, cloudinaryConfig.api.secret);
+    
+    const uploadData = {
+        api_key: cloudinaryConfig.api.key,
+        file: file,
+        ...sortedUploadParams,
+        signature
     }
     
     try {
-        await axios
-            .post(cloudinary, formData, {
+        axios.post(cloudinaryConfig.api.endpoint, uploadData, {
                 headers: {
-                'Content-Type': 'multipart/form-data',
+                    'Content-Type': 'multipart/form-data',
                 },
             })
-            .then((response) => {
+            .then(response => {
                 onSuccess(response.data);
             })
-            .catch((error) => {
+            .catch(error => {
                 if (attempts <= 3) {
                     setTimeout(() => {
                         attempts += 1;
-                        uploadFile(file, onSuccess, attempts, assetFolder);
+                        uploadFile(file, onSuccess, attempts, folder);
                     }, 2000);
                 } else {
                     console.error('Error uploading file: ', error);
@@ -69,11 +82,11 @@ const uploadSelectedFiles = async (
 
     const files = ev.target.files; // Get the selected file
 
-    if (!files?.length) {
+    if ( !files?.length ) {
         console.error('No file selected.');
         return;
     }
-    if (onInit) onInit();
+    if ( onInit ) onInit();
 
     // formData.append('tags', 'browser_upload');
     for (let i = 0; i < files.length; i++) {
@@ -82,12 +95,13 @@ const uploadSelectedFiles = async (
 };
 
 interface UploaderProps extends React.AllHTMLAttributes<HTMLElement> {
-    onSuccess: (data: CloudinaryResponseData) => void;
+    onSuccess: ( data: CloudinaryResponseData ) => void;
     onInit?: () => void;
     assetFolder?: string;
 }
+
 const MediaUploader = {
-    uploadButton: ({ onSuccess, onInit, assetFolder, ...rest}: UploaderProps) => {
+    uploadButton: ( { onSuccess, onInit, assetFolder, ...rest }: UploaderProps ) => {
         
         // const fileSelector = document.querySelector('input[type="file"].file_uploader');
         // fileSelector?.addEventListener('change', (evt) => uploadSelectedFiles(evt), false);
@@ -102,7 +116,7 @@ const MediaUploader = {
             </Label>
         )
     },
-    editButton: ({ onSuccess, onInit, assetFolder, ...rest}: UploaderProps) => {
+    editButton: ( { onSuccess, onInit, assetFolder, ...rest }: UploaderProps ) => {
         const props = { ...rest, className: `${styles.media_frame} ${rest.className} image-picker-facade`};
 
         return (

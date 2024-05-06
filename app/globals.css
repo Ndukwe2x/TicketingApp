@@ -183,4 +183,54 @@
     .text-auto-scale {
         font-size: calc(.63rem + 0.712vw);
     }
+
+    .dialog-responsive {
+        height: 100vh;
+        min-height: 100vh;
+        max-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    .dialog-responsive:empty {
+        min-height: 12.5rem;
+    }
+    .dialog-responsive .dialog-header {
+        align-self: start;
+        flex-grow: 0;
+        padding: 1.5rem;
+        width: 100%;
+    }
+    .dialog-responsive .dialog-body {
+        height: 100%;
+        flex-grow: 1;
+        padding: 1.5rem;
+        overflow-y: auto;
+    }
+    @media screen and (min-width: 768px) {
+        .dialog-responsive {
+            max-width: 40rem;
+            min-height: 12.5rem;
+            max-height: 40rem;
+        }
+    }
+
+    .data-table.vertical-stripe col:nth-child(2n+2) {
+        background-color: #f3f3f3;
+    }
+
+
+    /********** Input styles ************/
+    .required {
+        position: relative;
+        padding-right: .5rem;
+        display: inline-block;
+        width: fit-content;
+    }
+    .required::after {
+        content: "*";
+        color: red;
+        position: absolute;
+        top: -3px;
+        right: 0;
+    }
 }

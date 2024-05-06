@@ -19,16 +19,16 @@ import {
     MenubarTrigger,
 } from '@/components/ui/menubar';
 import { HamburgerMenuIcon } from '@radix-ui/react-icons';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { AppLogo } from './app-logo';
 import { NavbarUserDashboard } from './navbar-user-dashboard';
-// import DataCreatorButton from './buttons/data-creator-button';
 import CreateUserButton from './buttons/create-user-button';
 import CreateEventButton from './buttons/create-event-button';
-import { MdAlignHorizontalLeft, MdAlignHorizontalRight, MdClose, MdExpandMore, MdMenu, MdOutlineMenu, MdOutlineMenuOpen } from 'react-icons/md';
+import { MdOutlineMenu, MdOutlineMenuOpen } from 'react-icons/md';
 import DataCreatorButton from './buttons/data-creator-button';
 import { ToggleSidebar } from '@/lib/sidebar-toggle';
+import { User } from '@/lib/logged-user';
 
 const components: { title: string; href: string }[] = [
     {
@@ -50,12 +50,23 @@ const components: { title: string; href: string }[] = [
 ];
 
 export function MainNav() {
-    const deviceWidth = window.innerWidth;
     const [hasScrolled, setHasScrolled] = React.useState(false);
-    const defaultState = deviceWidth <= 768 ? false : true;
-    const [open, toggleOpen] = React.useReducer((state) => !state, defaultState);
+    const [deviceWidth, setDeviceWidth] = React.useState(undefined);
+    const [open, setOpen] = React.useState(false);
 
     React.useEffect(() => {
+        const handleResize = () => {
+            const dWidth = window.innerWidth;
+            if (dWidth >= 1200 || document.querySelector('#dashboard-navigation.expanded') != null) {
+                setOpen(true);
+            } else {
+                setOpen(false);
+            }
+            setDeviceWidth(dWidth);
+        }
+        window.addEventListener('resize', handleResize);
+        handleResize();
+
         const setScrollHandler = () => {
             const scroll = document.documentElement.scrollTop;
             scroll > 16 ? setHasScrolled(true) : setHasScrolled(false);
@@ -65,8 +76,10 @@ export function MainNav() {
 
         return () => {
             document.removeEventListener('scroll', setScrollHandler);
+            window.removeEventListener('resize', handleResize);
         };
-    }, []);
+    }, [deviceWidth]);
+
 
     return (
         <nav
@@ -78,7 +91,7 @@ export function MainNav() {
             <div className='flex items-center justify-between p-4 lg:px-8 mx-auto'>
                 <div className='flex items-center gap-4'>
                     <Button size={26} 
-                        onClick={ (ev) => {ToggleSidebar(ev); toggleOpen()}}
+                        onClick={ (ev) => {ToggleSidebar(); setOpen(state => state ? false : true)}}
                         className={ cn('text-primary outline-none bg-transparent shadow-none border-none')} style={{background: 'none'}}>
                         {!open && <MdOutlineMenu size={26} /> }
                         {open && <MdOutlineMenuOpen size={26} />}
@@ -88,11 +101,20 @@ export function MainNav() {
                     </Link>
                 </div>
                 <div className='flex flex-row items-center gap-3'>
-                    <div className='hidden lg:flex items-center gap-3'>
-                        <CreateUserButton />
-                        <CreateEventButton />
-                    </div>
-                    <div className='lg:hidden'><DataCreatorButton /></div>
+                    {
+                        (User.canCreateUser || User.canCreateEvent) &&
+                        <>
+                            <div className='hidden lg:flex items-center gap-3'>
+                                { 
+                                    User.canCreateUser && <CreateUserButton /> 
+                                }
+                                {
+                                    User.canCreateEvent && <CreateEventButton />
+                                }
+                            </div>
+                            <div className='lg:hidden'><DataCreatorButton /></div>
+                        </>
+                    }
                     <NavbarUserDashboard />
                 </div>
             </div>
@@ -110,7 +132,7 @@ function MobileNav() {
                     </MenubarTrigger>
                     <MenubarContent>
                         {components.map((component) => (
-                                <MenubarItem  key={component.href} href={component.href}>{component.title}</MenubarItem>
+                            <MenubarItem  key={component.href} href={component.href}>{component.title}</MenubarItem>
                         ))}
                     </MenubarContent>
                 </MenubarMenu>
