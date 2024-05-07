@@ -29,10 +29,10 @@ const CreateEventButton = () => {
                     <MdEvent size={24} />
                     <span className="hidden lg:inline">Create Event</span></Link> 
                 } 
-                content={ <CreateEventForm /> } 
+                description={ <CreateEventForm /> } 
                 onSave={ handleSave } 
                 onClose={ handleClose }
-                style={ { maxWidth: '40rem' } } />
+                 />
         </>
     )
 }

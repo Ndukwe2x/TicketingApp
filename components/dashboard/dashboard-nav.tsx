@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { cn } from '@/lib/utils';
 import { ChevronRightIcon } from '@radix-ui/react-icons';
@@ -10,17 +10,25 @@ import { HiMiniUsers } from 'react-icons/hi2';
 import { HiOfficeBuilding } from 'react-icons/hi';
 import { MdEvent, MdHomeFilled } from 'react-icons/md';
 import {User} from '@/lib/logged-user';
+import useDeviceViewPort from '@/hooks/useDeviceViewPort';
 
-const deviceWidth = window.innerWidth;
 export const DashboardNav = () => {
+
     const user = User;
-    const state = deviceWidth <= 768 ? 'collapsed' : 'expanded';
+    const viewPort = useDeviceViewPort();
+    // const [state, setState] = React.useState('collapsed');
+    let state = 'collapsed';
+    if (viewPort && viewPort?.deviceWidth && viewPort?.deviceWidth > 1200) {
+        // setState('expanded');
+        state = 'expanded';
+    }
+    // Testing...
     return (
         <div id='dashboard-navigation' className={cn(`transition-[width] lg:flex ${state}`)}>
             <div className='fixed top-16'>
                 <nav className='py-8 px-4 lg:px-8 border-r h-[90vh] flex flex-col gap-3'>
                     {
-                        user && user.token && user.user.userStatus === 'owner'
+                        user && user.isOwner
                         ? displayMenu(ownerNavItems) 
                         : displayMenu(userNavItems)
                     }

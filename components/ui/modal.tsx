@@ -15,41 +15,32 @@ import { Button } from './button';
 
 interface ModalProps {
     title: string;
-    content: string|ReactNode;
     displayText: string|ReactNode;
-    onSave: () => void;
-    onClose: () => void;
-    style?: {};
+    description?: ReactNode|string;
     footerButtons?: ReactNode|boolean;
-    description?: string|null;
+    style?: {};
+    onSave?: () => void;
+    onClose?: () => void;
 }
 
-const Modal: React.FC<ModalProps> = ({title, content, displayText, onSave, onClose, style, description, footerButtons = false, ...props}) => {
+const Modal: React.FC<ModalProps> = ({title, displayText, description, footerButtons = false, style, onSave, onClose, ...props}) => {
     return (
         <Dialog>
             <DialogTrigger asChild>
                 { displayText }
             </DialogTrigger>
-            <DialogPortal>
-                <DialogContent style={ style }>
-                    <DialogHeader>
-                        <DialogTitle>{ title }</DialogTitle>
-                    </DialogHeader>
-                    
-                    {
-                        description 
-                            ? <DialogDescription>{ description }</DialogDescription>
-                            : ''
-                    }
-                    { content }
-                    {
-                        footerButtons && 
-                        <DialogFooter>
-                            { footerButtons }
-                        </DialogFooter>
-                    }
-                </DialogContent>
-            </DialogPortal>
+            <DialogContent className='dialog-responsive'>
+                <DialogHeader className='dialog-header'>
+                    <DialogTitle>{ title }</DialogTitle>
+                </DialogHeader>
+                <div className='dialog-body'>{ description }</div>
+                {
+                    footerButtons && 
+                    <DialogFooter>
+                        { footerButtons }
+                    </DialogFooter>
+                }
+            </DialogContent>
         </Dialog>
     )
 }

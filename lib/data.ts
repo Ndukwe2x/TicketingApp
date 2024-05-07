@@ -6,7 +6,7 @@ export const dummyEvent: DashboardEvent = {
     address: '123 Festival Street',
     city: 'Sunshine City',
     state: 'California',
-    eventDate: new Date('2024-07-15T18:30:00'),
+    eventDate: (new Date('2024-07-15T18:30:00')).toDateString(),
     totalTickets: 1000,
     ticketsSold: 300,
     ticketCategories: [
@@ -14,10 +14,10 @@ export const dummyEvent: DashboardEvent = {
         { name: 'VIP Pass', price: 499.99, qty: 300, discount: 10 },
         { name: 'Backstage Access', price: 899.99, qty: 200, discount: 15 },
     ],
-    ticketClosingDate: new Date('2024-07-10T23:59:59'),
+    ticketClosingDate: (new Date('2024-07-10T23:59:59')).toDateString(),
     eventBanner: '/showcase.jpg',
     posters: ['poster1.jpg', 'poster2.jpg', 'poster3.jpg'],
-    createdAt: new Date(),
+    createdAt: (new Date('2024-07-10T23:59:59')).toDateString(),
 };
 
 

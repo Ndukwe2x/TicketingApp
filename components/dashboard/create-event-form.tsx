@@ -2,7 +2,6 @@ import React, { FormEvent } from "react";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Api } from "@/lib/api";
 import { Text } from "../ui/text";
 import { Icons } from "../icons";
@@ -13,7 +12,7 @@ import { User } from "@/lib/logged-user";
 import { Checkbox } from "../ui/checkbox";
 import { v4 as uuidv4 } from 'uuid';
 import AddTicketCategory from "./add-ticket-category";
-import { pascalCase } from "change-case";
+import { pascalCase, trainCase } from "change-case";
 import { parseInputName } from "@/lib/utils";
 
 const CreateEventForm = () => {
@@ -191,9 +190,12 @@ const CreateEventForm = () => {
             console.error('Unable to preview image');
             return;
         };
-
+        const groupId = imagePreview.id;
+        const groupIndex = groupId.slice(groupId.length - 1);
+        const groupFieldName = `poseters[${groupIndex}]`;
         const imageUrl = data.secure_url;
-        const mediaBox = document.getElementById('media-box');
+        const imageId = data.public_id;
+        // const mediaBox = document.getElementById('media-box');
 
         // if ( !imagePreview.id ) {
             // imagePreview.id = output;
@@ -214,11 +216,25 @@ const CreateEventForm = () => {
             }
             // imagePreview.getElementsByClassName(styles.edit_btn)[0].style.display = 'flex';
 
-            const imagePermalink = imagePreview.querySelector('input.poster_permalink') as HTMLInputElement;
-            if (imagePermalink) imagePermalink.value = imageUrl;
+            const hiddenField = document.createElement('input');
+            hiddenField.name = groupFieldName;
+            hiddenField.type = 'hidden';
+            const permalink = hiddenField.cloneNode() as HTMLInputElement;
+            const publicId = hiddenField.cloneNode() as HTMLInputElement;
+            // permalink.classList.add('poster_permalink');
+            permalink.name += '[url]';
+            permalink.value = data.secure_url;
+            publicId.name += '[public_id]';
+            publicId.value = data.public_id;
+            imagePreview.appendChild(permalink);
+            imagePreview.appendChild(publicId);
+            
+            // const imagePermalink = imagePreview.querySelector('input.poster_permalink') as HTMLInputElement;
+            // if (imagePermalink) imagePermalink.value = imageUrl;
             updatePageStatus();
             imagePreview.classList.remove('loading');
         }
+        
         imagePreview.style.backgroundImage = `url(${imageUrl})`;
         if (imagePreview.getElementsByTagName('img').length) {
             imagePreview.replaceChild(img, imagePreview.getElementsByTagName('img')[0])
@@ -239,18 +255,16 @@ const CreateEventForm = () => {
         }
 
         const posterGroup = document.createElement('div');
-        const hiddenField = document.createElement('input');
         const existingPosters = document.querySelectorAll(`.${styles.media_frame}.${styles.poster}`);
-        const posterId = existingPosters.length - 1;
+        const posterId = existingPosters.length > 0 
+            ? existingPosters.length - 1 
+            : existingPosters.length;
         const groupId = 'poster_' + posterId;
         const uploadBtn = container.getElementsByClassName('upload-btn')[0];
 
         posterGroup.id = groupId;
         posterGroup.classList.add(styles.media_frame, styles.poster, styles.img_preview, 'poster-group', 'loading');
-        hiddenField.setAttribute('name', `posters[]`);
-        hiddenField.setAttribute('type', 'hidden');
-        hiddenField.classList.add('poster_permalink');
-        posterGroup.appendChild(hiddenField);
+        
 
         container?.insertBefore(posterGroup, uploadBtn);
 
@@ -296,43 +310,37 @@ const CreateEventForm = () => {
 
         const user = User;
         const form = ev.target as HTMLFormElement
-        const formElements = form.elements as HTMLFormControlsCollection;
-        const formData = new FormData();
+        // const formElements = form.elements as HTMLFormControlsCollection;
+        const formData = new FormData(form);
+        console.log(formData.values());
         
-        Array.from(formElements).forEach((input, key) => {
-            const inputElem = input as HTMLInputElement;
-            formData.append(inputElem.name, inputElem.value);
-        });
+        // Array.from(formElements).forEach((input, key) => {
+        //     const inputElem = input as HTMLInputElement;
+        //     formData.append(inputElem.name, inputElem.value);
+        // });
 
-        try {
-            axios.post(form.action, formData, {
-                headers: {
-                    Authorization: `Bearer ${user.token}`
-                }
-            })
-            .then(
-                response => {
-                    console.log(response.data);
-                },
-                error => {
-                    console.error(error);
-                }
-            )
-            .catch(error => {
-                console.log(error);
-            })
-        } catch (error) {
+        axios.post(form.action, formData, {
+            headers: {
+                Authorization: `Bearer ${user.token}`
+            }
+        })
+        .then(
+            response => {
+                console.log(response.data);
+            }
+        )
+        .catch(error => {
             console.log(error);
-        }
+        })
     }
 
     const RenderSummary = React.useCallback(() => {
-        return Object.entries(formData).map(([name, value]) => {
+        return formData.entries(([name, value]) => {
             return (
                 <>
                     <div className="border-b py-2">
                         <p className="grid grid-cols-[2fr_5fr]">
-                            <label className="font-bold">{pascalCase(name)}:</label> 
+                            <label className="font-bold">{ pascalCase(name) }:</label> 
                             <span>{value}</span>
                         </p>
                     </div>
@@ -388,62 +396,33 @@ const CreateEventForm = () => {
                                 </div>
                             </div>
                         </div>
-
-
-
-                        {/* <div className='flex flex-col gap-2'>
-                            <Label htmlFor='description'>Description:</Label>
-                            <Textarea id="description" name="description" rows={ 6 } onInput={ () => updatePageStatus() } className="input text-md" placeholder="Event description..."></Textarea>
-                            <Text variant='p' className="text-muted-foreground text-xs" style={ { marginTop: '0' }}>Describe this event so that people will understand what the event is all about</Text>
-                        </div> */}
-
-                        {/* <div className='flex flex-row gap-6'>
-                            <div className="flex flex-col flex-1 gap-2">
-                                <Label>Category</Label>
-                                <Select name="event_category" onValueChange={ () => updatePageStatus() }>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder='Select' />
-                                    </SelectTrigger>
-                                    <SelectContent className="input">
-                                        <SelectItem value='student'>Student</SelectItem>
-                                        <SelectItem value='regular'>Regular</SelectItem>
-                                        <SelectItem value='vip'>VIP</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <Text variant='p' className="text-muted-foreground text-xs" style={ { marginTop: '0' }}>Categorize the event to make it easy for people to discover.</Text>
-                            </div>
-                            <div className="flex flex-col flex-1 gap-2">
-                                <Label>Age bracket</Label>
-                                <Select name="age_bracket" onValueChange={ () => updatePageStatus() }>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder='Age bracket' />
-                                    </SelectTrigger>
-                                    <SelectContent className="input">
-                                        <SelectItem value='children'>Children less than 13</SelectItem>
-                                        <SelectItem value='teenagers'>13 - 19</SelectItem>
-                                        <SelectItem value='16+'>16 and above</SelectItem>
-                                        <SelectItem value='18+'>18 and above</SelectItem>
-                                        <SelectItem value='25+'>25 and above</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <Text variant='p' className="text-muted-foreground text-xs" style={ { marginTop: '0' }}>Categorize the event to make it easy for people to discover.</Text>
-                            </div>
-                        </div> */}
                     </div>
                     <div id="event-form_page_b" className={ `${pageBaseClass} flex-col gap-4 flex-1` }>
+                    <Text variant='h4'>Ticket Categories</Text>
+                        { AddTicketCategory() }
+                        <Text variant='h4'>Event Featuring</Text>
+                        <div className='flex flex-col gap-2'>
+                            <Label htmlFor='featured'><Checkbox id='featured' name="featured" value='true' /> Feature this event</Label>
+                        </div>
+                    </div>
+                    <div id="event-form_page_c" className={ `${pageBaseClass} flex-col gap-4 flex-1` }>
                         <Text variant='h4'>Event banner:</Text>
                         <div className='flex flex-col gap-2'>
                             <div id='banner-box' className={ styles.banner_box }>
                                 <div id='banner-preview' className={`${styles.image_picker_facade} ${styles.banner} ${ styles.img_preview } ${ styles.banner_preview} hidden`} >
                                     <MediaUploader.editButton onSuccess={ previewBanner } onInit={ () => createSuspense('#banner-preview') } />
                                 </div>
-                                <MediaUploader.uploadButton onSuccess={ previewBanner } onInit={ () => createSuspense('#banner-preview') } className={styles.banner} />
+                                <MediaUploader.uploadButton 
+                                    onSuccess={ previewBanner } 
+                                    onInit={ () => createSuspense('#banner-preview') } 
+                                    assetFolder={ trainCase(eventTitle).toLowerCase() }
+                                    className={styles.banner} />
                             </div>
                             <Input id='banner' name="eventBanner" type='hidden' 
-                            onInput={ () => updatePageStatus() } required aria-required='true' />
+                            onInput={ updatePageStatus } required aria-required='true' />
                         </div>
                     </div>
-                    <div id="event-form_page_c" className={ `${pageBaseClass} flex-col gap-4 flex-1` }>
+                    {/* <div id="event-form_page_d" className={ `${pageBaseClass} flex-col gap-4 flex-1` }>
                         <Text variant='h4'>Event posters:</Text>
                         <div className='flex flex-col gap-2'>
                             <div id="posters" className="poster-groups gap-3 grid grid-cols-3">
@@ -452,15 +431,7 @@ const CreateEventForm = () => {
                                
                             </div>
                         </div>
-                    </div>
-                    <div id="event-form_page_d" className={ `${pageBaseClass} flex-col gap-4 flex-1` }>
-                        <Text variant='h4'>Ticket Categories</Text>
-                        <AddTicketCategory />
-                        <Text variant='h4'>Event Featuring</Text>
-                        <div className='flex flex-col gap-2'>
-                            <Label htmlFor='featured'><Checkbox id='featured' name="featured" value='true' /> Feature this event</Label>
-                        </div>
-                    </div>
+                    </div> */}
                     <div id="event-form_page_e" className={ `${pageBaseClass} flex-col gap-4 flex-1` }>
                         <Text variant='h3'>Preview</Text>
                         <div id="preview-form-data">

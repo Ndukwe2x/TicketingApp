@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { Icons } from '../icons';
 import CreateUserButton from './create-user-button';
 import CreateEventButton from './create-event-button';
+import { User } from '@/lib/logged-user';
 
 const DataCreatorButton = () => {
 
@@ -23,8 +24,8 @@ const DataCreatorButton = () => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className='p-4'>
                     <div className='flex items-center justify-between gap-4'>
-                        <div><CreateUserButton /></div>
-                        <div><CreateEventButton /></div>
+                        { User.canCreateUser && <div><CreateUserButton /></div> }
+                        { User.canCreateEvent && <div><CreateEventButton /></div> }
                     </div>
                 </DropdownMenuContent>
             </DropdownMenu>

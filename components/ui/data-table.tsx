@@ -4,6 +4,7 @@ import * as React from 'react';
 import {
     ColumnDef,
     ColumnFiltersState,
+    ColumnGrouping,
     SortingState,
     VisibilityState,
     flexRender,
@@ -37,13 +38,14 @@ interface DataTableProps<TData, TValue> {
     filterFields?: string[];
 }
 
-export function DataTable<TData, TValue>({ columns, data, fallback, isFilteringEnabled = false, filterFields }: DataTableProps<TData, TValue>) {
+export function DataTable <TData, TValue> ({ children, columns, data, fallback, isFilteringEnabled = false, filterFields = [], ...props }: DataTableProps<TData, TValue>) {
     
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = React.useState({});
     const [filterField, setFilterField] = React.useState('');
+    const {className} = props;
 
     const table = useReactTable({
         data,
@@ -65,9 +67,9 @@ export function DataTable<TData, TValue>({ columns, data, fallback, isFilteringE
     });
 
     // Event handler
-    const changeFilterField = (ev) => {
+    // const changeFilterField = (ev) => {
 
-    }
+    // }
 
     return (
         <div className='w-full'>
@@ -75,7 +77,7 @@ export function DataTable<TData, TValue>({ columns, data, fallback, isFilteringE
                 isFilteringEnabled && 
                 <div className='grid gap-3 sm:gap-5 md:grid-cols-3 pb-4 sm:grid-cols-2 sm:items-end lg:grid-cols-[2fr_3fr_4fr]'>
                     {
-                        filterFields?.length &&
+                        filterFields &&
                         <div className="filter-field w">
                             <span>Filter by:</span>
                             <Select name="field" onValueChange={ (value) => setFilterField(value) }>
@@ -96,18 +98,18 @@ export function DataTable<TData, TValue>({ columns, data, fallback, isFilteringE
                             placeholder='Filter...'
                             value={(table.getColumn(filterField)?.getFilterValue() as string) ?? ''}
                             onChange={(event) =>
-                                table.getRow(filterField)?.setFilterValue(event.target.value)
+                                table.getColumn(filterField)?.setFilterValue(event.target.value)
                             }
-                            // className='max-w-sm'
                         />
                     </div>
                 </div>
             }
             <div className='overflow-auto'>
-                <Table className='min-w-[50rem]'>
+                <Table className={ 'min-w-[50rem] data-table ' + className }>
+                    { children }
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
-                            <TableRow key={headerGroup.id}>
+                            <TableRow key={headerGroup.id} className='bg-gray-400/40'>
                                 {headerGroup.headers.map((header) => {
                                     return (
                                         <TableHead key={header.id}>

@@ -2,44 +2,70 @@
 
 import * as React from 'react';
 import { Text } from '@/components/ui/text';
-import { Card, CardContent } from '@/components/ui/card';
-// import { DataTable } from '@/components/ui/data-table';
-import { getPublicEvents } from '@/hooks/getPublicEvents';
-import { EventCard } from '@/components/event-card';
-import { FilterTools } from '@/components/filter-tools';
-// import { columns } from '@/components/dashboard/table-columns/events';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { decorateEvent, getEvents } from '@/hooks/useGetEvents';
+import { DataTable, DataTableLoading } from '@/components/ui/data-table';
+import { columns } from '@/components/dashboard/table-columns/events';
+import NoNetwork from '@/components/no-network';
+import { User } from '@/lib/logged-user';
+import MyEvents from '@/components/dashboard/my-events';
+import LayoutToggle from '@/components/buttons/layout-toggle';
 
 
 export default function Events() {
-    const [result, setResult] = React.useState({});
-    const {events, ...res} = getPublicEvents();
+    const [layout, setLayout] = React.useState('');
+    // const [events, setEvents] = React.useState([]);
+    // const [featuredEvents, setFeaturedEvents] = React.useState([]);
+    // const [fallback, setFallback] = React.useState<React.JSX.Element | string>(<DataTableLoading />);
 
-    
-    
+    // React.useEffect(() => {
+    //     async function fetchAndDecorateEvents() {
+    //         try {
+    //             const response = await getEvents(User);
+    //             if (response && response.data) {
+    //                 const fetchedEvents = response.data.events || [];
+    //                 const decoratedEvents = await Promise.all(fetchedEvents.map(decorateEvent));
+    //                 setEvents(decoratedEvents);
+    //                 setFeaturedEvents(decoratedEvents.filter(event => event.featured));
+    //             }
+    //         } catch (error) {
+    //             let feedback = (error.code === 'ERR_NETWORK' || !navigator.onLine)  
+    //                 ? <NoNetwork />
+    //                 : 'Oops! We\'re unable to fetch your data right now, please try refreshing the page';
+
+    //             setFallback(feedback);
+    //         }
+    //     }
+
+    //     fetchAndDecorateEvents();
+    // }, []);
 
     return (
         <div className='flex flex-col gap-5'>
             <div className="flex flex-row items-center justify-between">
-                <Text variant='h1' className='py-4 page-title'>Events</Text>
-                <FilterTools subject='Event' className="w-3/4" />
+                <Text variant='h1' className='page-title'>Events</Text>
             </div>
-            
-            {
-                events.length 
-                    ? (
-                        <ul role='list' className='row-with-4-cols gutters-3 nmx-3 grid-cols-4 grid gap-5'>
-                        {events.map((event, index) => <li key={index}>
-                            <EventCard event={event} />
-                            </li>)}
-                        </ul>
-                    ) : (
-                        <div className="no-data text-center">
-                            <Text variant='h3'>There are no events right now... </Text>
-                            <Text variant='p'>Looking for a particular event? Check back later.</Text>
-                        </div>
-                    )
-                
-            }
+            <Card>
+                <CardHeader className='flex-row items-center justify-between'>
+                    {/* <Text variant='h4'>Events</Text> */}
+                    <div className='flex flex-row self-end items-center justify-between'>
+                        <LayoutToggle callback={setLayout} layout={layout} />
+                    </div>
+                </CardHeader>
+                <CardContent className='p-5'>
+                {/* {
+                    <DataTable data={ events } columns={ columns } 
+                    fallback={ fallback } 
+                    isFilteringEnabled={true} 
+                    filterFields={['eventRef', 'name', 'email', 'phone', 'dateOfPurchase', 'referenceNo']} />
+                } */}
+                    <MyEvents 
+                    layout={layout}
+                    isFilteringEnabled={true} 
+                    filterParams={['id', 'title', 'state', 'city', 'address', 'date']} />
+                </CardContent>
+            </Card>
         </div>
     )
 }
+
