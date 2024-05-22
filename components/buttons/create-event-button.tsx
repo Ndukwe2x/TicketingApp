@@ -2,10 +2,11 @@ import React, { MouseEvent, ReactHTMLElement } from "react"
 import Modal from "../ui/modal";
 import Link from "next/link";
 import { MdEvent } from "react-icons/md";
-import CreateEventForm from "../dashboard/create-event-form";
+import EventForm from "../dashboard/event-form";
 import styles from '@/components/styles/styles.module.css';
+import { AxiosResponse } from "axios";
 
-const CreateEventButton = () => {
+const CreateEventButton = ({ user, actor }: { user: AppUser; actor: AppUser }) => {
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 
     const initDialog = () => {
@@ -20,6 +21,10 @@ const CreateEventButton = () => {
         setIsDialogOpen(false);
     }
 
+    const handleSuccess = (response: AxiosResponse) => {
+        
+    }
+
     return (
         <>
             <Modal title="Create Event" 
@@ -29,7 +34,7 @@ const CreateEventButton = () => {
                     <MdEvent size={24} />
                     <span className="hidden lg:inline">Create Event</span></Link> 
                 } 
-                description={ <CreateEventForm /> } 
+                content={ <EventForm actor={ user } onSuccess={ handleSuccess } /> } 
                 onSave={ handleSave } 
                 onClose={ handleClose }
                  />

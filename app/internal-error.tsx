@@ -3,18 +3,20 @@ import { NotFoundIcon } from '@/components/ui/not-found-icon';
 import { Text } from '@/components/ui/text';
 import Link from 'next/link';
 import React from 'react';
+import { BiGlobe } from 'react-icons/bi';
+import { MdOutlineCloudOff } from 'react-icons/md';
 
-export default function NotFoundPage({text}: {text?: string}) {
+export default function InternalErrorPage() {
     return (
         <div className='h-[90dvh] flex flex-col items-center justify-center gap-2 mx-10'>
-            <NotFoundIcon />
+            <BiGlobe size={42} />
 
             <Text variant='h3' className='text-center'>
-                404 <span className='inline-block w-0.5 h-6 bg-muted-foreground -mb-1 mx-2' />
-                Page not found.
+                500 <span className='inline-block w-0.5 h-6 bg-muted-foreground -mb-1 mx-2' />
+                Internal Error.
             </Text>
             <Text className='text-center'>
-                { text || 'Sorry, we couldn&apos;t find the page you were looking for.' }
+                Sorry, your request could not be completed. An internal server error has occured.
             </Text>
 
             <Link href='/'>

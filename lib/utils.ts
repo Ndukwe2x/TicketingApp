@@ -1,6 +1,8 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import dateTime from 'date-and-time';
+import { setCookie } from 'cookies-next';
+import { APPCONFIG } from './app-config';
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -58,4 +60,13 @@ export const parseInputName = (name: string): { key: string; readable: string } 
     }
   
     return { key, readable };
-  }
+}
+
+export const orderByDate= (data: unknown[], prop: string, dir: string = 'asc'): Array<S> => {
+    const ordered = [...data].toSorted((a, b) => {
+        return dir === 'desc' 
+            ? (new Date(a[prop])).valueOf() - (new Date(b[prop])).valueOf()
+            : (new Date(b[prop])).valueOf() - (new Date(a[prop])).valueOf()
+    });
+    return ordered;
+}

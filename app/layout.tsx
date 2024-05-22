@@ -5,6 +5,7 @@ import './globals.css';
 import { cn } from '@/lib/utils';
 import { APPCONFIG } from '@/lib/app-config';
 import { Providers } from './providers';
+import { Toaster } from '@/components/ui/sonner';
 
 // const AppContext = React.createContext();
 // export const AppProvider = AppContext.Provider;
@@ -28,6 +29,7 @@ export default function RootLayout({
                 className={cn(inter.variable, 'min-h-screen bg-background font-sans antialiased')}
             >
                 <Providers>{children}</Providers>
+                <Toaster position='bottom-right' pauseWhenPageIsHidden={true} closeButton={true} />
             </body>
         </html>
     );

@@ -16,16 +16,28 @@ import { Button } from './button';
 interface ModalProps {
     title: string;
     displayText: string|ReactNode;
-    description?: ReactNode|string;
-    footerButtons?: ReactNode|boolean;
+    content: ReactNode|string;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    description?: string;
     style?: {};
     onSave?: () => void;
     onClose?: () => void;
+    footerButtons?: ReactNode|boolean;
 }
 
-const Modal: React.FC<ModalProps> = ({title, displayText, description, footerButtons = false, style, onSave, onClose, ...props}) => {
+const Modal: React.FC<ModalProps> = ({title, displayText, content, open, onOpenChange, description, style, onSave, onClose, footerButtons = false, ...props}) => {
+    // const [isOpen, setIsOpen] = React.useState(false);
+
+    // const toggleState = React.useCallback((state: boolean) => {
+    //     setIsOpen(state);
+    // }, [])
+    // React.useEffect(() => {
+
+    // }, [])
+
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogTrigger asChild>
                 { displayText }
             </DialogTrigger>
@@ -33,7 +45,7 @@ const Modal: React.FC<ModalProps> = ({title, displayText, description, footerBut
                 <DialogHeader className='dialog-header'>
                     <DialogTitle>{ title }</DialogTitle>
                 </DialogHeader>
-                <div className='dialog-body'>{ description }</div>
+                <div className='dialog-body'>{ content }</div>
                 {
                     footerButtons && 
                     <DialogFooter>

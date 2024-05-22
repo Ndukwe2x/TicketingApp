@@ -1,4 +1,5 @@
 'use client';
+
 import * as React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { CaretSortIcon } from '@radix-ui/react-icons';
@@ -6,16 +7,16 @@ import { formatCurrency, formatDate, humanReadableDateFormat } from '@/lib/utils
 import { User } from '@/lib/logged-user';
 import TicketActionsDropdownMenu from '../ticket-actions-dropdown-menu';
 import Link from 'next/link';
+import TicketEvent from '../ticket-event';
 
 export const columns: ColumnDef<Ticket & {event: SingleEvent | null; event_title: string | null}>[] = [
     {
         accessorKey: 'event_title',
         header: () => <div className='px-4'>Event</div>,
         cell: ({ row }) => (<div className='whitespace-nowrap'>
-            <Link href={ `/events/?id=${row.original.event._id}`}>
-            {
-                row.original.event_title
-            }
+                {/* <TicketEvent key={ row.id } actor={ User } ticket={ row.original } /> */}
+            <Link href={ `${location.origin}/events/${row.original._id}`}>
+                { row.getValue('event_title')}
             </Link>
         </div>),
     },

@@ -9,15 +9,15 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Text, textVariants } from '@/components/ui/text';
 import Link from 'next/link';
-import { usePathname, useSearchParams, useRouter } from 'next/navigation';
-import { Api, HttpRequest } from '@/lib/api';
+import { useSearchParams } from 'next/navigation';
+import { Api } from '@/lib/api';
 import axios from 'axios';
-import * as CookiesNext from 'cookies-next';
-import { APPCONFIG } from '@/lib/app-config';
+import { Session } from '@/lib/session';
+import { getAuthenticatedUserFullData } from '@/hooks/useGetUsers';
+import { toast } from '@/components/ui/sonner';
+import NoNetwork from '@/components/no-network';
 
 export function LoginForm() {
-    const router = useRouter();
-    const route = usePathname();
     const searchParams = useSearchParams();
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
     const [isSuccess, setIsSuccess] = React.useState<boolean>(false);
@@ -32,22 +32,33 @@ export function LoginForm() {
         try {
             const response = await axios.post(url, {email: userId, password: pass});
             if (response.status === 200) {
-                console.log('', typeof response.data);
-                CookiesNext.setCookie('app_user', JSON.stringify(response.data), APPCONFIG.cookieOptions);
-
+                const authData = response.data;
+                let fullData: UserInfo = await getAuthenticatedUserFullData(authData.user.userEmail, authData.token) as UserInfo;
+                if ( !fullData.id ) {
+                    toast('Login failed. An internal error has occurred. Please try again.');
+                    return;
+                }
+                fullData = {...fullData, token: authData.token}
+                Session.authenticate(fullData);
+                toast('Login successful.');
                 setIsLoading(false);
                 setIsSuccess(true);
                 let nextDestination = searchParams.get('redir');
-                console.log(nextDestination);
+                
                 if (nextDestination) {
-                    router.push(nextDestination)
+                    location.assign(nextDestination)
                 } else {
-                    router.push('/');
+                    location.assign('/');
                 }
             }
         } catch (error) {
             setIsLoading(false);
             console.error('Error logging in:', error);
+            if ( ["ECONNABORTED", "ERR_NETWORK"].includes(error.code) ) {
+                toast('Unable to login. It appears your connection was lost. Check your internet connectivity.');
+                return;
+            }
+            toast('Error logging in! Please try again.');
         }
     }
 

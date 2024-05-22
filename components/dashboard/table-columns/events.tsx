@@ -14,12 +14,18 @@ import {
 import { CaretSortIcon, DotsVerticalIcon } from '@radix-ui/react-icons';
 import { formatDate } from '@/lib/utils';
 import { Text } from '@/components/ui/text';
+import DeleteEventButton from '@/components/buttons/delete-event-button';
+import { toast } from '@/components/ui/sonner';
+import EditEventButton from '@/components/buttons/edit-event-button';
+import { User } from '@/lib/logged-user';
+import { MdLink } from 'react-icons/md';
+import CountTicketsSoldForEvent from '../count-tickets-sold-for-event';
 
 export const columns: ColumnDef<SingleEvent>[] = [
     {
         accessorKey: 'title',
         header: () => <div style={{width: '18rem'}}>Title</div>,
-        cell: ({ row }) => <div className='capitalize'>{row.getValue('title')}</div>,
+        cell: ({ row }) => <a href={`${location.origin}/events/${row.original._id}`} className='capitalize'>{row.getValue('title')}</a>,
     },
     // {
     //     accessorKey: 'organizers',
@@ -95,9 +101,9 @@ export const columns: ColumnDef<SingleEvent>[] = [
             return (
                 <div className='gap-1.5 grid grid-cols-3 ticket-categories'>
                     {
-                        row.original.ticketCategories.map(cat => {
+                        row.original.ticketCategories.map((cat, index) => {
                             return (
-                                <div className='category-group'>
+                                <div key={ index } className='category-group'>
                                     <Text variant='p' className='font-bold'>{ cat.name }</Text>
                                     <div variant='p'>N{ cat.price }</div>
                                     <div variant='p'>{ cat.qty }</div>
@@ -112,7 +118,10 @@ export const columns: ColumnDef<SingleEvent>[] = [
     {
         accessorKey: 'ticketsSold',
         header: 'Tickets Sold',
-        cell: ({ row }) => <div>{row.original.ticketsSold.length}</div>,
+        cell: ({ row }) => {
+            const modifiedEvent: SingleEvent & {ticketsSold: Ticket[] | []} = { ...row.original, ticketsSold: [] };
+            return (<div><CountTicketsSoldForEvent event={ modifiedEvent } /></div>)
+        },
     },
     {
         id: 'actions',
@@ -130,20 +139,31 @@ export const columns: ColumnDef<SingleEvent>[] = [
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align='end'>
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem
-                            onClick={() =>
-                                navigator.clipboard.writeText(
-                                    `${window.location.origin}/events/${event.objectId}`
-                                )
-                            }
-                        >
-                            Copy Event Link
-                        </DropdownMenuItem>
+                        <Button variant={null} onClick={ () => copyEventLink(event) }
+                            className='hover:bg-accent px-2 text-foreground flex justify-between items-center gap-5'><span>Copy Event Link</span><MdLink /></Button>
+                        { User?.canUpdateEvent && 
+                            <EditEventButton 
+                                eventId={ event._id } 
+                                actor={ User }
+                                variant={null} 
+                                className='flex justify-between items-center w-full hover:bg-accent px-2 text-foreground gap-5' /> }
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>Delete</DropdownMenuItem>
+                        { User?.canDeleteEvent && <DeleteEventButton 
+                            event={ event }
+                            actor={ User }
+                            variant={null} 
+                            className='text-destructive flex justify-between items-center w-full hover:bg-accent px-2 gap-5' /> }
                     </DropdownMenuContent>
                 </DropdownMenu>
             );
         },
     },
 ];
+
+
+function copyEventLink (event: SingleEvent) {
+    navigator.clipboard.writeText(
+        `${window.location.origin}/events/${event._id}`
+    );
+    toast('Link copied!', {position: 'top-center'});
+}

@@ -10,17 +10,18 @@ import { User } from '@/lib/logged-user';
 import { Api } from '@/lib/api';
 import axios, { AxiosError } from 'axios';
 import { useQuery } from '@tanstack/react-query';
+import { orderByDate } from '@/lib/utils';
 // import LoadingDashboardUsers from './loading';
 
 export default function Users() {
     const user = User;
-    const [users, setUsers] = React.useState([]);
+    const [users, setUsers] = React.useState<UserInfo[]>([]);
 
     React.useEffect(() => {
         (async (user) => {
             const result = await getDashboardUsers(user);
-            const data = result.filter(row => row.accountType === 'user');
-            setUsers(data);
+            const orderedUsers = orderByDate(result, 'createdAt');
+            setUsers(orderedUsers);
         })(user);
 
         return;
@@ -31,7 +32,10 @@ export default function Users() {
             <Text variant='h1'>Users</Text>
             <Card>
                 <CardContent className='pt-5'>
-                    <DataTable columns={columns} data={users} fallback='No users at the moment...' />
+                    <DataTable 
+                    columns={columns} 
+                    data={users} 
+                    fallback='No users at the moment...' />
                 </CardContent>
             </Card>
         </div>

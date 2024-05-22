@@ -1,20 +1,7 @@
-const sessionTimeOut = (timeout: number) => {
-    const date = new Date();
-    date.setTime(date.getTime() + timeout * 60 * 1000);
-    return date.getTime();
-}
-
-
 export const APPCONFIG = {
     title: 'Tickets',
     description: 'A ticketing system for managing events and tickets.',
     version: '0.0.1',
-    cookieOptions: {
-        maxAge: (new Date()).getTime() + 24 * 60,
-        secure: false, // Set to true in production
-        httpOnly: false, // Set true in production
-        path: '/'
-    },
     cloudinaryConfig: {
         cloudName: 'dtuznvywy',
         api: {
@@ -30,4 +17,18 @@ export const APPCONFIG = {
     },
     accountTypes: ['owner','user'],
     userRoles: ['Super','Regular','Basic'],
+};
+
+export const sessionTimeOut = (timeout: number = 30) => {
+    return new Date(Date.now() + timeout * 60 * 1000);
+}
+
+const cookieTime = sessionTimeOut(30);
+
+export const cookieOptions = {
+    maxAge: cookieTime,
+    expires: cookieTime,
+    secure: false, // Set to true in production
+    httpOnly: false, // Set true in production
+    path: '/'
 };

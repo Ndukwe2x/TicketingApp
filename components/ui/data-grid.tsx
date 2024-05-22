@@ -8,7 +8,6 @@ import {
 import React, { ReactNode } from "react";
 
 interface DataGridProps<TData, TValue> {
-    children: ReactNode[];
     columns: ColumnDef<TData, TValue>[];
     columnCount: number;
     data: TData[];

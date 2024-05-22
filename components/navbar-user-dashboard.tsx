@@ -16,6 +16,8 @@ import { User } from "@/lib/logged-user";
 import { APPCONFIG } from "@/lib/app-config";
 import { MdAccountCircle, MdArrowDropDown, MdImage, MdVerifiedUser } from "react-icons/md";
 import { DropdownMenuLabel, DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
+import { Session } from "@/lib/session";
+
 
 export const NavbarUserDashboard = () => {
     const isAuthenticated = User ? true : false;
@@ -56,7 +58,7 @@ function ActiveUserDropdown() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                     <DropdownMenuLabel className="px-3 py-2">
-                        <span className="hidden md:inline">{ user.user.userEmail }</span> 
+                        <span className="hidden md:inline">{ user.email }</span> 
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator className="border-b" />
                     <DropdownMenuItem>
@@ -65,7 +67,7 @@ function ActiveUserDropdown() {
                         </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem>
-                        <Link href='/auth/logout'>
+                        <Link href='/logout' onClick={ (ev) => Session.logout(ev) }>
                             Logout
                         </Link>
                     </DropdownMenuItem>
@@ -74,3 +76,4 @@ function ActiveUserDropdown() {
         </DropdownMenuGroup>
     )
 }
+

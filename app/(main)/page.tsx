@@ -29,7 +29,7 @@ export default function Dashboard() {
 
             {/* <SummaryCardList summary={summary} /> */}
             {
-                user.isUser ?
+                (user && user.isUser) ?
                 <Card>
                     <CardHeader className='flex-row items-center justify-between'>
                         <Text variant='h4'>Sales</Text>
