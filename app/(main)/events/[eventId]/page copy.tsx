@@ -7,7 +7,7 @@ import React from 'react';
 import { Text } from '@/components/ui/text';
 import Image from 'next/image';
 import ReserveSpotCard from '@/components/reserve-spot-card';
-import { getEventById, useGetEventById } from '@/hooks/useGetEvent';
+import { useGetEventById, useuseGetEventById } from '@/hooks/useGetEvent';
 import { notFound } from 'next/navigation';
 import { formatDate } from '@/lib/utils';
 import { User } from '@/lib/logged-user';
@@ -15,7 +15,7 @@ import { User } from '@/lib/logged-user';
 export default async function ViewEvent({ params }: { params: { eventId: string } }) {
     const user = User;
     const { eventId } = params;
-    const event = await useGetEventById(eventId, user);
+    const event = await useuseGetEventById(eventId, user);
 
     if (!event) {
         notFound();

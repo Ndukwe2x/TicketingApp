@@ -3,6 +3,7 @@ import { Api, HttpRequest } from "../lib/api";
 import { useQuery } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 import { User } from '@/lib/logged-user';
+import UserClass from '@/lib/User.class';
 
 
 // Dashboard Data Hooks
@@ -40,7 +41,7 @@ export const getDashboardEvents = async (): Promise<DashboardEvent[]> => {
     return events;
 };
 
-export const getDashboardUsers = async (user: AuthInfo): Promise<UserInfo[]> => {
+export const getDashboardUsers = async (user: AppUser): Promise<AppUser[]> => {
     
     const url = Api.server + Api.endpoints.admin.search
     let result: { data: { accounts: [] } } | null = null;
@@ -56,10 +57,9 @@ export const getDashboardUsers = async (user: AuthInfo): Promise<UserInfo[]> => 
         console.log(error)
     }
     if (result && result.data.accounts) {
-        users = result.data.accounts
+        users = result.data.accounts;
     }
-
-    return users;
+    return [...users].map(user => new UserClass(user))
 }
 
 

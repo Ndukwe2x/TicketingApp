@@ -17,7 +17,7 @@ import { createContext, useContext, useState } from 'react';
 import { Text } from '@/components/ui/text';
 
 type ReserveSpotCardContextType = {
-    selectedTicket: (typeof ticketType)[0] | undefined;
+    selectedTicket: TicketCategory | undefined;
     setSelectedTicket: React.Dispatch<React.SetStateAction<string>>;
     count: number;
     setCount: React.Dispatch<React.SetStateAction<number>>;
@@ -25,17 +25,18 @@ type ReserveSpotCardContextType = {
 const ReserveSpotCardContext = createContext({} as ReserveSpotCardContextType);
 const useReserveSpotCard = () => useContext(ReserveSpotCardContext);
 
-export default function ReserveSpotCard({ event }: { event: AppEvent }) {
+export default function ReserveSpotCard({ event }: { event: SingleEvent }) {
     const [selectedTicketType, setSelectedTicketType] = useState('');
     const [count, setCount] = useState(1);
+    const ticketCategories = event.ticketCategories || []
 
-    const selectedTicket = ticketType.find((type) => type.name === selectedTicketType);
+    const selectedTicket = ticketCategories.find((type) => type.name === selectedTicketType);
     const setSelectedTicket = (value: string | ((value: string) => string)) => {
         setSelectedTicketType(value);
         setCount(1);
     };
 
-    const ticketPrice = !selectedTicket?.price ? event.price : selectedTicket.price * count;
+    const ticketPrice = !selectedTicket?.price ? 0 : selectedTicket.price * count;
 
     return (
         <ReserveSpotCardContext.Provider
@@ -43,9 +44,9 @@ export default function ReserveSpotCard({ event }: { event: AppEvent }) {
         >
             <Card className='flex flex-col min-w-80 shadow-[rgba(0,0,15,0.1)_0_-4px_6px_1px] md:shadow-md'>
                 <CardContent className='pt-4 pb-2'>
-                    <SelectTicket />
+                    <SelectTicket categories={ ticketCategories } />
                     <Text variant='h4' className='text-end'>
-                        {selectedTicket?.price === 0 ? 'FREE' : formatCurrency(ticketPrice)}
+                        {selectedTicket?.price == (0 || undefined) ? 'FREE' : formatCurrency(Number(selectedTicket?.price))}
                     </Text>
                 </CardContent>
                 <CardFooter className='flex-col gap-1'>
@@ -61,7 +62,7 @@ export default function ReserveSpotCard({ event }: { event: AppEvent }) {
 
 const Counter = () => {
     const { count, setCount, selectedTicket } = useReserveSpotCard();
-    const max = selectedTicket?.quantity || 1;
+    const max = selectedTicket?.qty || 1;
 
     return (
         <div className='flex items-center gap-1'>
@@ -86,7 +87,7 @@ const Counter = () => {
     );
 };
 
-const SelectTicket = () => {
+const SelectTicket = ({categories}: {categories: TicketCategory[]}) => {
     const { selectedTicket, setSelectedTicket } = useReserveSpotCard();
 
     return (
@@ -97,9 +98,9 @@ const SelectTicket = () => {
                 </SelectTrigger>
                 <SelectContent>
                     <SelectGroup>
-                        {ticketType.map((type) => (
+                        {categories.map((type) => (
                             <SelectItem
-                                disabled={type.quantity === 0}
+                                disabled={type.qty === 0}
                                 key={type.name}
                                 value={type.name}
                             >
@@ -107,7 +108,7 @@ const SelectTicket = () => {
                                     {type.name}
                                 </Text>
                                 <Text asLabel>
-                                    {type.quantity} {type.quantity === 1 ? 'ticket' : 'tickets'}
+                                    {type.qty} {type.qty === 1 ? 'ticket' : 'tickets'}
                                     &nbsp;left
                                 </Text>
                             </SelectItem>
@@ -121,25 +122,3 @@ const SelectTicket = () => {
     );
 };
 
-const ticketType = [
-    {
-        name: 'Student',
-        price: 0,
-        quantity: 1,
-    },
-    {
-        name: 'Regular',
-        price: 1000,
-        quantity: 10,
-    },
-    {
-        name: 'VIP',
-        price: 2000,
-        quantity: 5,
-    },
-    {
-        name: 'VVIP',
-        price: 3000,
-        quantity: 3,
-    },
-];

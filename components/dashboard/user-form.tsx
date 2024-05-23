@@ -20,9 +20,20 @@ import { APPCONFIG } from "@/lib/app-config";
 import { camelCase, capitalCase } from "change-case";
 import generateRandomString from "@/lib/random-string-generator";
 import PasswordGenerator from "../password-generator";
+import { Toaster, toast } from "../ui/sonner";
 
 
-const CreateUserForm = ({ user }) => {
+const UserForm = (
+    { actor, onSuccess, onFailure, action, isNew = true, account = null }: 
+    {
+        actor: AppUser; 
+        onSuccess?: (data: NewlyCreatedUserAccountData | AppUser) => void; 
+        onFailure?: (error?: unknown) => void;
+        action?: string;
+        isNew?: boolean;
+        account?: AppUser | null;
+    }
+    ) => {
     const [isFirstPage, setIsFirstPage] = React.useState<boolean>(true);
     const [isLastPage, setIsLastPage] = React.useState<boolean>(false);
     const [isCurrentPageCompleted, setIsCurrentPageCompleted] = React.useState<boolean>(false);
@@ -41,6 +52,8 @@ const CreateUserForm = ({ user }) => {
     
     const [pages, setPages] = React.useState<Array<Element>>([]);
     const [pageCount, setPageCount] = React.useState(1);
+    const [selectedAccountType, setSelectedAccountType] = React.useState((account ? account.accountType : null));
+    const [selectedRole, setSelectedRole] = React.useState((account ? account.role : null));
     // const [randomPassword, setRandomPassword] = React.useState(
     //     generateRandomString(10, 'alphanumeric', true)
     // );
@@ -64,6 +77,7 @@ const CreateUserForm = ({ user }) => {
         observer.observe(targetNode, config);
 
         return () => {
+            updatePageStatus();
             observer.disconnect();
         };
     }, []);
@@ -74,14 +88,15 @@ const CreateUserForm = ({ user }) => {
                 updatePageStatus();
             });
         });
-    })
+    });
 
     const updatePageStatus = (): void => {
         const inputs = getInputsFromCurrentPage();
+        // console.log(inputs);
         let totalUnfilled = 0;
 
         inputs?.forEach(item => {
-            let itemHasValue = item.value ?? false;
+            let itemHasValue = item.value || false;
             if (!itemHasValue) {
                 totalUnfilled += 1;
             }
@@ -186,38 +201,40 @@ const CreateUserForm = ({ user }) => {
         container.style.display = 'flex';
     };
 
-    const handleSubmit = (ev) => {
-        if ( !ev.isDefaultPrevented() ) {
+    const handleSubmit = (ev: SubmitEvent) => {
+        if ( !ev.defaultPrevented ) {
             ev.preventDefault();
         }
 
-        const formElements = ev.target.elements;
-        const formData = new FormData(ev.target);
-        
-        // Array.from(formElements).forEach((input, key) => {
-        //     formData.append(input.name, input.value);
-        // });
+        const form = ev.target as HTMLFormElement;
+        const formData = new FormData(form);
+        const jsonData = Object.fromEntries(formData.entries());
 
-        try {
-            axios.post(ev.target.action, formData, {
-                headers: {
-                    Authorization: `Bearer ${user.token}`
+        axios.post(form.action, jsonData, {
+            headers: {
+                Authorization: `Bearer ${actor.token}`
+            }
+        })
+        .then(
+            response => {
+                const {userId} = typeof response.data === 'string' 
+                    ? JSON.parse(response.data)
+                    : response.data;
+
+                if (typeof onSuccess === 'function') {
+                    onSuccess(response.data);
+                } else {
+                    console.log('Account created successfully');
                 }
-            })
-            .then(
-                response => {
-                    console.log(response.data);
-                },
-                error => {
-                    console.error(error);
-                }
-            )
-            .catch(error => {
-                console.log(error);
-            })
-        } catch (error) {
-            console.log(error);
-        }
+            }
+        )
+        .catch(error => {
+            if (typeof onFailure === 'function') {
+                onFailure(error);
+            } else {
+                console.error(error);
+            }
+        });
     }
 
     const passRef = React.useRef(null);
@@ -225,7 +242,11 @@ const CreateUserForm = ({ user }) => {
 
     return (
         <>
-            <form id="user-form" action={ Api.server + Api.endpoints.admin.register } method="post" onSubmit={ handleSubmit }>
+            <form 
+                id="user-form" 
+                action={ action || Api.server + Api.endpoints.admin.register } 
+                method={ isNew ? 'post' : 'patch' } 
+                onSubmit={ handleSubmit }>
                 <div className='flex flex-col gap-4 py-4'>
                     <div>
                         <Text variant='p'>Step { pageNumber } of { pageCount }</Text>
@@ -235,29 +256,33 @@ const CreateUserForm = ({ user }) => {
                         <p className="text-muted-foreground text-xs required">All fields are required except otherwise indicated</p>
                         <div className="grid md:grid-cols-2 gap-5">
                             <div className='flex flex-col gap-2 flex-1'>
-                                <Label htmlFor='firstname'>Firstname:</Label>
-                                <Input id='firstname' name="firstname" type='text' className="text-lg text-auto-scale" placeholder='Firstname:' required aria-required='true' />
+                                <Label htmlFor='firstName'>Firstname:</Label>
+                                <Input id='firstName' name="firstName" type='text' className="text-lg text-auto-scale" 
+                                placeholder='Firstname:' defaultValue={ account ? account.firstname : '' } required aria-required='true' />
                             </div>
                             <div className='flex flex-col gap-2 flex-1'>
-                                <Label htmlFor='lastname'>Lastname:</Label>
-                                <Input id='lastname' name="lastname" type='text' className="text-lg text-auto-scale" placeholder='Lastname:' required aria-required='true' />
+                                <Label htmlFor='lastName'>Lastname:</Label>
+                                <Input id='lastName' name="lastName" type='text' className="text-lg text-auto-scale" 
+                                placeholder='Lastname:' defaultValue={ account ? account.lastname : '' } required aria-required='true' />
                             </div>
                         </div>
                         
                         <div className='flex flex-col gap-2'>
                             <Label htmlFor='email'>Email:</Label>
-                            <Input id='email' name="email" type='email' className="text-lg text-auto-scale" placeholder='Email:' required aria-required='true' />
+                            <Input id='email' name="email" type='email' className="text-lg text-auto-scale" 
+                            placeholder='Email:' defaultValue={ account ? account.email : '' } required aria-required='true' />
                         </div>
                         <div className='flex flex-col gap-2'>
                             <Label htmlFor='phone'>Phone:</Label>
-                            <Input id='phone' name="phone" type='tel' className="text-lg text-auto-scale" placeholder='Phone:' required aria-required='true' />
+                            <Input id='phone' name="phone" type='tel' className="text-lg text-auto-scale" 
+                            placeholder='Phone:' defaultValue={ account ? account.phone : '' } required aria-required='true' />
                         </div>
                         <div className="gap-5 grid md:grid-cols-2">
                             {
-                                user.isOwner ? 
+                                actor.isOwner ? 
                                 <div className='flex flex-col gap-2'>
                                     <Label htmlFor='account-type'>Account Type:</Label>
-                                    <Select name="accountType" required aria-required='true'>
+                                    <Select name="accountType" required aria-required='true' value={ selectedAccountType ?? '' } defaultValue={ selectedAccountType ?? '' } onValueChange={ setSelectedAccountType } >
                                         <SelectTrigger>
                                             <SelectValue placeholder='Select account type' />
                                         </SelectTrigger>
@@ -276,7 +301,7 @@ const CreateUserForm = ({ user }) => {
                             }
                             <div className='flex flex-col gap-2'>
                                 <Label htmlFor='account-role'>Role:</Label>
-                                <Select name="role" required aria-required='true'>
+                                <Select name="role" value={ selectedRole ?? '' } defaultValue={ selectedRole ?? '' } onValueChange={ setSelectedRole } required aria-required='true'>
                                     <SelectTrigger>
                                         <SelectValue placeholder='Select user role' />
                                     </SelectTrigger>
@@ -290,15 +315,21 @@ const CreateUserForm = ({ user }) => {
                                 </Select>
                             </div>
                         </div>
-                        <div className='flex flex-col gap-2'>
-                            <Label htmlFor='password'>Password:</Label>
-                            <Input id='password' name="password" type='text' onChange={updatePageStatus} ref={passRef} className="text-lg text-auto-scale" placeholder='Password:' required aria-required='true' />
-                        </div>
-                        <div className='flex flex-col gap-2'>
-                            <Label htmlFor='re-password'>Re-Password:</Label>
-                            <Input id='re-password' name="re_password" type='text' onChange={updatePageStatus} ref={rePassRef} className="text-lg text-auto-scale" placeholder='Re-Password:' required aria-required='true' />
-                        </div>
-                        <PasswordGenerator onClick={ updatePageStatus } outputRef={[passRef, rePassRef]} options={ {length: 16} } />
+                        {
+                            isNew &&
+                            <>
+                                <div className='flex flex-col gap-2'>
+                                    <Label htmlFor='password'>Password:</Label>
+                                    <Input id='password' name="password" type='text' onChange={updatePageStatus} ref={passRef} 
+                                    className="text-lg text-auto-scale" placeholder='Password:' required aria-required='true' />
+                                </div>
+                                <div className='flex flex-col gap-2'>
+                                    <Label htmlFor='re-password'>Re-Password:</Label>
+                                    <Input id='re-password' name="re_password" type='text' onChange={updatePageStatus} ref={rePassRef} className="text-lg text-auto-scale" placeholder='Re-Password:' required aria-required='true' />
+                                </div>
+                                <PasswordGenerator onClick={ updatePageStatus } outputRef={[passRef, rePassRef]} options={ {length: 16} } />
+                            </>
+                        }
                     </div>
                     
                     <div className="flex flex-row justify-content-between pt-5">
@@ -312,4 +343,4 @@ const CreateUserForm = ({ user }) => {
     )
 }
 
-export default CreateUserForm;
+export default UserForm;

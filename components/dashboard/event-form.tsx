@@ -7,15 +7,24 @@ import { Text } from "../ui/text";
 import { Icons } from "../icons";
 import styles from '../styles/styles.module.css';
 import MediaUploader from "../buttons/media-uploader-2";
-import axios from "axios";
-import { User } from "@/lib/logged-user";
+import axios, { AxiosResponse } from "axios";
 import { Checkbox } from "../ui/checkbox";
 import { v4 as uuidv4 } from 'uuid';
 import AddTicketCategory from "./add-ticket-category";
 import { pascalCase, trainCase } from "change-case";
-import { parseInputName } from "@/lib/utils";
+import { formatDate, parseInputName } from "@/lib/utils";
 
-const CreateEventForm = () => {
+const EventForm = (
+        { actor, onSuccess, onFailure, action, isNew, event }: 
+        { 
+            actor: AppUser; 
+            onSuccess: (data: {eventId: string}) => void;
+            onFailure?: (error?: unknown) => void;
+            action?: string;
+            isNew?: boolean;
+            event?: SingleEvent;
+        }
+    ) => {
     const [isFirstPage, setIsFirstPage] = React.useState<boolean>(true);
     const [isLastPage, setIsLastPage] = React.useState<boolean>(false);
     const [isCurrentPageCompleted, setIsCurrentPageCompleted] = React.useState<boolean>(false);
@@ -54,6 +63,13 @@ const CreateEventForm = () => {
         const fieldList = 'input:not([type="file"]), textarea, select';
         return document.querySelector(currentPageSelector)?.querySelectorAll(fieldList);
     }
+    getInputsFromCurrentPage()?.forEach(input => {
+        ['input','change'].map((type) => {
+            input.addEventListener(type, ev => {
+                updatePageStatus();
+            });
+        });
+    });
 
     const updatePageStatus = (): void => {
         const inputs = getInputsFromCurrentPage();
@@ -181,8 +197,6 @@ const CreateEventForm = () => {
         // )
     }
 
-    
-
     const previewPoster = (data: any) => {
         const imagePreview = document.querySelector('.poster-group.loading') as HTMLElement;
 
@@ -308,50 +322,41 @@ const CreateEventForm = () => {
             ev.preventDefault();
         }
 
-        const user = User;
-        const form = ev.target as HTMLFormElement
-        // const formElements = form.elements as HTMLFormControlsCollection;
-        const formData = new FormData(form);
-        console.log(formData.values());
-        
-        // Array.from(formElements).forEach((input, key) => {
-        //     const inputElem = input as HTMLInputElement;
-        //     formData.append(inputElem.name, inputElem.value);
-        // });
+        const form = ev.target as HTMLFormElement;
+        const fd = new FormData(form);
 
-        axios.post(form.action, formData, {
+        axios.post(form.action, Object.fromEntries(fd.entries()), {
             headers: {
-                Authorization: `Bearer ${user.token}`
+                Authorization: `Bearer ${actor?.token}`
             }
         })
-        .then(
-            response => {
-                console.log(response.data);
-            }
-        )
+        .then(onSuccess)
         .catch(error => {
             console.log(error);
         })
     }
 
     const RenderSummary = React.useCallback(() => {
-        return formData.entries(([name, value]) => {
+
+        return Object.entries(formData).map(([value, name], index) => {
             return (
-                <>
-                    <div className="border-b py-2">
-                        <p className="grid grid-cols-[2fr_5fr]">
-                            <label className="font-bold">{ pascalCase(name) }:</label> 
-                            <span>{value}</span>
-                        </p>
-                    </div>
-                </>
+                <div key={index} className="border-b py-2">
+                    <p className="grid grid-cols-[2fr_5fr]">
+                        <label className="font-bold">{ pascalCase(name) }:</label> 
+                        <span>{value}</span>
+                    </p>
+                </div>
             )
         })
     }, [formData]);
 
     return (
         <>
-            <form id={ formId } action={ Api.server + Api.endpoints.admin.events } method="post" onSubmit={ handleSubmit }>
+            <form id={ formId } 
+                name={ formId } 
+                action={ action || Api.server + Api.endpoints.admin.events } 
+                method={ isNew ? 'post' : 'patch' }
+                onSubmit={ handleSubmit }>
                 <div className='flex flex-col gap-4 py-4'>
                     <div>
                         <Text variant='p'>Step { pageNumber } of { pageCount }</Text>
@@ -363,36 +368,37 @@ const CreateEventForm = () => {
                             <Input id='title' name="title" 
                             onInput={ (ev) => { setEventTitle(ev.target.value); updatePageStatus(); return }} 
                             type='text' className="input h-14 text-lg" 
-                            placeholder='The Big Friday Nights Party' required aria-required="true" />
+                            placeholder='The Big Friday Nights Party' 
+                            defaultValue={ event ? event.title : '' }
+                            required aria-required="true" />
                         </div>
                         <div className="flex flex-col gap-4">
                             <div className="flex flex-row flex-1 gap-4">
                                 <div className='flex flex-col gap-2 flex-1'>
                                     <Label htmlFor='date'>Date:</Label>
-                                    <Input id='date' name="eventDate" type='date'  
-                                    onInput={ () => updatePageStatus() } required aria-required='true' />
-                                </div>
-                                <div className='flex flex-col gap-2 flex-1'>
-                                    <Label htmlFor='time'>Time:</Label>
-                                    <Input id='time' name="time" type='time' 
-                                    onChange={ () => updatePageStatus() } required aria-required='true' />
+                                    <Input id='date' name="eventDate" type='datetime-local'  
+                                    onInput={ () => updatePageStatus() } required aria-required='true' 
+                                    defaultValue={ event ? formatDate(new Date(event.eventDate), 'MMMM-DD-YYYY hh:mm A') : '' } />
                                 </div>
                             </div>
                             <div className="flex flex-col flex-1 gap-4">
                                 <div className='flex flex-col gap-2'>
                                     <Label htmlFor='state'>State/Region:</Label>
                                     <Input id='state' name="state" placeholder="State/Region:" 
-                                    onChange={ () => updatePageStatus() } required aria-required='true' />
+                                    onChange={ () => updatePageStatus() } required aria-required='true'
+                                    defaultValue={ event ? event.state : '' } />
                                 </div>
                                 <div className='flex flex-col gap-2'>
                                     <Label htmlFor='city'>Town/City:</Label>
                                     <Input id='city' name="city" placeholder="Town/City:" 
-                                    onInput={ () => updatePageStatus() } required aria-required='true' />
+                                    onInput={ () => updatePageStatus() } required aria-required='true'
+                                    defaultValue={ event ? event.city : '' } />
                                 </div>
                                 <div className='flex flex-col gap-2'>
                                     <Label htmlFor='address'>Address:</Label>
                                     <Input id='address' name="address" placeholder="Street address:" 
-                                    onInput={ () => updatePageStatus() } required aria-required='true' />
+                                    onInput={ () => updatePageStatus() } required aria-required='true'
+                                    defaultValue={ event ? event.address : '' } />
                                 </div>
                             </div>
                         </div>
@@ -422,7 +428,7 @@ const CreateEventForm = () => {
                             onInput={ updatePageStatus } required aria-required='true' />
                         </div>
                     </div>
-                    {/* <div id="event-form_page_d" className={ `${pageBaseClass} flex-col gap-4 flex-1` }>
+                    <div id="event-form_page_d" className={ `${pageBaseClass} flex-col gap-4 flex-1` }>
                         <Text variant='h4'>Event posters:</Text>
                         <div className='flex flex-col gap-2'>
                             <div id="posters" className="poster-groups gap-3 grid grid-cols-3">
@@ -431,7 +437,7 @@ const CreateEventForm = () => {
                                
                             </div>
                         </div>
-                    </div> */}
+                    </div>
                     <div id="event-form_page_e" className={ `${pageBaseClass} flex-col gap-4 flex-1` }>
                         <Text variant='h3'>Preview</Text>
                         <div id="preview-form-data">
@@ -449,4 +455,4 @@ const CreateEventForm = () => {
     )
 }
 
-export default CreateEventForm;
+export default EventForm;

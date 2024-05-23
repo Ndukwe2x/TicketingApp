@@ -48,8 +48,11 @@ const components: { title: string; href: string }[] = [
     //     href: '/dashboard',
     // },
 ];
+interface NavProps extends React.HtmlHTMLAttributes<HTMLElement> {
+    
+};
 
-export function MainNav() {
+const MainNav: React.FC<NavProps> = ({ children, className, ...props }) => {
     const [hasScrolled, setHasScrolled] = React.useState(false);
     const [deviceWidth, setDeviceWidth] = React.useState(undefined);
     const [open, setOpen] = React.useState(false);
@@ -82,12 +85,10 @@ export function MainNav() {
 
 
     return (
-        <nav
-            className={cn(
-                'fixed w-full top-0 left-0 z-10 transition-all duration-300 bg-background border-b',
+        <nav { ...props } className={cn(
+                'fixed w-full top-0 left-0 z-10 transition-all duration-300 bg-background border-b ' + className,
                 hasScrolled && 'shadow-md bg-background'
-            )}
-        >
+            )}>
             <div className='flex items-center justify-between p-4 lg:px-8 mx-auto'>
                 <div className='flex items-center gap-4'>
                     <Button size={26} 
@@ -102,7 +103,7 @@ export function MainNav() {
                 </div>
                 <div className='flex flex-row items-center gap-3'>
                     {
-                        (User.canCreateUser || User.canCreateEvent) &&
+                        (User && (User.canCreateUser || User.canCreateEvent)) &&
                         <>
                             <div className='hidden lg:flex items-center gap-3'>
                                 { 
@@ -174,3 +175,4 @@ function DesktopNav() {
     );
 }
 
+export {MainNav};

@@ -13,7 +13,7 @@ import LayoutToggle from '@/components/buttons/layout-toggle';
 
 
 export default function Events() {
-    const [layout, setLayout] = React.useState('');
+    const [layout, setLayout] = React.useState('table');
     // const [events, setEvents] = React.useState([]);
     // const [featuredEvents, setFeaturedEvents] = React.useState([]);
     // const [fallback, setFallback] = React.useState<React.JSX.Element | string>(<DataTableLoading />);
@@ -53,12 +53,6 @@ export default function Events() {
                     </div>
                 </CardHeader>
                 <CardContent className='p-5'>
-                {/* {
-                    <DataTable data={ events } columns={ columns } 
-                    fallback={ fallback } 
-                    isFilteringEnabled={true} 
-                    filterFields={['eventRef', 'name', 'email', 'phone', 'dateOfPurchase', 'referenceNo']} />
-                } */}
                     <MyEvents 
                     layout={layout}
                     isFilteringEnabled={true} 

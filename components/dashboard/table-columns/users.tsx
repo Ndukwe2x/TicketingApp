@@ -1,4 +1,5 @@
 'use client';
+
 import * as React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 
@@ -14,23 +15,32 @@ import {
 import { CaretSortIcon, DotsVerticalIcon } from '@radix-ui/react-icons';
 import { formatDate, formatNumber, humanReadableDateFormat } from '@/lib/utils';
 import { Icons } from '@/components/icons';
-import Image from 'next/image';
-import styles from '@/components/styles/styles.module.css';
+// import styles from '@/components/styles/styles.module.css';
+import Avatar from '@/components/profile/avatar';
+import Link from 'next/link';
+import DeleteUserButton from '@/components/buttons/delete-user-button';
+import { User } from '@/lib/logged-user';
+import EditUserButton from '@/components/buttons/edit-user-button';
+import CreateEventForUser from '@/components/buttons/create-event-for-user';
+import { MdPerson } from 'react-icons/md';
 
-export const columns: ColumnDef<UserInfo | []>[] = [
+
+export const columns: ColumnDef<AppUser>[] = [
     {
         accessorKey: 'avatar',
         header: () => {
             return <Icons.user />
         },
         cell: ({ row }) => <div className='capitalize'>
-            {/* <Image src={ row.getValue('avatar') } width='45' height='45' alt={ row.getValue('firstname') + ' ' + row.getValue('lastname') } className={ styles.avatar} /> */}
+            <Avatar user={row.original} size={ 45 } />
         </div>,
     },
     {
         accessorKey: 'name',
         header: 'Name',
-        cell: ({ row }) => <div className='capitalize'>{row.original.firstname} {row.original.lastname}</div>,
+        cell: ({ row }) => <div className='capitalize'>
+                <Link href={ '/users/' + row.original.id }>{row.original.firstname} {row.original.lastname}</Link>
+            </div>,
     },
     // {
     //     accessorKey: 'firstname',
@@ -97,14 +107,11 @@ export const columns: ColumnDef<UserInfo | []>[] = [
     //         );
     //     },
     // },
-    // {
-    //     accessorKey: 'eventRef',
-    //     header: 'Total Events',
-    //     cell: ({ row }) => {
-    //         const userEvents = row.getValue('eventRef') as UserInfo['eventRef'];
-    //         return (<div>{ userEvents.length }</div>)
-    //     },
-    // },
+    {
+        accessorKey: 'eventRef',
+        header: 'Total Events',
+        cell: ({ row }) => <div>{ row.getValue('eventRef').length }</div>,
+    },
     {
         accessorKey: 'createdAt',
         header: ({ column }) => {
@@ -145,7 +152,7 @@ export const columns: ColumnDef<UserInfo | []>[] = [
         id: 'actions',
         enableHiding: false,
         cell: ({ row }) => {
-            const attendee = row.original;
+            const user = row.original;
 
             return (
                 <DropdownMenu>
@@ -157,8 +164,13 @@ export const columns: ColumnDef<UserInfo | []>[] = [
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align='end'>
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        {/*<DropdownMenuSeparator />*/}
-                        <DropdownMenuItem>Delete</DropdownMenuItem>
+                            <Link href={ '/users/' + user.id } className='flex gap-6 hover:bg-accent items-center justify-between p-1.5 rounded-sm w-full'>Profile <MdPerson size={18} /></Link>
+                            <CreateEventForUser actor={ User } user={ user } className='flex gap-6 hover:bg-accent items-center justify-between p-1.5 rounded-sm w-full' />
+                        
+                            <EditUserButton actor={ User } userId={ user.id } className='flex gap-6 hover:bg-accent items-center justify-between p-1.5 rounded-sm w-full' />
+                        <DropdownMenuSeparator />
+                            <DeleteUserButton actor={ User } account={ user } className='flex gap-6 hover:bg-accent items-center justify-between p-1.5 rounded-sm w-full text-destructive' />
+                        
                     </DropdownMenuContent>
                 </DropdownMenu>
             );

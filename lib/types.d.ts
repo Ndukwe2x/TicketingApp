@@ -1,14 +1,14 @@
-type AppEvent = {
-    id: string;
-    title: string;
-    summary: string;
-    description: string;
-    date: Date;
-    location: string;
-    price: number;
-    image: string;
-    featured: boolean;
-};
+// type AppEvent = {
+//     id: string;
+//     title: string;
+//     summary: string;
+//     description: string;
+//     date: Date;
+//     location: string;
+//     price: number;
+//     image: string;
+//     featured: boolean;
+// };
 
 type DashboardEvent = {
     objectId: string;
@@ -141,6 +141,7 @@ type UserInfo = {
     userRole: string;
     avatar: string;
     createdAt: Date | string;
+    token: string;
 }
 
 type AuthInfo = {
@@ -152,24 +153,29 @@ type AuthInfo = {
         userStatus: string;
     };
     token: string;
-    isOwner: boolean;
-    isSuper: boolean;
-    isRegular: boolean;
-    isBasic: boolean;
-    isSuperOwner: boolean;
-    isRegularOwner: boolean;
-    isBasicOwner: boolean;
-    isUser: boolean;
-    isSuperUser: boolean;
-    isRegularUser: boolean;
-    isBasicUser: boolean;
-    canCreateUser: boolean;
-    canUpdateUser: boolean;
-    canDeleteUser: boolean;
-    canCreateEvent: boolean;
-    canUpdateEvent: boolean;
-    canDeleteEvent: boolean;
-    canDeleteTicket: boolean;
+    // isOwner: boolean;
+    // isSuper: boolean;
+    // isRegular: boolean;
+    // isBasic: boolean;
+    // isSuperOwner: boolean;
+    // isRegularOwner: boolean;
+    // isBasicOwner: boolean;
+    // isUser: boolean;
+    // isSuperUser: boolean;
+    // isRegularUser: boolean;
+    // isBasicUser: boolean;
+    // canCreateUser: boolean;
+    // canUpdateUser: boolean;
+    // canDeleteUser: boolean;
+    // canCreateEvent: boolean;
+    // canUpdateEvent: boolean;
+    // canDeleteEvent: boolean;
+    // canDeleteTicket: boolean;
+}
+
+type NewlyCreatedUserAccountData = {
+    userId: string; 
+    status: string
 }
 
 type Callback = (param: Any) => void;
@@ -195,4 +201,38 @@ type CloudinaryResponseData = {
     folder: string;
     access_mode: string;
     original_filename: string;
+}
+
+interface AppUser {
+    id: string;
+    firstname: string;
+    lastname: string;
+    fullName: string;
+    email: string;
+    phone: string;
+    accountType: string;
+    eventRef: string[];
+    role: string;
+    avatar: string;
+    token: string | null;
+    createdAt: string;
+    isSuper: boolean;
+    isRegular: boolean;
+    isBasic: boolean;
+    isOwner: boolean;
+    isSuperOwner: boolean;
+    isRegularOwner: boolean;
+    isBasicOwner: boolean;
+    isUser: boolean;
+    isSuperUser: boolean;
+    isRegularUser: boolean;
+    isBasicUser: boolean;
+    canCreateUser: boolean;
+    canUpdateUser: boolean;
+    canDeleteUser: boolean;
+    canCreateEvent: boolean;
+    canUpdateEvent: boolean;
+    canDeleteEvent: boolean;
+    canDeleteTicket: boolean;
+    setProperty (property: string, value: unknown): void;
 }
