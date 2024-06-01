@@ -1,17 +1,15 @@
+"use client";
+
 import React from "react";
 import Modal from "../ui/modal";
-import { User } from "@/lib/logged-user";
-import Link from "next/link";
 import { MdPersonAdd } from "react-icons/md";
 import UserForm from "../dashboard/user-form";
 import { toast } from "../ui/sonner";
-import { useRouter } from "next/navigation";
-// import from '@/components/styles/styles.module.css';
+import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 
-const CreateUserButton = () => {
-    const user = User;
+const CreateUserButton = ({displayText}: {displayText?: string | React.ReactNode}) => {
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-    const router = useRouter();
+    const actor = useAuthenticatedUser();
 
     // const initDialog = () => {
     //     setIsDialogOpen(true);
@@ -25,16 +23,10 @@ const CreateUserButton = () => {
         setIsDialogOpen(false);
     }
     
-    const btnText = user.isOwner
+    const btnText = actor?.isOwner
         ? 'Add New User'
         : 'Add Team Member'
 
-    const link = <Link href={'#'} 
-    className='border border-primary flex flex-row hover:bg-primary 
-    hover:text-primary-foreground items-end gap-1.5 py-1 md:py-2 px-1 
-    md:px-2 lg:px-4 rounded-full text-primary'>
-        <MdPersonAdd size={24}/> <span className="hidden lg:inline">{ btnText }</span>
-        </Link>;
 
     
     const handleSuccess = (data: NewlyCreatedUserAccountData) => {
@@ -47,16 +39,19 @@ const CreateUserButton = () => {
     const handleFailure = (error: unknown) => {
 
     }
-    
-    const content = <UserForm actor={ user } 
-        onSuccess={ handleSuccess }
-        onFailure={ handleFailure } />;
+
+    displayText = displayText || <a href={'#'} 
+        className='border border-primary flex flex-row hover:bg-primary 
+        hover:text-primary-foreground items-end gap-1.5 py-1 md:py-2 px-1 
+        md:px-2 lg:px-4 rounded-full text-primary'>
+            <MdPersonAdd size={24} /> <span className="hidden lg:inline">{ btnText }</span>
+    </a>;
 
     return (
         <>
             <Modal title={ btnText } 
-                displayText={ link } 
-                content={ content } 
+                displayText={ displayText } 
+                content={ <UserForm actor={ actor } onSuccess={ handleSuccess } onFailure={ handleFailure } /> } 
                 onSave={ handleSave } 
                 onClose={ handleClose }
                 open={ isDialogOpen }

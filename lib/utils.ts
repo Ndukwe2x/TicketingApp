@@ -70,3 +70,28 @@ export const orderByDate= (data: unknown[], prop: string, dir: string = 'asc'): 
     });
     return ordered;
 }
+
+export const calculateTimeDifference = (timestamp1: string, timestamp2: string): {
+    milliseconds: number;
+    seconds: number;
+    minutes: number;
+    hours: number;
+    days: number;
+} => {
+    const date1 = new Date(timestamp1);
+    const date2 = new Date(timestamp2);
+
+    const differenceInMilliseconds = date2.valueOf() - date1.valueOf();
+    const differenceInSeconds = differenceInMilliseconds / 1000;
+    const differenceInMinutes = differenceInMilliseconds / (1000 * 60);
+    const differenceInHours = differenceInMilliseconds / (1000 * 60 * 60);
+    const differenceInDays = differenceInMilliseconds / (1000 * 60 * 60 * 24);
+
+    return {
+        milliseconds: differenceInMilliseconds,
+        seconds: differenceInSeconds,
+        minutes: differenceInMinutes,
+        hours: differenceInHours,
+        days: differenceInDays,
+    }
+}

@@ -22,10 +22,10 @@ const DataCreatorButton = () => {
                     <Icons.plus width="24" height="24" /> 
                     <span className='hidden lg:inline'>Create</span>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className='p-4'>
+                <DropdownMenuContent className='p-4 lg:hidden'>
                     <div className='flex items-center justify-between gap-4'>
-                        { User.canCreateUser && <div><CreateUserButton /></div> }
-                        { User.canCreateEvent && <div><CreateEventButton /></div> }
+                        { User?.canCreateUser && <div><CreateUserButton /></div> }
+                        { User?.canCreateEvent && <div><CreateEventButton /></div> }
                     </div>
                 </DropdownMenuContent>
             </DropdownMenu>

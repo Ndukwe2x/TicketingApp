@@ -257,24 +257,24 @@ const UserForm = (
                         <div className="grid md:grid-cols-2 gap-5">
                             <div className='flex flex-col gap-2 flex-1'>
                                 <Label htmlFor='firstName'>Firstname:</Label>
-                                <Input id='firstName' name="firstName" type='text' className="text-lg text-auto-scale" 
+                                <Input id='firstName' name="firstName" type='text' className="text-lg responsive-text-2" 
                                 placeholder='Firstname:' defaultValue={ account ? account.firstname : '' } required aria-required='true' />
                             </div>
                             <div className='flex flex-col gap-2 flex-1'>
                                 <Label htmlFor='lastName'>Lastname:</Label>
-                                <Input id='lastName' name="lastName" type='text' className="text-lg text-auto-scale" 
+                                <Input id='lastName' name="lastName" type='text' className="text-lg responsive-text-2" 
                                 placeholder='Lastname:' defaultValue={ account ? account.lastname : '' } required aria-required='true' />
                             </div>
                         </div>
                         
                         <div className='flex flex-col gap-2'>
                             <Label htmlFor='email'>Email:</Label>
-                            <Input id='email' name="email" type='email' className="text-lg text-auto-scale" 
+                            <Input id='email' name="email" type='email' className="text-lg responsive-text-2" 
                             placeholder='Email:' defaultValue={ account ? account.email : '' } required aria-required='true' />
                         </div>
                         <div className='flex flex-col gap-2'>
                             <Label htmlFor='phone'>Phone:</Label>
-                            <Input id='phone' name="phone" type='tel' className="text-lg text-auto-scale" 
+                            <Input id='phone' name="phone" type='tel' className="text-lg responsive-text-2" 
                             placeholder='Phone:' defaultValue={ account ? account.phone : '' } required aria-required='true' />
                         </div>
                         <div className="gap-5 grid md:grid-cols-2">
@@ -321,11 +321,11 @@ const UserForm = (
                                 <div className='flex flex-col gap-2'>
                                     <Label htmlFor='password'>Password:</Label>
                                     <Input id='password' name="password" type='text' onChange={updatePageStatus} ref={passRef} 
-                                    className="text-lg text-auto-scale" placeholder='Password:' required aria-required='true' />
+                                    className="text-lg responsive-text-2" placeholder='Password:' required aria-required='true' />
                                 </div>
                                 <div className='flex flex-col gap-2'>
                                     <Label htmlFor='re-password'>Re-Password:</Label>
-                                    <Input id='re-password' name="re_password" type='text' onChange={updatePageStatus} ref={rePassRef} className="text-lg text-auto-scale" placeholder='Re-Password:' required aria-required='true' />
+                                    <Input id='re-password' name="re_password" type='text' onChange={updatePageStatus} ref={rePassRef} className="text-lg responsive-text-2" placeholder='Re-Password:' required aria-required='true' />
                                 </div>
                                 <PasswordGenerator onClick={ updatePageStatus } outputRef={[passRef, rePassRef]} options={ {length: 16} } />
                             </>

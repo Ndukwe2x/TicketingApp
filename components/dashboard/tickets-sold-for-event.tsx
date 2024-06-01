@@ -1,5 +1,5 @@
 import React, { HtmlHTMLAttributes, useCallback, useEffect, useState } from "react";
-import { useGetEventTickets } from "@/hooks/useGetEvents";
+import { useGetTicketSales } from "@/hooks/useGetEvents";
 import { User } from "@/lib/logged-user";
 import { DataTable } from "../ui/data-table";
 import { columns } from "./table-columns/sales";
@@ -7,7 +7,7 @@ import { columns } from "./table-columns/sales";
 const TicketsSoldForEvent: React.FC<HtmlHTMLAttributes<HTMLDivElement> & 
     { event: SingleEvent & {ticketsSold: Ticket[] | []} }> = ({children, className, event}) => {
     const [fallback, setFallback] = useState('Fetching tickets, please wait. This may take a moment...');
-    const [tickets, error, isLoading] = useGetEventTickets(User as AppUser, event);
+    const [tickets, error, isLoading] = useGetTicketSales(User as AppUser, event);
 
     useEffect(() => {
         if ( !isLoading && tickets.length == 0 ) {

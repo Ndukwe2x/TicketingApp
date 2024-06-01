@@ -106,7 +106,8 @@ type Ticket = {
     amountPaid: number;
     numberOfTickets: number;
     referenceNo: number;
-    __v: 0
+    __v: 0;
+    event_title?: string;
 }
 
 type DashboardSummaryItem = {
@@ -131,6 +132,7 @@ type FetchApiOptions = {
 
 
 type UserInfo = {
+    id: string;
     email: string;
     firstname: string;
     lastname: string;

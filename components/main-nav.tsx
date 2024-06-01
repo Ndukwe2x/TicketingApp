@@ -28,7 +28,7 @@ import CreateEventButton from './buttons/create-event-button';
 import { MdOutlineMenu, MdOutlineMenuOpen } from 'react-icons/md';
 import DataCreatorButton from './buttons/data-creator-button';
 import { ToggleSidebar } from '@/lib/sidebar-toggle';
-import { User } from '@/lib/logged-user';
+import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
 
 const components: { title: string; href: string }[] = [
     {
@@ -56,6 +56,7 @@ const MainNav: React.FC<NavProps> = ({ children, className, ...props }) => {
     const [hasScrolled, setHasScrolled] = React.useState(false);
     const [deviceWidth, setDeviceWidth] = React.useState(undefined);
     const [open, setOpen] = React.useState(false);
+    const actor = useAuthenticatedUser();
 
     React.useEffect(() => {
         const handleResize = () => {
@@ -103,14 +104,14 @@ const MainNav: React.FC<NavProps> = ({ children, className, ...props }) => {
                 </div>
                 <div className='flex flex-row items-center gap-3'>
                     {
-                        (User && (User.canCreateUser || User.canCreateEvent)) &&
+                        (actor && (actor.canCreateUser || actor.canCreateEvent)) &&
                         <>
                             <div className='hidden lg:flex items-center gap-3'>
                                 { 
-                                    User.canCreateUser && <CreateUserButton /> 
+                                    actor.canCreateUser && <CreateUserButton /> 
                                 }
                                 {
-                                    User.canCreateEvent && <CreateEventButton />
+                                    actor.canCreateEvent && <CreateEventButton />
                                 }
                             </div>
                             <div className='lg:hidden'><DataCreatorButton /></div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { AuthFreeRoutes } from '@/lib/auth-free-routes';
 import NotFoundPage from '@/app/not-found';
@@ -52,6 +52,7 @@ export default function ProfileLayout({
     }
     
     return (
+        user &&
         <div id='user-profile' className={cn('relative flex flex-col')}>
             <header id='profile-header' className='flex flex-col header w-full'>
                 <div className='flex flex-col gap-3 relative px-4 lg:px-8'>

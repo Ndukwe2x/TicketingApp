@@ -8,8 +8,7 @@ import { IoLocationSharp } from "react-icons/io5";
 
 const TicketSlip = ({ ticket, event, cardRef }: {ticket: Ticket; event: SingleEvent, cardRef?: React.RefObject<HTMLDivElement>}) => {
 
-    // console.log(new Date(event.eventDate).getUTCDate());
-    // return;
+
     return (
         <Card className='w-min max-w-96 rounded-none'>
             <div ref={cardRef}>

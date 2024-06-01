@@ -1,11 +1,11 @@
 import React, { HtmlHTMLAttributes } from "react";
-import { getEventTickets, useGetEventTickets } from "@/hooks/useGetEvents";
-import { User } from "@/lib/logged-user";
+import { useGetTicketSales } from "@/hooks/useGetEvents";
+import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 
 const CountTicketsSoldForEvent: React.FC<HtmlHTMLAttributes<HTMLDivElement> & 
     { event: SingleEvent & {ticketsSold: Ticket[] | []} }> = ({children, className, event}) => {
-    // const [ticketsSold, setTicketsSold] = useState<number>(0);
-    const [tickets] = useGetEventTickets(User, event);
+        const actor = useAuthenticatedUser();
+    const [isLoading, tickets] = useGetTicketSales(actor as AppUser, event);
 
     return (
         <span>{ tickets.length }</span>

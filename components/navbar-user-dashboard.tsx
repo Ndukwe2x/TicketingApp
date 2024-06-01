@@ -11,22 +11,32 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import Link from "next/link";
-import Image from "next/image";
-import { User } from "@/lib/logged-user";
-import { APPCONFIG } from "@/lib/app-config";
 import { MdAccountCircle, MdArrowDropDown, MdImage, MdVerifiedUser } from "react-icons/md";
 import { DropdownMenuLabel, DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 import { Session } from "@/lib/session";
+import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
+import { useEffect, useState } from "react";
 
 
 export const NavbarUserDashboard = () => {
-    const isAuthenticated = User ? true : false;
-    const router = useRouter();
+    const actor = useAuthenticatedUser();
+    const [determinant, setDeterminant] = useState<boolean>(false);
+
+    useEffect(() => {
+        if ( actor != null ) {
+            setDeterminant(true);
+        }
+    }, [actor]);
 
     return (
-        isAuthenticated 
-            ? <ActiveUserDropdown router={router} />
-            : <AuthActions />
+        determinant &&
+        <>
+            {
+                actor 
+                ? <ActiveUserDropdown />
+                : <AuthActions />
+            }
+        </>
     )
 }
 
@@ -45,8 +55,8 @@ function AuthActions() {
     );
 }
 
-function ActiveUserDropdown() {
-    const user = User;
+const ActiveUserDropdown = () => {
+    const actor = useAuthenticatedUser();
     
     return (
         <DropdownMenuGroup className="flex items-center">
@@ -58,11 +68,11 @@ function ActiveUserDropdown() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                     <DropdownMenuLabel className="px-3 py-2">
-                        <span className="hidden md:inline">{ user.email }</span> 
+                        <span className="hidden md:inline">{ actor?.email }</span> 
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator className="border-b" />
                     <DropdownMenuItem>
-                        <Link href='/user/profile'>
+                        <Link href={'/users/' + actor?.id }>
                             Profile
                         </Link>
                     </DropdownMenuItem>

@@ -10,10 +10,13 @@ import NoNetwork from '@/components/no-network';
 import { User } from '@/lib/logged-user';
 import MyEvents from '@/components/dashboard/my-events';
 import LayoutToggle from '@/components/buttons/layout-toggle';
+import { Heading } from '@/components/ui/headers';
+import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
 
 
 export default function Events() {
     const [layout, setLayout] = React.useState('table');
+    const actor = useAuthenticatedUser();
     // const [events, setEvents] = React.useState([]);
     // const [featuredEvents, setFeaturedEvents] = React.useState([]);
     // const [fallback, setFallback] = React.useState<React.JSX.Element | string>(<DataTableLoading />);
@@ -41,9 +44,10 @@ export default function Events() {
     // }, []);
 
     return (
+        (actor) && 
         <div className='flex flex-col gap-5'>
             <div className="flex flex-row items-center justify-between">
-                <Text variant='h1' className='page-title'>Events</Text>
+                <Heading variant='h1' className='page-title'>{ actor?.isUser && 'My '}Events</Heading>
             </div>
             <Card>
                 <CardHeader className='flex-row items-center justify-between'>

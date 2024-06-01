@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { Card, CardContent } from "../ui/card";
 import { Text } from "../ui/text";
 import { useGetUserProperties } from "@/hooks/useGetUsers";
@@ -6,6 +6,8 @@ import { User } from "@/lib/logged-user";
 import { useGetEventsByUser } from "@/hooks/useGetEvents";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import axios from "axios";
+// import * as avatar from '@/components/profile/avatar.svg';
 
 
 interface CompProps {
@@ -18,12 +20,30 @@ const Avatar: React.FC<React.HTMLAttributes<HTMLImageElement> & CompProps> = ({c
     // const actor = User as AppUser;
     // const [events] = useGetEventsByUser(user, actor);
     size = size ? size : 45;
+    const [isAccessible, setIsAccessible] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+
+    const lookupImage = async (url: string) => {
+        setIsLoading(true);
+        try {
+            const res = await axios.get(url);
+            setIsAccessible(true)
+        } catch (err) {
+            // Ignore the error
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+    useEffect(() => {
+        lookupImage(user.avatar);
+    }, []);
 
 
     return (
         <div className={ cn('avatar ' + className) } style={{ width: `${size}px`, height: `${size}px` }} { ...props }>
             {
-                user.avatar 
+                isAccessible
                 ? <Image 
                     src={user.avatar} 
                     width={ size } 

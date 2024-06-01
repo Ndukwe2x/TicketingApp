@@ -32,9 +32,11 @@ const DeleteUserButton: React.FC<ButtonProps> = ({children, className, actor, ac
         .then(res => {
             let result = res.data;
             if ( result.status === 'success' ) {
-                toast('Account deleted.');
-                if (callback) callback(result.userId);
                 setIsSuccessful(true);
+                if (callback) callback(result.userId);
+                
+                let t = toast('Account deleted successfully');
+                if (t) location.assign('/users');
             }
         })
         .catch(err => {

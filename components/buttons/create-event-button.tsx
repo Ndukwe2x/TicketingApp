@@ -1,14 +1,19 @@
-import React, { MouseEvent, ReactHTMLElement } from "react"
+"use client";
+
+import React, { MouseEvent, ReactHTMLElement, ReactNode } from "react"
 import Modal from "../ui/modal";
 import Link from "next/link";
 import { MdEvent } from "react-icons/md";
 import EventForm from "../dashboard/event-form";
-import styles from '@/components/styles/styles.module.css';
-import { AxiosResponse } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
+import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 
-const CreateEventButton = ({ user, actor }: { user: AppUser; actor: AppUser }) => {
+interface CreateEventButtonProps extends HtmlHTMLAttributes<HTMLButtonElement> {
+    displayText?: ReactNode | string | null;
+}
+const CreateEventButton: React.FC<CreateEventButtonProps> = ({ displayText }) => {
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-
+    const actor = useAuthenticatedUser();
     const initDialog = () => {
         setIsDialogOpen(true);
     }
@@ -25,16 +30,20 @@ const CreateEventButton = ({ user, actor }: { user: AppUser; actor: AppUser }) =
         
     }
 
+    const handleFailure = (error: AxiosError) => {
+        
+    }
+
     return (
         <>
             <Modal title="Create Event" 
-                displayText={ <Link href={'#'}
+                displayText={ displayText || <Link href={'#'}
                 className={`bg-primary border border-primary flex flex-row gap-1.5 
                 hover:bg-primary/90 items-end px-1 md:px-2 lg:px-4 py-1 md:py-2 rounded-full text-white`}>
                     <MdEvent size={24} />
                     <span className="hidden lg:inline">Create Event</span></Link> 
                 } 
-                content={ <EventForm actor={ user } onSuccess={ handleSuccess } /> } 
+                content={ <EventForm actor={ actor } onSuccess={ handleSuccess } onFailure={ handleFailure} /> } 
                 onSave={ handleSave } 
                 onClose={ handleClose }
                  />

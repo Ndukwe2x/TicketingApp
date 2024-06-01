@@ -1,30 +1,31 @@
 "use client";
 
-import React, { Suspense, memo, useMemo } from 'react';
+import React, { Suspense } from 'react';
+import { Text } from '@/components/ui/text';
 import { Card, CardContent } from '@/components/ui/card';
 import { DataTable, DataTableLoading } from '@/components/ui/data-table';
 import { columns } from '@/components/dashboard/table-columns/users';
+import { orderByDate } from '@/lib/utils';
 import { Heading } from '@/components/ui/headers';
 import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
-import { useGetUsers } from '@/hooks/useGetUsers';
+import { useGetTeamMembers } from '@/hooks/useGetUsers';
+// import LoadingDashboardUsers from './loading';
 
-const Users = () => {
+export default function Users() {
     const actor = useAuthenticatedUser();
-    const [isLoading, users, error] = useGetUsers(actor as AppUser);
+    const [isLoading, teamMembers, error] = useGetTeamMembers(actor, actor);
 
     return (
         <div className='flex flex-col gap-5'>
-            <Heading variant='h1' className='page-title'>Users</Heading>
+        <Heading variant='h1' className='page-title'>My Team</Heading>
             <Card>
                 <CardContent className='pt-5'>
                     <DataTable 
                     columns={columns} 
-                    data={users} 
-                    fallback={ isLoading ? 'Loading, please wait...' : 'No users at the moment...'} />
+                    data={teamMembers} 
+                    fallback='No users at the moment...' />
                 </CardContent>
             </Card>
         </div>
     );
 }
-
-export default Users;

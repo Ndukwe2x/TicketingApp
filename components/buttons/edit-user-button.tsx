@@ -20,7 +20,7 @@ interface EditButtonProps extends HtmlHTMLAttributes<HTMLButtonElement> {
 const EditUserButton: React.FC<EditButtonProps> = ({children, className, userId, actor, ...props}) => {
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
     const formAction = Api.server + Api.endpoints.admin.singleUser.replace(':id', userId);
-    const [user] = useGetUserById(userId, actor);
+    const [isLoading, user] = useGetUserById(userId, actor);
     // const account = new UserClass(user);
 
     // const initDialog = () => {

@@ -1,39 +1,49 @@
-import React, { memo } from "react";
+"use client";
+
+import React, { memo, useEffect, useState } from "react";
 import { Card, CardContent } from "../ui/card";
 import { Text } from "../ui/text";
-import { useGetUserProperties } from "@/hooks/useGetUsers";
-import { User } from "@/lib/logged-user";
-import { useGetEventsByUser } from "@/hooks/useGetEvents";
+import { useGetUserTeams } from "@/hooks/useGetUsers";
+import { useGetEventsByIds, useGetEventsByUser } from "@/hooks/useGetEvents";
 import Avatar from '@/components/profile/avatar';
-import UserClass from "@/lib/User.class";
+import { formatDate } from "@/lib/utils";
+import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 
 interface CompProps {
-    user: AppUser;
+    user: AppUser | UserInfo;
 }
 const ProfileCard: React.FC<React.HTMLAttributes<HTMLDivElement> & CompProps> = ({user}) => {
 
-    const actor = User;
-    // const [user, events, ...rest] = useGetUserProperties(userId, actor);
-    const [events] = useGetEventsByUser(user, actor);
+    const actor = useAuthenticatedUser();
+    
+    const [isEventsLoading, events, error] = useGetEventsByUser(user, actor as AppUser);
+    const [teams] = useGetUserTeams(user, actor as AppUser);
+    const [teamMembers, setTeamMembers] = useState<AppUser[]>([]);
+
+    useEffect(() => {
+        for ( const [key, value] of Object.entries(teams) ) {
+            setTeamMembers(state => [...state, ...value]);
+        }
+    }, [teams])
 
     return (
-        events && 
+        events && !isEventsLoading &&
         <Card>
             <CardContent>
                 <Avatar user={ user } size={ 100 } className="profile-card-avatar" />
-                <div className='grid grid-cols-3 gap-5'>
+                <div className='grid grid-cols-2 gap-5'>
                     <div className="flex flex-col items-center">
-                        <Text variant='h4'>Events</Text>
-                        <span className='counter'>{ user.eventRef.length }</span>
+                        <Text variant='h4' className="responsive-text">Events</Text>
+                        <span className='counter'>{ events.length }</span>
                     </div>
                     <div className="flex flex-col items-center">
-                        <Text variant='h4'>Team</Text>
+                        <Text variant='h4' className="responsive-text">Team Members</Text>
+                        <span>{ teamMembers.length }</span>
+                    </div>
+                    {/* <div className="flex flex-col items-center">
+                        <Text variant='h4' className="responsive-text">Events</Text>
                         <span>5</span>
-                    </div>
-                    <div className="flex flex-col items-center">
-                        <Text variant='h4'>Events</Text>
-                        <span>5</span>
-                    </div>
+                    </div> */}
                 </div>
                 <hr className="my-3" />
                 <div>
@@ -47,15 +57,18 @@ const ProfileCard: React.FC<React.HTMLAttributes<HTMLDivElement> & CompProps> = 
                             <span className="inline-block w-1/3">Phone:</span>
                             <span className="text-sm">{ user.phone }</span>
                         </Text>
-                        <Text variant='h4'>
-                            <span className="inline-block w-1/3">User Type:</span>
-                            <span className="text-sm">{ user.userStatus || (user.isOwner) }</span>
-                        </Text>
+                        {
+                            user.isOwner && 
+                            <Text variant='h4'>
+                                <span className="inline-block w-1/3">User Type:</span>
+                                <span className="text-sm">{ user.userStatus || user.accountType }</span>
+                            </Text>
+                        }
                         <Text variant='h4'>
                             <span className="inline-block w-1/3">Role:</span>
-                            <span className="text-sm">{ user.userRole }</span>
+                            <span className="text-sm">{ user.userRole || user.role }</span>
                         </Text>
-                        {/* <Text variant='h4'>Email: <small>{ user.email }</small></Text> */}
+                        <Text variant='h4'>Registered on: <small>{ formatDate(new Date(user.createdAt), 'DD MMMM, YYYY at HH:MM A') }</small></Text>
                     </div>
                 </div>
             </CardContent>

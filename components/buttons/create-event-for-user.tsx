@@ -10,10 +10,10 @@ import { Api } from "@/lib/api";
 import { toast } from "../ui/sonner";
 
 interface CreateButtonProps extends HtmlHTMLAttributes<HTMLButtonElement> {
-    user: AppUser; 
     actor: AppUser; 
+    user: AppUser; 
 }
-const CreateEventForUser: React.FC<CreateButtonProps> = ({children, className, user, actor, ...props }) => {
+const CreateEventForUser: React.FC<CreateButtonProps> = ({children, className, actor, user, ...props }) => {
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 
     const initDialog = () => {
@@ -35,7 +35,7 @@ const CreateEventForUser: React.FC<CreateButtonProps> = ({children, className, u
         const url = Api.server + Api.endpoints.admin.singleUser.replace(':id', modUser.id);
 
         try {
-            const post = await axios.post(url, { eventRef: modUser.eventRef }, {
+            const post = await axios.patch(url, { eventRef: modUser.eventRef }, {
                 headers: {
                     Authorization: `Bearer ${actor.token}`
                 }
