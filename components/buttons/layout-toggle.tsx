@@ -1,4 +1,6 @@
-import React, { useEffect } from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { Icons } from "../icons";
 import { ReadonlyURLSearchParams, useParams, usePathname, useRouter } from "next/navigation";
@@ -7,13 +9,13 @@ import { MdGridView, MdTableView, MdViewList } from "react-icons/md";
 
 export default function LayoutToggle(
     {callback, layout}: 
-    {callback: (layout: string) => void; layout?: string}
+    {callback: (layout: string) => void; layout: string}
     ) {
-    const currentLayout: string|null = sessionStorage.getItem('events_layout') ?? 'stack';
+    // const [currentLayout, setCurrentLayout] = useState(null);
     
-    const route = useRouter();
-    const path = usePathname();
-    const query = useParams();
+    // const route = useRouter();
+    // const path = usePathname();
+    // const query = useParams();
     const table = 'table', grid = 'grid';
 
     
@@ -25,6 +27,8 @@ export default function LayoutToggle(
     }
 
     useEffect(() => {
+        const currentLayout = sessionStorage.getItem('events_layout') ?? 'table';
+
         layout = layout || currentLayout;
         callback(layout);
     })

@@ -1,21 +1,22 @@
-import React from "react";
+import React, { HtmlHTMLAttributes, useCallback, useEffect, useState } from "react";
 import Modal from "../ui/modal";
-import { User } from "@/lib/logged-user";
 import Link from "next/link";
 import { MdPersonAdd } from "react-icons/md";
 import UserForm from "../dashboard/user-form";
 import { toast } from "../ui/sonner";
 import { useRouter } from "next/navigation";
-// import from '@/components/styles/styles.module.css';
+import { useGetEventsByIds, useGetEventsByUser } from "@/hooks/useGetEvents";
+import { DataTable, DataTableLoading } from "../ui/data-table";
+import { columns } from "../dashboard/table-columns/checkable-events";
+import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
+import { Button } from "../ui/button";
+import { cn } from "@/lib/utils";
 
-const CreateUserButton = () => {
-    const user = User;
+const AddTeamMember = ({user, displayText, variant}: {user?: AppUser; displayText?: string | React.ReactNode; variant?: string}) => {
+    const actor = useAuthenticatedUser();
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
     const router = useRouter();
-
-    // const initDialog = () => {
-    //     setIsDialogOpen(true);
-    // }
+    const event = null;
 
     const handleClose = () => {
         setIsDialogOpen(false);
@@ -25,19 +26,20 @@ const CreateUserButton = () => {
         setIsDialogOpen(false);
     }
     
-    const btnText = user.isOwner
+    const btnText = actor?.isOwner
         ? 'Add New User'
         : 'Add Team Member'
 
-    const link = <Link href={'#'} 
-    className='border border-primary flex flex-row hover:bg-primary 
-    hover:text-primary-foreground items-end gap-1.5 py-1 md:py-2 px-1 
-    md:px-2 lg:px-4 rounded-full text-primary'>
-        <MdPersonAdd size={24}/> <span className="hidden lg:inline">{ btnText }</span>
+    const btn = displayText || <Link href='#' 
+    className={ cn('border border-primary flex flex-row hover:bg-primary', 
+    'hover:text-primary-foreground items-end gap-1.5 py-1 md:py-2 px-1', 
+    'md:px-2 lg:px-4 rounded-full text-primary')}>
+            <MdPersonAdd size={24}/> <span>{ btnText }</span>
         </Link>;
 
     
     const handleSuccess = (data: NewlyCreatedUserAccountData) => {
+
         toast('User account created');
         setIsDialogOpen(state => !state);
         
@@ -48,15 +50,16 @@ const CreateUserButton = () => {
 
     }
     
-    const content = <UserForm actor={ user } 
+    const content = <UserForm actor={ actor }
+        event={ event } 
         onSuccess={ handleSuccess }
         onFailure={ handleFailure } />;
 
     return (
         <>
             <Modal title={ btnText } 
-                displayText={ link } 
-                content={ content } 
+                displayText={ displayText || btn } 
+                content={ <SelectEventToAddTeamMember /> } 
                 onSave={ handleSave } 
                 onClose={ handleClose }
                 open={ isDialogOpen }
@@ -66,5 +69,37 @@ const CreateUserButton = () => {
     )
 }
 
+const SelectEventToAddTeamMember: React.FC<HtmlHTMLAttributes<HTMLDivElement>> = ({children, className}) => {
+    const actor = useAuthenticatedUser();
+    const [isLoading, events, error] = useGetEventsByIds(actor?.eventRef as string[], actor as AppUser);
+    
+    // useEffect(() => {
+    //     if ( !isLoading ) {
+    //         if ( !events.length ) {
+    //             setFallback('There are no events to show.');
+    //         }
+    //     }
+    // }, [events, isLoading]);
+    if ( isLoading ) {
+        return <DataTableLoading />
+    } else if ( events.length < 1 ) {
+        return <div className="text-center">No events available. <br />To add a team member, you need to create an event <br />and then add and attach users to them.</div> 
+    }
 
-export default CreateUserButton;
+    return (
+        <>
+            <DataTable columns={ columns } data={ events } />
+        </>
+    );
+}
+
+const SelectableEvent = ({event}: {event: SingleEvent}) => {
+    
+    return (
+        <li>
+
+        </li>
+    )
+}
+
+export default AddTeamMember;

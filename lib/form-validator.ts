@@ -54,7 +54,7 @@ function handleValidation(form: FormData, validationRules: {}) {
             switch (ruleName) {
                 case 'required':
                     if (ruleArr.length > 1) {
-                        message = ruleArr.pop();
+                        message = [...ruleArr].pop();
                     }
                     
                     if (form.get(field) == '') {

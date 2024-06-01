@@ -1,62 +1,36 @@
 "use client";
 
-import React, { HtmlHTMLAttributes } from "react";
+import React, { HtmlHTMLAttributes, useEffect } from "react";
 import { Api } from "@/lib/api";
 import axios, { AxiosError } from "axios";
 import { User } from "@/lib/logged-user";
-import { getEventAssociatedToTicket, useGetEventTickets } from "@/hooks/useGetEvents";
+import { getEventAssociatedToTicket, useGetTicketSales } from "@/hooks/useGetEvents";
 import NoNetwork from "../no-network";
 import { DataTable, DataTableLoading } from "../ui/data-table";
 import { DataGrid } from "../ui/data-grid";
 import * as dataTableColumns from "./table-columns/sales";
 import InternalErrorPage from "@/app/internal-error";
+import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 
 const MyTickets: React.FC<HtmlHTMLAttributes<HTMLDivElement> & { layout: string;  isFilteringEnabled: boolean; filterParams: string[] }> = ({children, layout,  isFilteringEnabled = false, filterParams = [], ...props}) => {
-    const [fallback, setFallback] = React.useState<React.JSX.Element | string>(<DataTableLoading />);
-    const user = User;
+    const actor = useAuthenticatedUser();
     const dataGridColumns: [] = [];
-    const [tickets, error] = useGetEventTickets( User );
-    // const [ticketsWithAssoc, ticketAssocError] = 
-    
-    
+    const [isLoading, tickets, error] = useGetTicketSales( actor );
 
-    // React.useEffect(() => {
-    //     const fetchTickets = async () => {
-    //         try {
-                
-    //             if (fetchedTickets.length) {
-    //                 const decoratedTickets = await Promise.all(
-    //                     fetchedTickets.map((ticket) => getEventAssociatedToTicket(ticket, user))
-    //                 );
-    //                 const filteredTickets = decoratedTickets
-    //                 .filter(ticket => ticket.event != null)
-    //                 .map(ticket => ({...ticket, event_title: ticket.event.title}));
-                    
-    //                 setTickets(filteredTickets);
-    //             }
-    //         } catch (error) {
-    //             let errorMsg = (error.code === 'ERR_NETWORK' || !navigator.onLine) 
-    //                 ? <NoNetwork />
-    //                 : 'Oops! Something went wrong. We are unable to fetch your tickets at the moment.';
-
-    //             setFallback(errorMsg);
-    //         }
-    //     }
-
-    //     fetchTickets();
-    // }, [initialTickets]);
-
-    if (error instanceof AxiosError) {
-        if (error.status == 403) {
-
+    if ( error?.code ) {
+        if ( error.code == 'ERR_NETWORK' ) {
+            return <NoNetwork />
+        } else {
+            return <InternalErrorPage />
         }
-        // setFallback(<InternalErrorPage />);
+    } else if ( tickets.length < 1 && !isLoading ) {
+        return <div className="text-center">No tickets to show.</div>;
     }
     
     return (
         layout === 'table' 
-        ? <DataTable className="vertical-stripe" columns={ dataTableColumns.columns } data={ tickets } 
-            fallback={ fallback } 
+        ? <DataTable className="vertical-stripe" columns={ dataTableColumns.columns } data={ tickets }
+            fallback={ <DataTableLoading /> } 
             isFilteringEnabled={ true } 
             filterFields={ filterParams }>
             <colgroup>

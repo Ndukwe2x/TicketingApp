@@ -1,36 +1,124 @@
 import { Api } from "@/lib/api";
 import axios, { AxiosError, AxiosResponse } from "axios"
 import { useEffect, useState } from "react";
-import { getEventsByIds, useGetEventById, useGetEventsByUser } from "./useGetEvents";
+import { useGetEventsByIds, useGetEventById, useGetEventsByUser } from "./useGetEvents";
 import UserClass from "@/lib/User.class";
+import { orderByDate } from "@/lib/utils";
+import { APPCONFIG } from "@/lib/app-config";
 
-/** */
-export const useGetUserById = (userId: string, actor: AppUser): 
-    [user: AppUser | null, isLoading: boolean, error: typeof AxiosError | null] => {
-    const [user, setUser] = useState<AppUser | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
+export const useGetUsers = (actor: AppUser): [isLoading: boolean, users: AppUser[] | [], error: AxiosError | null] => {
+    
+    const url = Api.server + Api.endpoints.admin.search
+    const [users, setUsers] = useState<AppUser[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [error, setError] = useState<AxiosError | null>(null);
+    
+    useEffect(() => {
+        const fetchUsers = async () => {
+            setIsLoading(true);
+
+            try {
+                const response = await axios.get(url, {
+                    headers: {
+                        Authorization: `Bearer ${actor.token}`
+                    }
+                });
+                const result = response.data.data || {};
+                const data = result.accounts || [];
+
+                if ( data.length ) {
+                    const orderedUsers = orderByDate(data, 'createdAt');
+                    const decoratedUsers = orderedUsers.map((user: any) => new UserClass(user));
+                    
+                    setUsers(decoratedUsers);
+                }
+            } catch (error) {
+                setError(error as any);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+
+        actor !== null && fetchUsers();
+    }, [actor]);
+
+    return [isLoading, users, error];
+}
+
+
+export const useGetUserById = (userId: string, actor: AppUser, raw: boolean = false): 
+    [isLoading: boolean, user: AppUser | UserInfo | null, error: Error | AxiosError | null] => {
+    const [user, setUser] = useState<AppUser | UserInfo | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [error, setError] = useState<Error | AxiosError | null>(null);
     const url = Api.server + Api.endpoints.admin.singleUser.replace(':id', userId);
 
+    const fetchUser = async (userId: string, actor: AppUser) => {
+        setIsLoading(true);
+        try {
+            const res = await axios.get(url, {
+                headers: {
+                    Authorization: `Bearer ${actor.token}`
+                }
+            });
+            const rawData = res.data.data || {};
+            const processedData = rawData.id ? new UserClass(rawData) : null;
+    
+            if ( raw ) {
+                setUser(rawData);
+            } else {
+                setUser(processedData as any);
+            }
+        } catch (err) {
+            setError(err);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
     useEffect(() => {
+        actor !== null && fetchUser(userId, actor);
+        
+    }, [actor]);
+    
+    return [isLoading, user, error];
+}
+
+
+export const useGetUsersByEvent = (eventId: string, actor: AppUser): 
+    [users: AppUser[] | null, isLoading: boolean, error: AxiosError | Error | null] => {
+    const [users, setUsers] = useState<AppUser[] | []>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [error, setError] = useState<AxiosError | Error | null>(null);
+    
+    useEffect(() => {
+        if ( eventId == '*' ) {
+            setError(new Error('Invalid event id'));
+            return;
+        }
+        const url = Api.server + Api.endpoints.admin.search + '?eventRef=' + eventId;
+        setIsLoading(true);
+
         axios.get(url, {
             headers: {
                 Authorization: `Bearer ${actor.token}`
             }
         })
         .then(res => {
-            const userData = res.data.data;
-            
-            setUser(new UserClass(userData));
-            setIsLoading(false);
+            const data = res.data.data || {};
+            if ( data.users ) {
+                const appUsers = data.users.map((user: unknown) => new UserClass(user as UserInfo));
+                setUsers(appUsers);
+                setIsLoading(false);
+            }
         })
         .catch(err => {
             setError(err);
             setIsLoading(false);
         });
-    }, [userId]);
-    
-    return [user, isLoading, error];
+    }, [eventId]);
+
+    return [users, isLoading, error];
 }
 
 export const getAuthenticatedUserFullData = async (email: string, token: string): Promise<AppUser | null> => {
@@ -70,8 +158,8 @@ export const useGetUserProperties = (userId: string, actor: AuthInfo):
             const data: AppUser = res.data.data;
             setUser(data);
 
-            const fetchedEvents = await getEventsByIds(data.eventRef, actor);
-            setEvents(fetchedEvents);
+            const fetchedEvents = await useGetEventsByIds(data.eventRef, actor as any);
+            setEvents(fetchedEvents as any);
             setIsLoading(false);
         }
 
@@ -89,3 +177,80 @@ export const useGetUserProperties = (userId: string, actor: AuthInfo):
 
     return [user, events, isLoading, error];
 }
+
+export const useGetUserTeams = (user: AppUser | null, actor: AppUser | null, ignoreError: boolean = false) => {
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [teams, setTeams] = useState<{}>({});
+    const [error, setError] = useState<Error | AxiosError | null | unknown>(null);
+    
+    const fetchTeams = async (eventIds: string[]) => {
+        setIsLoading(true);
+
+        const sendRequest = async (eventId: string) => {
+            const url = Api.server + Api.endpoints.admin.search + '?eventRef=' + eventId;
+            const res = await axios.get(url, {
+                headers: {
+                    Authorization: `Bearer ${actor?.token}`
+                }
+            });
+            const data = res.data.data || {};
+            return {[eventId]: data.accounts || []};
+        }
+
+        try {
+            const batchResponse = await Promise.all(eventIds.map(sendRequest));
+            
+            batchResponse.forEach((data) => {
+                for (const [key, value] of Object.entries(data)) {
+                    setTeams(state => ({...state, [key]: value}));
+                }
+            })
+        } catch (err) {
+            setError(err);
+            if ( !ignoreError ) {
+                console.error(error)
+            }
+        } finally {
+            setIsLoading(false)
+        }
+    };
+
+    useEffect(() => {
+        if ( [user, actor].includes(null) ) {
+            return;
+        }
+        const eventRefs = user.eventRef;
+        if ( !eventRefs.length || eventRefs.includes('*')) {
+            return;
+        }
+        fetchTeams(eventRefs);
+    }, [user, actor]);
+
+    return [isLoading, teams, error];
+}
+
+export const useGetTeamMembers = (user: AppUser | null, actor: AppUser | null) => {
+    const [teamMembers, setTeamMembers] = useState<unknown[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [error, setError] = useState<Error | AxiosError | null>(null);
+    const [teamsLoading, teams, teamsError] = useGetUserTeams(user, actor);
+
+    useEffect(() => {
+        setIsLoading(teamsLoading as boolean);
+
+        if ( !teamsLoading ) {
+            if ( teamsError != null ) {
+                setError(teamsError as any);
+            } else {
+                for (const [key, value] of Object.entries(teams as any)) {
+                    setTeamMembers((state) => ([...state, ...value as any]));
+                }
+            }
+            setIsLoading(false)
+        }
+    }, [teams]);
+
+    return [isLoading, teamMembers, error];
+}
+
+

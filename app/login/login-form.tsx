@@ -18,12 +18,13 @@ import { toast } from '@/components/ui/sonner';
 import NoNetwork from '@/components/no-network';
 
 export function LoginForm() {
-    const searchParams = useSearchParams();
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
     const [isSuccess, setIsSuccess] = React.useState<boolean>(false);
     const [userId, setUserId] = React.useState<string>('');
     const [pass, setPass] = React.useState<string>('');
     const url = Api.server + Api.endpoints.admin.login;
+    const searchParams = useSearchParams();
+    let sessionExpired = parseInt(searchParams.get('session_expired') as string);
 
     const handleSubmit = async (event: React.SyntheticEvent) => {
         event.preventDefault();
@@ -64,6 +65,10 @@ export function LoginForm() {
 
     return (
         <div className={cn('grid gap-6')}>
+            {
+                sessionExpired == 1 &&
+                <div style={{ color: '#df0000', textAlign: 'center', fontSize: '90%' }}>Your session has expired. Please sign back in to continue.</div>
+            }
             <form onSubmit={handleSubmit}>
                 <div className='grid gap-4'>
                     <div className='grid gap-2'>

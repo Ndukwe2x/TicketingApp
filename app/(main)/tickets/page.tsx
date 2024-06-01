@@ -1,54 +1,31 @@
 "use client";
 
 import React from 'react';
-import { columns } from '@/components/dashboard/table-columns/sales';
-import { DataTable, DataTableLoading } from '@/components/ui/data-table';
+// import { columns } from '@/components/dashboard/table-columns/sales';
+import { DataTableLoading } from '@/components/ui/data-table';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { User } from '@/lib/logged-user';
+// import { User } from '@/lib/logged-user';
 import { Text } from '@/components/ui/text';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { getURL } from 'next/dist/shared/lib/utils';
-import { parseUrl } from 'next/dist/shared/lib/router/utils/parse-url';
-import { getEventTickets, useGetEventById, getEventAssociatedToTicket } from '@/hooks/useGetEvents';
-import NoNetwork from '@/components/no-network';
-import MyEvents from '@/components/dashboard/my-events';
+// import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+// import { getURL } from 'next/dist/shared/lib/utils';
+// import { parseUrl } from 'next/dist/shared/lib/router/utils/parse-url';
+// import { getEventTickets, useGetEventById, getEventAssociatedToTicket } from '@/hooks/useGetEvents';
+// import NoNetwork from '@/components/no-network';
+// import MyEvents from '@/components/dashboard/my-events';
 import MyTickets from '@/components/dashboard/my-tickets';
 import LayoutToggle from '@/components/buttons/layout-toggle';
+import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
+import { Heading } from '@/components/ui/headers';
 
 export default function Tickets() {
     const [fallback, setFallback] = React.useState<React.JSX.Element | string>(<DataTableLoading />);
-    const [layout, setLayout] = React.useState('');
-    const user = User;
+    const [layout, setLayout] = React.useState('table');
+    const actor = useAuthenticatedUser();
 
-    // React.useEffect(() => {
-    //     const fetchTickets = async () => {
-    //         try {
-    //             const fetchedTickets: [] = await getEventTickets( User );
-                
-    //             if (fetchedTickets.length) {
-    //                 const decoratedTickets = await Promise.all(
-    //                     fetchedTickets.map((ticket) => getEventAssociatedToTicket(ticket, user))
-    //                 );
-    //                 const filteredTickets = decoratedTickets.filter(ticket => ticket.event != null);
-                    
-    //                 setTickets(filteredTickets);
-    //             }
-    //         } catch (error) {
-    //             let errorMsg = (error.code === 'ERR_NETWORK' || !navigator.onLine) 
-    //                 ? <NoNetwork />
-    //                 : 'Oops! Something went wrong. We are unable to fetch your tickets at the moment.';
-
-    //             setFallback(errorMsg);
-    //         }
-    //     }
-
-    //     fetchTickets();
-    // }, []);
-
-    // return <DataTable data={sales} columns={columns} />;
     return (
+        (actor) &&
         <div className='flex flex-col gap-5'>
-            <Text variant='h1' className='page-title'>Tickets</Text>
+            <Heading variant='h1' className='page-title'>{ actor?.isUser && 'My '}Tickets</Heading>
 
             {/* <SummaryCardList summary={summary} /> */}
 

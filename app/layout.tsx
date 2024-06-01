@@ -7,9 +7,6 @@ import { APPCONFIG } from '@/lib/app-config';
 import { Providers } from './providers';
 import { Toaster } from '@/components/ui/sonner';
 
-// const AppContext = React.createContext();
-// export const AppProvider = AppContext.Provider;
-
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 

@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 import { User } from '@/lib/logged-user';
 import UserClass from '@/lib/User.class';
+import { useEffect, useState } from 'react';
+import { orderByDate } from '@/lib/utils';
 
 
 // Dashboard Data Hooks
@@ -41,32 +43,12 @@ export const getDashboardEvents = async (): Promise<DashboardEvent[]> => {
     return events;
 };
 
-export const getDashboardUsers = async (user: AppUser): Promise<AppUser[]> => {
-    
-    const url = Api.server + Api.endpoints.admin.search
-    let result: { data: { accounts: [] } } | null = null;
-    let users: UserInfo[] = [];
-    try {
-        const response = await axios.get(url, {
-            headers: {
-                Authorization: `Bearer ${user.token}`
-            }
-        });
-        result = response.data;
-    } catch (error) {
-        console.log(error)
-    }
-    if (result && result.data.accounts) {
-        users = result.data.accounts;
-    }
-    return [...users].map(user => new UserClass(user))
-}
 
 
 export const getDashboardSales = async (): Promise<Ticket[]> => {
 
     const user = User;
-    const url = user.user.userStatus === 'owner'
+    const url = user?.isOwner
         ? Api.server + Api.endpoints.admin.tickets
         : Api.server + Api.endpoints.public.tickets;
     

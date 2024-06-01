@@ -6,21 +6,20 @@ import { IoLocationSharp } from 'react-icons/io5';
 import React, { Suspense } from 'react';
 import { Text } from '@/components/ui/text';
 import Image from 'next/image';
-import ReserveSpotCard from '@/components/reserve-spot-card';
 import { useGetEventById } from '@/hooks/useGetEvents';
 import { formatDate } from '@/lib/utils';
-import { User } from '@/lib/logged-user';
 import { DataTable } from '@/components/ui/data-table';
 import { ticketCategoryColumns } from '@/components/dashboard/table-columns/ticket-categories';
 import { AxiosError } from 'axios';
 import TicketsSoldForEvent from '@/components/dashboard/tickets-sold-for-event';
 import Loading from './loading';
 import { EventPosters } from '@/components/dashboard/event-posters';
+import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
 
 export default function ViewEvent({ params }: { params: { eventId: string } }) {
-    const actor = User;
+    const actor = useAuthenticatedUser();
     const { eventId } = params;
-    const [event, error]: [SingleEvent | null, AxiosError | null] = useGetEventById(eventId, actor as AppUser);
+    const [event, error] = useGetEventById(eventId, actor as AppUser);
 
     return (
         event

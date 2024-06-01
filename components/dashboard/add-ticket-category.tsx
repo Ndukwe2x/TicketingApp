@@ -109,8 +109,8 @@ const TicketCategoryGroup: React.FC<CategoryGroupProps> = ({groupId, ...props}) 
         <AccordionItem itemID={groupId} {...props}>
             <AccordionTrigger className={ cn('flex justify-between items-center w-full p-3') } extras={deleteBtn()}>
                 <span className="border-r flex flex-1 items-center justify-between mr-2 pr-3">
-                    <span className="c_name text-auto-scale" ref={ nameRef }>Category Name</span>
-                    <span className="c_price text-auto-scale" ref={ priceRef }>Price</span>
+                    <span className="c_name responsive-text-2" ref={ nameRef }>Category Name</span>
+                    <span className="c_price responsive-text-2" ref={ priceRef }>Price</span>
                 </span>
             </AccordionTrigger>
             <AccordionContent>

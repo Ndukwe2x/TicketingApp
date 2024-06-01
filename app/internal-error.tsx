@@ -1,10 +1,8 @@
 import { Button } from '@/components/ui/button';
-import { NotFoundIcon } from '@/components/ui/not-found-icon';
 import { Text } from '@/components/ui/text';
 import Link from 'next/link';
 import React from 'react';
 import { BiGlobe } from 'react-icons/bi';
-import { MdOutlineCloudOff } from 'react-icons/md';
 
 export default function InternalErrorPage() {
     return (

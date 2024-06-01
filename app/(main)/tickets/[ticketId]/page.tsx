@@ -1,76 +1,76 @@
 "use client";
 
 import { Api } from "@/lib/api";
-import { User } from "@/lib/logged-user";
 import axios, { AxiosError } from "axios";
-import React, { FormEvent } from "react";
-import * as TicketNotFound from './not-found';
-import * as EventNotFound from '../../events/[eventId]/not-found';
+import React, { FormEvent, useState } from "react";
+// import * as TicketNotFound from './not-found';
+// import * as EventNotFound from '../../events/[eventId]/not-found';
 import html2PDF from "jspdf-html2canvas";
-import html2pdf from "html2pdf.js";
+// import html2pdf from "html2pdf.js";
 import { Text } from "@/components/ui/text";
 import TicketSlip from "@/components/ticket-slip";
 import { Button } from "@/components/ui/button";
 import { MdArrowDropDown, MdFileDownload, MdSend } from "react-icons/md";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
+import { toast } from "@/components/ui/sonner";
 
 
 export default function ViewTicket({ params }: { params: { ticketId: string } }) {
     const { ticketId } = params;
-    const [ticket, setTicket] = React.useState<Ticket>();
+    const [ticket, setTicket] = React.useState<Ticket | null>(null);
     const [event, setEvent] = React.useState<SingleEvent>();
     const [suspenseText, setSuspenseText] = React.useState('Loading, please wait...');
     const [isSendOptionsTrayOpen, toggleSendOptionsTray] = React.useReducer(state => !state, false);
+    const actor = useAuthenticatedUser();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     
-    let url = Api.server + Api.endpoints.admin.searchTickets;
-    url += '?referenceNo=' + ticketId;
-    const reqConf = {
-        headers: {
-            Authorization: `Bearer ${User.token}`,
+
+    const fetchTicketEvent = async (url: string, config: {}) => {
+        const res = await axios.get(url, config);
+        const data = res.data.data || null;
+        if ( data == null) {
+            return;
         }
+        setEvent(data);
+    }
+    const fetchTicketData = async (url: string, actor: AppUser) => {
+        setIsLoading(true);
+        const config = {
+            headers: {
+                Authorization: `Bearer ${actor?.token}`,
+            }
+        };
+
+        try {
+            const res = await axios.get(url, config);
+            const result = res.data.data || [];
+            const data: Ticket | null = result.tickets ? result.tickets.shift() : null;
+
+            if ( data == null ) {
+                throw new AxiosError('Unable to fetch ticket info.', 'Internal Server Error');
+            }
+
+            setTicket(data);
+            let eventUrl = Api.server + Api.endpoints.public.singleEvent.replace(':id', data?.eventRef);
+            fetchTicketEvent(eventUrl, config);
+        } catch (err) {
+            console.error(err);
+                setSuspenseText('Oops! Something went wrong. Unable to fetch ticket or associated event.');
+        } finally {
+            setIsLoading(false)
+        }
+
     }
 
     React.useEffect(() => {
-        axios.get(url, reqConf)
-        .then(res => {
-            let result = res.data;
-            if (!result.data) {
-                return;
-            }
-            let data: Ticket = result.data.tickets.shift();
+        let url: string = [Api.server, Api.endpoints.admin.searchTickets, '?referenceNo=', ticketId].join('');
 
-            setTicket(data);
-            let eventUrl = Api.server + Api.endpoints.public.singleEvent;
-            eventUrl = eventUrl.replace(':id', data?.eventRef);
-            axios.get(eventUrl, reqConf)
-            .then(eventRes => {
-                let eventResult = eventRes.data;
-                if (!eventResult.data) {
-                    return;
-                }
-                setEvent(eventResult.data);
-            })
-            .catch(error => {
-                if (error.code === '404') {
-                    return <EventNotFound.default />
-                } else {
-                    console.log(error);
-                    setSuspenseText('Oops! Something went wrong. The ticket could not be loaded.');
-                }
-            })
-        })
-        .catch((error: AxiosError) => {
-            if (error.code === '404') {
-                return <TicketNotFound.default />
-            } else {
-                console.log(error);
-                setSuspenseText('Oops! Something went wrong. The ticket could not be loaded.');
-            }
-        })
-
-        return;
-    }, []);
+        if ( actor != null ) {
+            fetchTicketData(url, actor);
+        }
+    }, [actor]);
 
 
     const cardRef = React.useRef<HTMLDivElement>(null);
@@ -91,28 +91,64 @@ export default function ViewTicket({ params }: { params: { ticketId: string } })
         });
     }, [ticket, event]);
 
-    const sendTicketToCustomer = React.useCallback((ev: FormEvent) => {
+    const requestTicketResend = async (url: string, data: {}, contactMethod: string) => {
+        try {
+            const response = await axios.post(url, data, {
+                headers: {
+                    Authorization: `Bearer ${actor?.token}`,
+                }
+            });
+            if ( response.status == 200 ) {
+                toast(`Ticket info has been sent to your registered ${contactMethod}.`);
+            }
+        } catch (error) {
+            toast(
+                `Sorry, but your request could not be completed at the moment. 
+                It's not your fault but ours, and we're working to fix it. 
+                Our sincere apologise for this ugly experience.`
+            );
+        }
+    }
+    const sendTicketToCustomer = React.useCallback((ev: SubmitEvent) => {
         ev.preventDefault();
         if (!cardRef.current || !ticket || !event) return;
+
+        let  url = Api.server + Api.endpoints.admin.singleTicket;
+        url = url.replace(':id', ticket._id);
         
-        const formData = new FormData(ev.target);
-        html2pdf().from(cardRef.current).toPdf()
-        .output('datauristring')
-        .then((pdfAsString: string) => {
-            const encodedFile = encodeURIComponent(pdfAsString);
-            let  url = Api.server + Api.endpoints.admin.singleTicket;
-            url = url.replace(':id', ticket._id);
+        const formData = new FormData(ev.target as HTMLFormElement);
+        const postData = Object.fromEntries(formData.entries());
+        let contactMethod: string;
+
+        switch ( postData.messageType ) {
+            case 'email':
+                contactMethod = 'email';
+                break;
+            case 'phone':
+                contactMethod = 'phone';
+                break;
+            default:
+                contactMethod = 'email and phone';
+                break;
+        }
+        
+        requestTicketResend(url, postData, contactMethod);
+        
+        // html2pdf().from(cardRef.current).toPdf()
+        // .output('datauristring')
+        // .then((pdfAsString: string) => {
+        //     const encodedFile = encodeURIComponent(pdfAsString);
             
-            axios.post(url, formData, reqConf)
-            .then(res => {
-                if (res.data) {
-                    console.log('Ticket sent sussfully');
-                }
-            })
-            .catch((error: AxiosError) => {
-                console.log(error.message);
-            });
-        });
+        //     axios.post(url, formData, reqConf)
+        //     .then(res => {
+        //         if (res.data) {
+        //             console.log('Ticket sent sussfully');
+        //         }
+        //     })
+        //     .catch((error: AxiosError) => {
+        //         console.log(error.message);
+        //     });
+        // });
     }, [ticket, event]);
     
 
@@ -185,13 +221,13 @@ export default function ViewTicket({ params }: { params: { ticketId: string } })
     );
 }
 
-const uploadToCloudinary = (encodedFile: string) => {
-    const reqConf = {
+// const uploadToCloudinary = (encodedFile: string) => {
+//     const reqConf = {
 
-    };
-    axios.post('/path/to/ticket-sender', {'ticket_img': encodedFile}, reqConf)
-    .then(res => {
+//     };
+//     axios.post('/path/to/ticket-sender', {'ticket_img': encodedFile}, reqConf)
+//     .then(res => {
         
-    })
-}
+//     })
+// }
 

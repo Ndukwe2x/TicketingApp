@@ -8,7 +8,7 @@ import { Text } from '@/components/ui/text';
 import { AppLogo } from '@/components/app-logo';
 import { FaFacebook, FaInstagram, FaXTwitter } from 'react-icons/fa6';
 
-import React from "react";
+import React, { useEffect } from "react";
 // import { Session } from '@/lib/session';
 import { useRouter, usePathname } from "next/navigation";
 import { AuthFreeRoutes } from '@/lib/auth-free-routes';
@@ -27,19 +27,18 @@ export default function MainLayout({
     const router = useRouter();
     const route = usePathname();
     const isAuthenticated = User === null ? false : true;
-    // const summary = await getDashboardSummary();
 
-    if ( !isAuthenticated && !AuthFreeRoutes.includes(route) ) {
-        location.assign('/login?redir=' + route);
-        return;
-    } else if (isAuthenticated && ['/login','/register'].includes(route)) {
-        location.assign('/');
-        return;
-    }
-
-    // (async (u: typeof User) => {
-    //     await Session.validateSession(u.token)
-    // })(User);
+    useEffect(() => {
+        if ( !isAuthenticated && !AuthFreeRoutes.includes(route) ) {
+            window.location.assign('/login?redir=' + route);
+            return;
+        } else if (isAuthenticated && ['/login','/register'].includes(route)) {
+            window.location.assign('/');
+            return;
+        }
+    
+        return Session.validateSession();
+    }, []);
 
     return (
         <div className={cn('relative min-h-screen flex flex-col justify-between')}>

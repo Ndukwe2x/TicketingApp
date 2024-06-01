@@ -1,91 +1,42 @@
 "use client";
 
 import React, { HtmlHTMLAttributes } from "react";
-// import { Providers } from "@/app/providers";
-// import { Api, HttpRequest } from "@/lib/api"
-// import { fetchDashboardData } from "@/hooks/FetchDashboardData";
-// import axios, { AxiosError } from "axios";
-import { User } from "@/lib/logged-user";
-// import { usePathname, useRouter, useParams, useSearchParams, ReadonlyURLSearchParams } from "next/navigation";
 import { DataTable, DataTableLoading } from "../ui/data-table";
-import { decorateEvent, useGetEvents, useGetEventsByUser } from "@/hooks/useGetEvents";
+import { useGetEvents, useGetEventsByIds, useGetEventsByUser } from "@/hooks/useGetEvents";
 import NoNetwork from "../no-network";
 import * as dataTableColumns from "./table-columns/events";
 import { DataGrid } from "../ui/data-grid";
+import InternalErrorPage from "@/app/internal-error";
+import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
+import { AxiosError } from "axios";
 
 const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & { 
     layout: string;  
     isFilteringEnabled: boolean; 
     filterParams: string[];
-    owner?: AppUser | null;
+    owner?: AppUser | UserInfo | null;
 }> = ({layout,  isFilteringEnabled = false, filterParams = [], owner = null, ...props}) => {
-    const actor = User;
-    // const [events, setEvents] = React.useState([]);
-    const [featuredEvents, setFeaturedEvents] = React.useState([]);
-    const [fallback, setFallback] = React.useState<React.JSX.Element | string>(<DataTableLoading />);
+    const actor = useAuthenticatedUser();
     const dataGridColumns: [] = [];
-    const eventOwner = owner ?? actor;
+    owner = owner ?? actor;
     
-    const [events] = owner
-        ? useGetEventsByUser(eventOwner, actor) 
-        : useGetEvents(actor);
-        
-        // async function fetchAndDecorateEvents (result: SingleEvent[] | []) {
-        //     try {
-        //         if ( result.length ) {
-        //             const fetchedEvents = result || [];
-        //             const decoratedEvents = await Promise.all(
-        //                 fetchedEvents.map(decorateEvent)
-        //             );
-
-        //             return decoratedEvents;
-                    
-        //             // setEvents(decoratedEvents);
-        //             // setFeaturedEvents(
-        //             //     decoratedEvents.filter(event => event.featured)
-        //             // );
-        //         }
-        //     } catch ( error ) {
-        //         // let feedback = ( error.code === 'ERR_NETWORK' || !navigator.onLine )  
-        //         //     ? <NoNetwork />
-        //         //     : `Oops! We're unable to fetch your data right now, please 
-        //         //     try refreshing the page`;
+    const [isLoading, events, error] = useGetEventsByUser(owner, actor);
     
-        //         // setFallback(feedback);
-        //     }
-
-        // }
-    
-    // React.useEffect(() => {
-    //     async function fetchAndDecorateEvents(data: SingleEvent[] | []) {
-    //         try {
-    //             if ( data.length ) {
-    //                 const decoratedEvents = await Promise.all(
-    //                     data.map(decorateEvent)
-    //                 );
-    //                 setEvents(decoratedEvents);
-    //                 setFeaturedEvents(
-    //                     decoratedEvents.filter(event => event.featured)
-    //                 );
-    //             }
-    //         } catch ( error ) {
-    //             let feedback = ( error.code === 'ERR_NETWORK' || !navigator.onLine )  
-    //                 ? <NoNetwork />
-    //                 : `Oops! We're unable to fetch your data right now, please 
-    //                 try refreshing the page`;
-
-    //             setFallback(feedback);
-    //         }
-    //     }
-
-    //     fetchAndDecorateEvents(fetchedEvents);
-    // }, [fetchedEvents]);
+    if ( error?.code ) {
+        if ( error.code == 'ERR_NETWORK' ) {
+            return <NoNetwork />
+        } else {
+            return <InternalErrorPage />
+        }
+    } else if ( events.length < 1 && !isLoading ) {
+        return <div className="text-center">No events to show.</div>;
+    }
     
     return (
         (
             layout === 'table' 
             ? <DataTable className="vertical-stripe" columns={ dataTableColumns.columns } data={ events } 
-                fallback={ fallback } 
+                fallback={ <DataTableLoading /> } 
                 isFilteringEnabled={ true } 
                 filterFields={ filterParams }>
                 <colgroup>
@@ -101,8 +52,8 @@ const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & {
     )
 } 
 
-const ErrorHandler = (error: AxiosError) => {
-    console.log(error);
-}
+// const ErrorHandler = (error: AxiosError) => {
+//     console.log(error);
+// }
 
 export default MyEvents;
