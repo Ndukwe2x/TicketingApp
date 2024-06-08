@@ -1,13 +1,7 @@
 import React, { memo, useEffect, useState } from "react";
-import { Card, CardContent } from "../ui/card";
-import { Text } from "../ui/text";
-import { useGetUserProperties } from "@/hooks/useGetUsers";
-import { User } from "@/lib/logged-user";
-import { useGetEventsByUser } from "@/hooks/useGetEvents";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import axios from "axios";
-// import * as avatar from '@/components/profile/avatar.svg';
 
 
 interface CompProps {
@@ -17,8 +11,6 @@ interface CompProps {
 
 const Avatar: React.FC<React.HTMLAttributes<HTMLImageElement> & CompProps> = ({className, user, size, ...props}) => {
 
-    // const actor = User as AppUser;
-    // const [events] = useGetEventsByUser(user, actor);
     size = size ? size : 45;
     const [isAccessible, setIsAccessible] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);

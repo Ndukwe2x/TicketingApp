@@ -14,7 +14,7 @@ const NoNetwork: React.FC<NetworkErrorProps> = ({children, className, showRefres
         <div className={ cn('flex flex-col gap-2 items-center justify-center responsive-text-2 text-muted-foreground ' + (className || '')) } {...props}>
             <MdSignalWifiConnectedNoInternet0 size={85} />
             <div>
-                { children || 'Sorry, it appears you are offline. Please reconnect and refresh the page.' }
+                { children || <p className="text-center">Sorry, it appears you are offline. <br />Please check your internet connection and refresh the page.</p> }
             </div>
             {
                 showRefreshButton && <Button type="button" onClick={ () => location.reload() }>Refresh</Button>

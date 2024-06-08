@@ -6,7 +6,7 @@ import UserClass from "@/lib/User.class";
 import { orderByDate } from "@/lib/utils";
 import { APPCONFIG } from "@/lib/app-config";
 
-export const useGetUsers = (actor: AppUser): [isLoading: boolean, users: AppUser[] | [], error: AxiosError | null] => {
+const useGetUsers = (actor: AppUser): [isLoading: boolean, users: AppUser[] | [], error: AxiosError | null] => {
     
     const url = Api.server + Api.endpoints.admin.search
     const [users, setUsers] = useState<AppUser[]>([]);
@@ -46,7 +46,7 @@ export const useGetUsers = (actor: AppUser): [isLoading: boolean, users: AppUser
 }
 
 
-export const useGetUserById = (userId: string, actor: AppUser, raw: boolean = false): 
+const useGetUserById = (userId: string, actor: AppUser, raw: boolean = false): 
     [isLoading: boolean, user: AppUser | UserInfo | null, error: Error | AxiosError | null] => {
     const [user, setUser] = useState<AppUser | UserInfo | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -85,13 +85,16 @@ export const useGetUserById = (userId: string, actor: AppUser, raw: boolean = fa
 }
 
 
-export const useGetUsersByEvent = (eventId: string, actor: AppUser): 
-    [users: AppUser[] | null, isLoading: boolean, error: AxiosError | Error | null] => {
+const useGetUsersByEvent = (eventId: string, actor: AppUser): 
+    [isLoading: boolean, users: AppUser[] | null, error: AxiosError | Error | null] => {
     const [users, setUsers] = useState<AppUser[] | []>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<AxiosError | Error | null>(null);
     
     useEffect(() => {
+        if (actor == null) {
+            return;
+        }
         if ( eventId == '*' ) {
             setError(new Error('Invalid event id'));
             return;
@@ -116,12 +119,12 @@ export const useGetUsersByEvent = (eventId: string, actor: AppUser):
             setError(err);
             setIsLoading(false);
         });
-    }, [eventId]);
+    }, [eventId, actor]);
 
-    return [users, isLoading, error];
+    return [isLoading, users, error];
 }
 
-export const getAuthenticatedUserFullData = async (email: string, token: string): Promise<AppUser | null> => {
+const getAuthenticatedUserFullData = async (email: string, token: string): Promise<AppUser | null> => {
     
     const url = Api.server + Api.endpoints.admin.search + '?email=' + email;
     let result: { data: { accounts: [] } } | null = null;
@@ -145,7 +148,7 @@ export const getAuthenticatedUserFullData = async (email: string, token: string)
     return user;
 }
 
-export const useGetUserProperties = (userId: string, actor: AuthInfo): 
+const useGetUserProperties = (userId: string, actor: AuthInfo): 
     [user: AppUser | null, events: SingleEvent[], isLoading: boolean, error: typeof AxiosError | null] => {
     const [user, setUser] = useState<AppUser | null>(null);
     const [events, setEvents] = useState<SingleEvent[]>([]);
@@ -178,7 +181,7 @@ export const useGetUserProperties = (userId: string, actor: AuthInfo):
     return [user, events, isLoading, error];
 }
 
-export const useGetUserTeams = (user: AppUser | null, actor: AppUser | null, ignoreError: boolean = false) => {
+const useGetUserTeams = (user: AppUser | null, actor: AppUser | null, ignoreError: boolean = false) => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [teams, setTeams] = useState<{}>({});
     const [error, setError] = useState<Error | AxiosError | null | unknown>(null);
@@ -229,7 +232,7 @@ export const useGetUserTeams = (user: AppUser | null, actor: AppUser | null, ign
     return [isLoading, teams, error];
 }
 
-export const useGetTeamMembers = (user: AppUser | null, actor: AppUser | null) => {
+const useGetTeamMembers = (user: AppUser | null, actor: AppUser | null) => {
     const [teamMembers, setTeamMembers] = useState<unknown[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<Error | AxiosError | null>(null);
@@ -253,4 +256,31 @@ export const useGetTeamMembers = (user: AppUser | null, actor: AppUser | null) =
     return [isLoading, teamMembers, error];
 }
 
+// const useGetEventTeam = (eventId: string, actor: AppUser) {
+//     const [team, setTeam] = useState<AppUser[] | UserInfo[]>([]);
+//     const [isLoading, setIsLoading] = useState<boolean>(false);
+//     const [error, setError] = useState<Error | AxiosError | null>(null);
 
+//     useEffect(() => {
+//         (async () => {
+//             const url = Api.server + Api.endpoints.admin.search + '?eventRef=' + eventId;
+//             const res = await axios.get(url, {
+//                 headers: {
+//                     Authorization: `Bearer ${actor?.token}`
+//                 }
+//             });
+//             const data = res.data.data || {};
+//             return {[eventId]: data.accounts || []};
+//         })();
+//     }, [])
+// }
+
+export {
+    useGetUsers,
+    useGetUserById,
+    useGetUsersByEvent,
+    getAuthenticatedUserFullData,
+    useGetUserProperties,
+    useGetUserTeams,
+    useGetTeamMembers
+}

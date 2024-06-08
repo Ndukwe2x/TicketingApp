@@ -3,14 +3,14 @@
 import React, { HtmlHTMLAttributes, useEffect } from "react";
 import { Api } from "@/lib/api";
 import axios, { AxiosError } from "axios";
-import { User } from "@/lib/logged-user";
-import { getEventAssociatedToTicket, useGetTicketSales } from "@/hooks/useGetEvents";
+import { useGetTicketSales } from "@/hooks/useGetEvents";
 import NoNetwork from "../no-network";
 import { DataTable, DataTableLoading } from "../ui/data-table";
 import { DataGrid } from "../ui/data-grid";
 import * as dataTableColumns from "./table-columns/sales";
 import InternalErrorPage from "@/app/internal-error";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
+import TicketGridTemplate from "./grid-data-templates/ticket";
 
 const MyTickets: React.FC<HtmlHTMLAttributes<HTMLDivElement> & { layout: string;  isFilteringEnabled: boolean; filterParams: string[] }> = ({children, layout,  isFilteringEnabled = false, filterParams = [], ...props}) => {
     const actor = useAuthenticatedUser();
@@ -18,7 +18,7 @@ const MyTickets: React.FC<HtmlHTMLAttributes<HTMLDivElement> & { layout: string;
     const [isLoading, tickets, error] = useGetTicketSales( actor );
 
     if ( error?.code ) {
-        if ( error.code == 'ERR_NETWORK' ) {
+        if ( ['ERR_NETWORK','ECONNABORTED'].includes(error.code) ) {
             return <NoNetwork />
         } else {
             return <InternalErrorPage />
@@ -39,9 +39,7 @@ const MyTickets: React.FC<HtmlHTMLAttributes<HTMLDivElement> & { layout: string;
                 }
             </colgroup>
         </DataTable>
-        : <DataGrid columns={dataGridColumns} data={ tickets } columnCount={4}>
-            Sorry, this layout cannot be loaded at the moment
-        </DataGrid>
+        : <DataGrid Template={TicketGridTemplate} data={ tickets } columnRule={ {sm: 2, md: 2, lg: 3, xl: 3} } fallback="Loading..." />
     )
 } 
 

@@ -342,7 +342,7 @@ const EventForm = (
             return (
                 <div key={index} className="border-b py-2">
                     <p className="grid grid-cols-[2fr_5fr]">
-                        <label className="font-bold">{ pascalCase(name) }:</label> 
+                        <label className="font-bold">{ pascalCase(name as string) }:</label> 
                         <span>{value}</span>
                     </p>
                 </div>
@@ -373,14 +373,7 @@ const EventForm = (
                             required aria-required="true" />
                         </div>
                         <div className="flex flex-col gap-4">
-                            <div className="flex flex-row flex-1 gap-4">
-                                <div className='flex flex-col gap-2 flex-1'>
-                                    <Label htmlFor='date'>Date:</Label>
-                                    <Input id='date' name="eventDate" type='datetime-local'  
-                                    onInput={ () => updatePageStatus() } required aria-required='true' 
-                                    defaultValue={ event ? formatDate(new Date(event.eventDate), 'MMMM-DD-YYYY hh:mm A') : '' } />
-                                </div>
-                            </div>
+                            <DateTimeInput datetime={event ? event.eventDate : ''} onUpdate={updatePageStatus} />
                             <div className="flex flex-col flex-1 gap-4">
                                 <div className='flex flex-col gap-2'>
                                     <Label htmlFor='state'>State/Region:</Label>
@@ -456,3 +449,47 @@ const EventForm = (
 }
 
 export default EventForm;
+
+interface DateTimeProps extends Partial<HTMLInputElement> {
+    datetime: string | Date,
+    onUpdate?: () => void
+};
+const DateTimeInput: React.FC<DateTimeProps> = ({datetime, onUpdate}) => {
+    const [eventTimestamp, setEventTimestamp] = React.useState<string | number | Date>(datetime ? new Date(datetime) : '');
+    
+    const handleDateTimeInput = (e: InputEvent) => {
+        const input = e.target as HTMLInputElement;
+        let [date, time]: string[] = eventTimestamp instanceof Date ? eventTimestamp.toISOString().split('T') : ['',''];
+        
+        switch (input?.type) {
+            case 'date':
+                date = input.value;
+                break;
+            case 'time':
+                time = input.value;
+            default:
+                break;
+        }
+        const finalDate = new Date(`${date} ${time}`).toISOString();
+        setEventTimestamp(new Date(finalDate));
+    }
+
+    return (
+        <div className="flex flex-row flex-1 gap-4">
+            <input id='date' name="eventDate" type='hidden' value={ eventTimestamp instanceof Date ? eventTimestamp.toISOString() : eventTimestamp } onChange={() => onUpdate ? onUpdate() : null} />
+            <div className='flex flex-col gap-2 flex-1'>
+                <Label htmlFor='date-control'>Date:</Label>
+                <Input id='date-control' type='date'  
+                onInput={ handleDateTimeInput } required aria-required='true' 
+                defaultValue={ eventTimestamp instanceof Date ? formatDate(new Date(eventTimestamp), 'YYYY-MM-DD') : '' } />
+            </div>
+            <div className='flex flex-col gap-2 flex-1 relative'>
+                <Label htmlFor='time-control'>Time:</Label>
+                <Input id='time-control' type='time'  
+                onInput={ handleDateTimeInput } required aria-required='true' 
+                defaultValue={ eventTimestamp instanceof Date ? formatDate(eventTimestamp, 'hh:mm') : '' } />
+                <span className="absolute time-of-day">{eventTimestamp instanceof Date ? formatDate(eventTimestamp, 'A') : '' }</span>
+            </div>
+        </div>
+    )
+}

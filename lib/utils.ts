@@ -3,6 +3,7 @@ import { twMerge } from 'tailwind-merge';
 import dateTime from 'date-and-time';
 import { setCookie } from 'cookies-next';
 import { APPCONFIG } from './app-config';
+import { toast } from '@/components/ui/sonner';
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -94,4 +95,28 @@ export const calculateTimeDifference = (timestamp1: string, timestamp2: string):
         hours: differenceInHours,
         days: differenceInDays,
     }
+}
+
+/**
+ * Splits an array into chunks of a specified size.
+ * @param size The size of each chunk.
+ * @returns An array of arrays, where each inner array contains `size` elements.
+ */
+declare global {
+    interface Array<T> {
+      chunk(size: number): T[][];
+    }
+}
+  
+Array.prototype.chunk = function (size: number): any[][] {
+    const result: any[][] = [];
+    for (let i = 0; i < this.length; i += size) {
+      result.push(this.slice(i, i + size));
+    }
+    return result;
+};
+
+export function copyLink (link: string) {
+    navigator.clipboard.writeText(link);
+    toast('Link copied!', {position: 'top-center'});
 }

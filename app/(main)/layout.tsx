@@ -7,16 +7,14 @@ import { APPCONFIG } from '@/lib/app-config';
 import { Text } from '@/components/ui/text';
 import { AppLogo } from '@/components/app-logo';
 import { FaFacebook, FaInstagram, FaXTwitter } from 'react-icons/fa6';
-
-import React, { useEffect } from "react";
-// import { Session } from '@/lib/session';
-import { useRouter, usePathname } from "next/navigation";
+import React, { useState } from "react";
+import { usePathname } from "next/navigation";
 import { AuthFreeRoutes } from '@/lib/auth-free-routes';
-import {User} from '@/lib/logged-user';
-import CreateEventButton from '@/components/buttons/create-event-button';
-import CreateUserButton from '@/components/buttons/create-user-button';
 import { Toaster, toast } from '@/components/ui/sonner';
 import { Session } from '@/lib/session';
+import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
+import UserClass from '@/lib/User.class';
+import NoNetwork from '@/components/no-network';
 
 
 export default function MainLayout({
@@ -24,21 +22,29 @@ export default function MainLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const router = useRouter();
     const route = usePathname();
-    const isAuthenticated = User === null ? false : true;
-
-    useEffect(() => {
-        if ( !isAuthenticated && !AuthFreeRoutes.includes(route) ) {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    
+    const actor = useAuthenticatedUser(authUser => {
+        if ( authUser === null && !AuthFreeRoutes.includes(route) ) {
             window.location.assign('/login?redir=' + route);
             return;
-        } else if (isAuthenticated && ['/login','/register'].includes(route)) {
-            window.location.assign('/');
-            return;
+        } else if (authUser instanceof UserClass) {
+            if ( ['/login','/register'].includes(route) ) {
+                window.location.assign('/');
+                return;
+            }
+            setIsAuthenticated(true);
         }
+    });
+
+    // Return a blank screen until we are sure that the user is authenticated
+    if ( !isAuthenticated) {
+        return null;
+    }
     
-        return Session.validateSession();
-    }, []);
+    // Validate the user session every 10 minutes to ensure that they still have a valid token;
+    Session.validateSession(actor as AppUser, 10);
 
     return (
         <div className={cn('relative min-h-screen flex flex-col justify-between')}>
@@ -47,8 +53,7 @@ export default function MainLayout({
                 <div className='flex relative '>
                     <DashboardNav />
                     <div id="main" className='flex-1 overflow-y-auto lg:px-10 lg:py-10'>
-                        {children}
-                        {/* <Toaster position='bottom-left' pauseWhenPageIsHidden={true} closeButton={true} /> */}
+                        {navigator.onLine ? children : <NoNetwork />}
                     </div>
                 </div>
             </div>

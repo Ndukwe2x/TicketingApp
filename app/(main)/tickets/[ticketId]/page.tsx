@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 import { toast } from "@/components/ui/sonner";
+import TicketResendForm from "@/components/dashboard/ticket-resend-form";
 
 
 export default function ViewTicket({ params }: { params: { ticketId: string } }) {
@@ -91,66 +92,6 @@ export default function ViewTicket({ params }: { params: { ticketId: string } })
         });
     }, [ticket, event]);
 
-    const requestTicketResend = async (url: string, data: {}, contactMethod: string) => {
-        try {
-            const response = await axios.post(url, data, {
-                headers: {
-                    Authorization: `Bearer ${actor?.token}`,
-                }
-            });
-            if ( response.status == 200 ) {
-                toast(`Ticket info has been sent to your registered ${contactMethod}.`);
-            }
-        } catch (error) {
-            toast(
-                `Sorry, but your request could not be completed at the moment. 
-                It's not your fault but ours, and we're working to fix it. 
-                Our sincere apologise for this ugly experience.`
-            );
-        }
-    }
-    const sendTicketToCustomer = React.useCallback((ev: SubmitEvent) => {
-        ev.preventDefault();
-        if (!cardRef.current || !ticket || !event) return;
-
-        let  url = Api.server + Api.endpoints.admin.singleTicket;
-        url = url.replace(':id', ticket._id);
-        
-        const formData = new FormData(ev.target as HTMLFormElement);
-        const postData = Object.fromEntries(formData.entries());
-        let contactMethod: string;
-
-        switch ( postData.messageType ) {
-            case 'email':
-                contactMethod = 'email';
-                break;
-            case 'phone':
-                contactMethod = 'phone';
-                break;
-            default:
-                contactMethod = 'email and phone';
-                break;
-        }
-        
-        requestTicketResend(url, postData, contactMethod);
-        
-        // html2pdf().from(cardRef.current).toPdf()
-        // .output('datauristring')
-        // .then((pdfAsString: string) => {
-        //     const encodedFile = encodeURIComponent(pdfAsString);
-            
-        //     axios.post(url, formData, reqConf)
-        //     .then(res => {
-        //         if (res.data) {
-        //             console.log('Ticket sent sussfully');
-        //         }
-        //     })
-        //     .catch((error: AxiosError) => {
-        //         console.log(error.message);
-        //     });
-        // });
-    }, [ticket, event]);
-    
 
     return (
         <>
@@ -197,7 +138,8 @@ export default function ViewTicket({ params }: { params: { ticketId: string } })
                             <Button variant='outline' onClick={ toggleSendOptionsTray }>Send to Customer <MdArrowDropDown size={22} className="ml-2" /></Button>
                         </div>
                         <div id="ticket-sending-options" className={ `mt-4 ${isSendOptionsTrayOpen ? 'shown' : 'hidden'}` }>
-                            <form onSubmit={ sendTicketToCustomer }>
+                            <TicketResendForm ticketId={ ticket._id } />
+                            {/* <form onSubmit={ sendTicketToCustomer }>
                                 <Select name="messageType">
                                     <SelectTrigger>
                                         <SelectValue placeholder='Message Type' />
@@ -210,7 +152,7 @@ export default function ViewTicket({ params }: { params: { ticketId: string } })
                                 </Select>
                                 <br />
                                 <div className="text-right"><Button type="submit" >Send<MdSend size={22} className="ml-2" /></Button></div>
-                            </form>
+                            </form> */}
                         </div>
                     </div>
                 </div> ||

@@ -2,11 +2,10 @@
 
 import UserClass from '@/lib/User.class';
 import { Api } from '@/lib/api';
-import { User } from '@/lib/logged-user';
 import { orderByDate } from '@/lib/utils';
-// import { useQuery } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import useAuthenticatedUser from './useAuthenticatedUser';
 
 
 async function fetchEventById (eventId: string, surpressError: boolean = false) {
@@ -47,7 +46,7 @@ const fetchEventsWithoutAuthorisation = async () => {
  * @param surpressError `boolean` Whether or not to throw exceptions if error occurs
  * @returns `SingleEvent | null`
  */
-export const useGetEventById = ( refid: string, actor: AppUser, surpressError?: boolean ): [SingleEvent | null, AxiosError | null, boolean] => {
+export const useGetEventById = ( refid: string, actor: AppUser, surpressError?: boolean ): [boolean, SingleEvent | null, AxiosError | Error | null] => {
     let url = Api.server + Api.endpoints.public.singleEvent;
         url = url.replace( ':id', refid );
         surpressError = surpressError || false;
@@ -56,6 +55,9 @@ export const useGetEventById = ( refid: string, actor: AppUser, surpressError?: 
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
     useEffect(() => {
+        if (actor == null) {
+            return;
+        }
         axios.get( url, {
             headers: {
                 Authorization: `Bearer ${actor.token}`
@@ -71,9 +73,9 @@ export const useGetEventById = ( refid: string, actor: AppUser, surpressError?: 
             setIsLoading(false);
             console.error(err);
         })
-    }, []);
+    }, [actor]);
 
-    return [event, error, isLoading];
+    return [isLoading, event, error];
 };
 
 export const useGetEvents = (actor: AppUser): [isLoading: boolean, events: SingleEvent[] | [], error: AxiosError | null] => {
@@ -157,7 +159,7 @@ export const useGetEventsByUser = ( theUser: AppUser, actor: AppUser): [ isLoadi
 
         (async (IDs: string[]) => {
             setIsLoading(true);
-            
+
             try {
                 if ( IDs && IDs.length) {
                     const fetchedEvents = IDs.includes('*') 
@@ -218,7 +220,8 @@ export const useGetEventsByIds = (eventIds: string[], actor: AppUser): [isLoadin
 }
 
 export const decorateEvent = async (event: SingleEvent & { ticketsSold: Ticket[]}) => {
-    const [isLoading, ticketsSold] = useGetTicketSales(User, event);
+    const actor = useAuthenticatedUser();
+    const [isLoading, ticketsSold] = useGetTicketSales(actor, event);
     event.ticketsSold = ticketsSold;
     
     return event;
