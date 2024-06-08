@@ -8,12 +8,14 @@ import { Button } from "../ui/button";
 import axios, { AxiosResponse } from "axios";
 import { Api } from "@/lib/api";
 import { toast } from "../ui/sonner";
+import { cn } from "@/lib/utils";
 
 interface CreateButtonProps extends HtmlHTMLAttributes<HTMLButtonElement> {
     actor: AppUser; 
-    user: AppUser; 
+    user: AppUser;
+    variant?: any;
 }
-const CreateEventForUser: React.FC<CreateButtonProps> = ({children, className, actor, user, ...props }) => {
+const CreateEventForUser: React.FC<CreateButtonProps> = ({children, className, actor, user, variant, ...props }) => {
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 
     const initDialog = () => {
@@ -52,7 +54,7 @@ const CreateEventForUser: React.FC<CreateButtonProps> = ({children, className, a
     return (
         <>
             <Modal title="Create Event" 
-                displayText={ <Button type="button" className={ className } { ...props }>
+                displayText={ <Button variant={ variant || 'default' } type="button" className={ cn(className) } { ...props }>
                     { children || 'Create Event' }
                     <MdEditCalendar size={18} /></Button> 
                 } 

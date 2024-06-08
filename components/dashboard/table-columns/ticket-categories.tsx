@@ -2,13 +2,7 @@
 import * as React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 
-import { Button } from '@/components/ui/button';
-import { formatCurrency, formatDate, formatNumber } from '@/lib/utils';
-import { Text } from '@/components/ui/text';
-import { toast } from '@/components/ui/sonner';
-import EditEventButton from '@/components/buttons/edit-event-button';
-import { User } from '@/lib/logged-user';
-import { MdLink } from 'react-icons/md';
+import { formatCurrency, formatNumber } from '@/lib/utils';
 
 export const ticketCategoryColumns: ColumnDef<TicketCategory>[] = [
     {

@@ -1,17 +1,9 @@
 "use client";
 
 import React from 'react';
-// import { columns } from '@/components/dashboard/table-columns/sales';
 import { DataTableLoading } from '@/components/ui/data-table';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-// import { User } from '@/lib/logged-user';
 import { Text } from '@/components/ui/text';
-// import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-// import { getURL } from 'next/dist/shared/lib/utils';
-// import { parseUrl } from 'next/dist/shared/lib/router/utils/parse-url';
-// import { getEventTickets, useGetEventById, getEventAssociatedToTicket } from '@/hooks/useGetEvents';
-// import NoNetwork from '@/components/no-network';
-// import MyEvents from '@/components/dashboard/my-events';
 import MyTickets from '@/components/dashboard/my-tickets';
 import LayoutToggle from '@/components/buttons/layout-toggle';
 import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';

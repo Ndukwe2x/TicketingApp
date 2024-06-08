@@ -15,11 +15,14 @@ import TicketsSoldForEvent from '@/components/dashboard/tickets-sold-for-event';
 import Loading from './loading';
 import { EventPosters } from '@/components/dashboard/event-posters';
 import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
+import { useGetTeamMembers, useGetUsersByEvent } from '@/hooks/useGetUsers';
+import { columns } from '@/components/dashboard/table-columns/team';
 
 export default function ViewEvent({ params }: { params: { eventId: string } }) {
     const actor = useAuthenticatedUser();
     const { eventId } = params;
-    const [event, error] = useGetEventById(eventId, actor as AppUser);
+    const [eventLoading, event, eventError] = useGetEventById(eventId, actor as AppUser);
+    const [teamLoading, organizingTeam, teamError] = useGetUsersByEvent(eventId, actor as AppUser);
 
     return (
         event
@@ -103,7 +106,7 @@ export default function ViewEvent({ params }: { params: { eventId: string } }) {
                                 <CardTitle>Organizing Team</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                {/* <DataTable columns={ticketCategoryColumns} data={event.ticketCategories} fallback='Loading...' /> */}
+                                <DataTable columns={ columns } data={ organizingTeam } fallback='Loading...' />
                             </CardContent>
                         </Card>
                     </section>

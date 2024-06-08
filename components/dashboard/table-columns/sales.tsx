@@ -3,20 +3,19 @@
 import * as React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { CaretSortIcon } from '@radix-ui/react-icons';
-import { formatCurrency, formatDate, humanReadableDateFormat } from '@/lib/utils';
-import { User } from '@/lib/logged-user';
-import TicketActionsDropdownMenu from '../ticket-actions-dropdown-menu';
+import { cn, formatCurrency, humanReadableDateFormat } from '@/lib/utils';
 import Link from 'next/link';
-import TicketEvent from '../ticket-event';
+import SendTicketToCustomer from '@/components/buttons/ticket/resend-ticket';
+import DeleteTicket from '@/components/buttons/ticket/delete-ticket';
+import { FiEye } from 'react-icons/fi';
 
 export const columns: ColumnDef<Ticket & {event: SingleEvent | null; event_title: string | null}>[] = [
     {
         accessorKey: 'event_title',
         header: () => <div className='px-4'>Event</div>,
         cell: ({ row }) => (<div className='whitespace-nowrap'>
-                {/* <TicketEvent key={ row.id } actor={ User } ticket={ row.original } /> */}
             <Link href={ `${location.origin}/events/${row.original._id}`}>
-                { row.getValue('event_title')}
+                { row.getValue('event_title') }
             </Link>
         </div>),
     },
@@ -85,43 +84,38 @@ export const columns: ColumnDef<Ticket & {event: SingleEvent | null; event_title
     {
         accessorKey: 'actions',
         cell: ({ row }) => {
+            const ticket = row.original;
             return (
-                <div className='text-right'>
-                    <Link href={`/tickets/${row.original.referenceNo}/`} className='border border-primary flex flex-row hover:bg-primary 
-                hover:text-primary-foreground items-end gap-1.5 py-1 px-1 md:px-2 lg:px-4 rounded-full text-primary whitespace-nowrap'>View Ticket</Link>
+                <div className='flex gap-3 items-center justify-between px-2'>
+                    <Link href={`/tickets/${ticket.referenceNo}/`} 
+                        className={ cn('border border-primary flex flex-row gap-1.5 hover:bg-primary',
+                        'hover:text-primary-foreground md:px-2 md:py-1 px-1.5 py-1 h-9',
+                        'rounded-md text-primary whitespace-nowrap shadow items-center') }>
+                        <span className='sr' aria-description='View ticket'>View</span>
+                        <FiEye size={ 20 } />
+                    </Link>
+                    <SendTicketToCustomer ticketId={ ticket._id } variant={ null } 
+                        className={cn('border flex flex-row gap-1.5 bg-white hover:bg-secondary',
+                        'hover:text-secondary-foreground items-center md:px-2 md:py-1 px-1.5 py-1 ',
+                        'rounded-md text-foreground whitespace-nowrap')}>
+                            <span className='sr' aria-description='Send ticket to customer'>Send</span>
+                        </SendTicketToCustomer>
+                    <DeleteTicket ticketId={ ticket._id } 
+                        onSuccess={ data => removeTicketRow(data, 'tr') } 
+                        variant={ null } 
+                        className={cn('border border-destructive flex flex-row gap-1.5 bg-destructive', 
+                        'hover:bg-accent-destructive text-white items-center md:px-2 md:py-1 px-1.5 py-1 ',
+                        'rounded-md text-white whitespace-nowrap')}>
+                            <span className='sr' aria-description='Delete Ticket'>Delete</span>
+                        </DeleteTicket>
                 </div>
             )
         }
     }
-    // {
-    //     accessorKey: 'dueDate',
-    //     header: ({ column }) => {
-    //         return (
-    //             <div
-    //                 className='flex gap-2 items-center cursor-pointer'
-    //                 onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-    //             >
-    //                 Due Date
-    //                 <CaretSortIcon className='ml-2 h-4 w-4' />
-    //             </div>
-    //         );
-    //     },
-    //     cell: ({ row }) => <div>{formatDate(row.getValue('dueDate'), 'MMM DD YYYY, hh:mm A')}</div>,
-    // },
-    // {
-    //     accessorKey: 'admitted',
-    //     header: 'Admitted',
-    //     cell: ({ row }) => <div>{row.getValue('admitted') ? 'Yes' : 'No'}</div>,
-    // },
 ];
 
-// const user = User;
+const removeTicketRow = (data, rowSelector) => {
 
-// if (user && user.user.userStatus &&  'user') {
-//     columns.push({
-//         accessorKey: 'actions',
-//         cell: ({ row }) => {
-//             return (<div className='text-right px-4'><TicketActionsDropdownMenu row={ row } /></div>)}
-//     })
-// }
+}
+
 

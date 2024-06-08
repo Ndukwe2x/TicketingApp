@@ -35,7 +35,7 @@ export class Session {
             ev?.preventDefault();
         }
         this.forgetUser();
-
+        deleteCookie(this.authTimeCookieKey, cookieOptions as OptionsType);
         let redirect = '/login?logged_out=1';
         if ( sessionExpired ) {
             redirect += '&session_expired=1&redir=' + location.pathname;
@@ -43,30 +43,45 @@ export class Session {
         location.assign(redirect);
     }
 
-    static validateSession (): void {
-        // const url = Api.server + Api.endpoints.admin.register;
+    static async validateSession (actor: AppUser, pollIntervalInMinutes: number = 30): Promise<void> {
         const startTimeStr: string = getCookie(this.authTimeCookieKey, {...cookieOptions, maxAge: undefined, expires: undefined}) as string;
         const now = new Date();
-        const { seconds, minutes, hours, days } = calculateTimeDifference(startTimeStr, now.toUTCString());
-
-        if ( hours >= 22 ) {
-            this.logout(undefined, true);
+        const { minutes } = calculateTimeDifference(startTimeStr, now.toUTCString());
+        if ( !navigator.onLine ) {
+            return;
+        }
+        const validateToken = async (): Promise<boolean> => {
+            const url = Api.server + Api.endpoints.admin.singleUser.replace(':id', actor.id);
+            try {
+                const response = await axios.get(url, {
+                    headers: {
+                        Authorization: `Bearer ${actor.token}`,
+                    }
+                });
+                if ( response.status === 200 ) {
+                    return true;
+                }
+                return false;
+            } catch (error) {
+                return false;
+            }
         }
 
-        // try {
-        //     const response = await axios.postForm(url, {foo: 'bar'}, {
-        //         headers: {
-        //             Authorization: `Bearer ${token}`,
-        //         }
-        //     });
-        // } catch (error) {
-        //     if ( !error.response || !error.response.status ) {
-        //         return;
-        //     }
-        //     if (error.response.status == 401) {
-        //         this.logout(undefined, true);
-        //     }
-        // }
+        /* Not properly logged in? Kick them out. */
+        if ( !startTimeStr ) {
+            this.logout(undefined);
+        }
+
+        /** At the specified interval, check if the token is still valid, and if not,
+         * require them to login again.
+         */
+        if ( minutes >= pollIntervalInMinutes ) {
+            const tokenValid = await validateToken();
+            if ( !tokenValid ) {
+                this.logout(undefined, true);
+            }
+        }
     }
 };
+
 

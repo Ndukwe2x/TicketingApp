@@ -3,15 +3,18 @@
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import React, { useReducer } from 'react';
+import React, { ReactNode, useReducer, useState } from 'react';
 import { FaMoneyBills } from 'react-icons/fa6';
 import { HiMiniUsers } from 'react-icons/hi2';
-import { MdAddBox, MdEvent, MdHomeFilled } from 'react-icons/md';
+import { MdAddBox, MdEditCalendar, MdEvent, MdHomeFilled, MdPersonAdd } from 'react-icons/md';
 import useDeviceViewPort from '@/hooks/useDeviceViewPort';
 import CreateEventButton from '../buttons/create-event-button';
 import CreateUserButton from '../buttons/create-user-button';
 import AddTeamMember from '../buttons/add-team-member';
 import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
+import { title } from 'process';
+import { Button } from '../ui/button';
+import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 
 export const DashboardNav = () => {
     const actor = useAuthenticatedUser();
@@ -41,11 +44,11 @@ export const DashboardNav = () => {
 };
 
 type NavItem = { 
-    title: string; 
-    href: string; 
-    icon: React.ReactNode, 
+    title: string | ReactNode; 
+    href?: string; 
+    icon?: React.ReactNode, 
     addon?: React.ReactNode; 
-    submenu?: unknown[] | React.ReactNode; 
+    submenu?: NavItem[] | React.ReactNode; 
 };
 
 function MenuBuilder(menu: NavItem[]) {
@@ -53,13 +56,14 @@ function MenuBuilder(menu: NavItem[]) {
 
     return menu.map((item, index) => {
         const isActive = pathname === item.href;
-        
+        const [isOpen, toggleOpen] = useReducer(state => !state, false);
         return (
             <li key={ index } className={ cn(
-                'hover:bg-primary hover:text-primary-foreground rounded-lg text-muted-foreground my-2',
+                'hover:bg-primary hover:text-primary-foreground rounded-lg text-muted-foreground my-2 overflow-hidden',
                 isActive && 'bg-primary text-primary-foreground', 
                 item.addon ? 'has-addon ' : '', 
-                item.submenu ? 'has-submenu' : '') }>
+                item.submenu ? 'has-submenu' : '',
+                isOpen ? 'expanded' : '') }>
                 <Link href={item.href}>
                     <div
                         className={cn(
@@ -77,9 +81,19 @@ function MenuBuilder(menu: NavItem[]) {
                     (item.addon) && <div className='menu-addon hidden xl:block'>{ item.addon }</div>
                 }
                 {
+                    (item.submenu) && <div className='menu-toggle hidden xl:flex items-center justify-between'>
+                        <Button 
+                            variant={null} onClick={() => {toggleOpen()}} 
+                            className='px-1 h-auto my-auto py-0 ml-auto'>
+                            {isOpen ? <FiChevronUp size={20} /> : <FiChevronDown size={20} /> }
+                        </Button>
+                    </div>
+                }
+                {
                     (item.submenu) && (
-                        (React.isValidElement(item.submenu) && item.submenu) ||
-                        item.submenu instanceof Array && <ul>{ MenuBuilder(item.submenu as NavItem[]) }</ul>
+                        React.isValidElement(item.submenu) 
+                            ? <div id={`db_menuitem_${index}_submenu`} className='submenu rounded-lg'>{item.submenu}</div>
+                            : <ul id={`db_menuitem_${index}_submenu`} className='submenu rounded-lg'>{ MenuBuilder(item.submenu as NavItem[]) }</ul>
                     )
                 }
             </li>
@@ -96,9 +110,9 @@ const OwnerMenu = ({actor}: {actor: AppUser}) => {
             title: 'Events', 
             href: '/events', 
             icon: <MdEvent />,
-            addon: actor?.canCreateEvent ? <CreateEventButton displayText={
-                <Link href='#' >
-                    <span className='sr-only'>Create Event</span><MdAddBox size={26} />
+            submenu: actor?.canCreateEvent ? <CreateEventButton displayText={
+                <Link href='#' className='rounded-lg hover:bg-gray-400/40 cursor-pointer flex items-center lg:px-4 px-3 py-2'>
+                    <MdEditCalendar size={20} className='mr-2 ml-4' /><span className='sr'>Create Event</span>
                 </Link>
             } /> : null
         },
@@ -111,11 +125,12 @@ const OwnerMenu = ({actor}: {actor: AppUser}) => {
             title: 'Users', 
             href: '/users', 
             icon: <HiMiniUsers />,
-            addon: actor?.canCreateUser ? <CreateUserButton displayText={
-                <Link href='#' >
-                    <span className='sr-only'>Add New User</span><MdAddBox size={26} />
+            // addon: <MdAddBox size={26} />,
+            submenu: actor?.canCreateUser ? <CreateUserButton displayText={
+                <Link href='#' className='rounded-lg hover:bg-gray-400/40 cursor-pointer flex items-center lg:px-4 px-3 py-2'>
+                    <MdPersonAdd size={20} className='mr-2 ml-4' /><span className='sr' aria-description='Add New User'>Add New User</span>
                 </Link>
-            } /> : null
+            } /> : ''
         },
         // { title: 'Employees', href: '/users/employees', icon: <HiOfficeBuilding /> },
     ];
@@ -137,9 +152,9 @@ const UserMenu = ({actor}: {actor: AppUser}) => {
             title: 'My Events', 
             href: '/events', 
             icon: <MdEvent />,
-            addon: actor?.canCreateEvent ? <CreateEventButton displayText={
-                <Link href='#'>
-                    <span className='sr-only'>Create Event</span><MdAddBox size={26} />
+            submenu: actor?.canCreateEvent ? <CreateEventButton displayText={
+                <Link href='#' className='rounded-lg hover:bg-gray-400/40 cursor-pointer flex items-center lg:px-4 px-3 py-2'>
+                    <MdEditCalendar size={20} className='mr-2 ml-4' /><span className='sr'>Create Event</span>
                 </Link>
             } /> : null
         },
@@ -148,9 +163,9 @@ const UserMenu = ({actor}: {actor: AppUser}) => {
             title: 'Team', 
             href: '/team', 
             icon: <HiMiniUsers />,
-            addon: actor?.isSuperUser ? <AddTeamMember displayText={
-                <Link href='#'>
-                    <span className='sr-only'>Add New Team Member</span><MdAddBox size={26} />
+            submenu: actor?.isSuperUser ? <AddTeamMember displayText={
+                <Link href='#' className='rounded-lg hover:bg-gray-400/40 cursor-pointer flex items-center lg:px-4 px-3 py-2'>
+                    <MdPersonAdd size={20} className='mr-2 ml-4' /><span className='sr' aria-description='Add New Team Member'>Add New Team Member</span>
                 </Link>
             } /> : null
         }
@@ -164,3 +179,14 @@ const UserMenu = ({actor}: {actor: AppUser}) => {
         </>
     )
 }
+
+// function toggleSubmenu(menuId: string) {
+//     const menu = document.querySelector(menuId) as HTMLElement;
+//     const style = window.getComputedStyle(menu);
+
+//     if (style.display == 'none') {
+//         menu.style.display = 'block';
+//     } else {
+//         menu.style.display = 'none';
+//     }
+// }

@@ -1,33 +1,19 @@
-import React, { HtmlHTMLAttributes } from "react";
+import React, { HtmlHTMLAttributes, useEffect, useState } from "react";
 import Modal from "../ui/modal";
 import { MdEdit } from "react-icons/md";
-import UserForm from "../dashboard/user-form";
 import { toast } from "../ui/sonner";
 import { Button } from "../ui/button";
 import { Api } from "@/lib/api";
-import { useGetUserById } from "@/hooks/useGetUsers";
 import EventForm from "../dashboard/event-form";
-import { useGetEventById } from "@/hooks/useGetEvents";
 
 interface EditButtonProps extends HtmlHTMLAttributes<HTMLButtonElement> {
-    eventId: string;
+    event: SingleEvent;
     actor: AppUser;
 }
-const EditEventButton: React.FC<EditButtonProps> = ({children, className, eventId, actor, ...props}) => {
+const EditEventButton: React.FC<EditButtonProps> = ({children, className, event, actor, ...props}) => {
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-    const formAction = Api.server + Api.endpoints.admin.event.replace(':id', eventId);
-    const [event, setEvent] = React.useState(null);
-
-
-    React.useEffect(() => {
-        const fetchEvent = async () => {
-            const fetchedEvent = await useGetEventById(eventId, actor);
-            setEvent(fetchedEvent);
-        }
-
-        fetchEvent();
-    }, []);
-
+    const formAction = Api.server + Api.endpoints.admin.event.replace(':id', event._id);
+    
     const handleClose = () => {
         setIsDialogOpen(false);
     }
@@ -60,16 +46,14 @@ const EditEventButton: React.FC<EditButtonProps> = ({children, className, eventI
         event={event} />;
 
     return (
-        <>
-            <Modal title='Edit User'
-                displayText={ btn } 
-                content={ content } 
-                onSave={ handleSave } 
-                onClose={ handleClose }
-                open={ isDialogOpen }
-                onOpenChange={setIsDialogOpen}
-                style={ { maxWidth: '45rem' } } />
-        </>
+        <Modal title='Edit Event'
+            displayText={ btn } 
+            content={ content } 
+            onSave={ handleSave } 
+            onClose={ handleClose }
+            open={ isDialogOpen }
+            onOpenChange={setIsDialogOpen}
+            style={ { maxWidth: '45rem' } } />
     )
 }
 

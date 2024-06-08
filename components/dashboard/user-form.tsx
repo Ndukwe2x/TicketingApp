@@ -1,26 +1,18 @@
 "use client";
 
 import * as React from "react"
-import { Button } from "../ui/button"
-import Modal from "../ui/modal";
-import { Label } from "../ui/label";
+import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Api } from "@/lib/api";
 import { Text } from "../ui/text";
-import { Textarea } from "../ui/textarea";
-// import { ButtonIcon } from "@radix-ui/react-icons";
 import { Icons } from "../icons";
 import styles from '../styles/styles.module.css';
-import MediaUploader from "../buttons/media-uploader-2";
 import axios from "axios";
-import { Checkbox } from "../ui/checkbox";
-import Link from "next/link";
 import { APPCONFIG } from "@/lib/app-config";
-import { camelCase, capitalCase } from "change-case";
-import generateRandomString from "@/lib/random-string-generator";
+import { capitalCase } from "change-case";
 import PasswordGenerator from "../password-generator";
-import { Toaster, toast } from "../ui/sonner";
+import { Label } from "../ui/label";
 
 
 const UserForm = (

@@ -12,14 +12,14 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { CaretSortIcon, DotsVerticalIcon } from '@radix-ui/react-icons';
-import { formatDate } from '@/lib/utils';
+import { copyLink, formatDate } from '@/lib/utils';
 import { Text } from '@/components/ui/text';
 import DeleteEventButton from '@/components/buttons/delete-event-button';
-import { toast } from '@/components/ui/sonner';
 import EditEventButton from '@/components/buttons/edit-event-button';
-import { User } from '@/lib/logged-user';
 import { MdLink } from 'react-icons/md';
 import CountTicketsSoldForEvent from '../count-tickets-sold-for-event';
+import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
+import EventsListActionsDropdownMenu from '../events-list-actions-dropdown-menu';
 
 export const columns: ColumnDef<SingleEvent>[] = [
     {
@@ -128,42 +128,15 @@ export const columns: ColumnDef<SingleEvent>[] = [
         enableHiding: false,
         cell: ({ row }) => {
             const event = row.original;
+            const actor = useAuthenticatedUser();
 
             return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant='ghost' className='h-8 w-8 p-0'>
-                            <span className='sr-only'>Open menu</span>
-                            <DotsVerticalIcon className='h-4 w-4' />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align='end'>
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <Button variant={null} onClick={ () => copyEventLink(event) }
-                            className='hover:bg-accent px-2 text-foreground flex justify-between items-center gap-5'><span>Copy Event Link</span><MdLink /></Button>
-                        { User?.canUpdateEvent && 
-                            <EditEventButton 
-                                eventId={ event._id } 
-                                actor={ User }
-                                variant={null} 
-                                className='flex justify-between items-center w-full hover:bg-accent px-2 text-foreground gap-5' /> }
-                        <DropdownMenuSeparator />
-                        { User?.canDeleteEvent && <DeleteEventButton 
-                            event={ event }
-                            actor={ User }
-                            variant={null} 
-                            className='text-destructive flex justify-between items-center w-full hover:bg-accent px-2 gap-5' /> }
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                <EventsListActionsDropdownMenu event={event} actor={actor as AppUser} onSuccess={handleSuccess} />
             );
         },
     },
 ];
 
+function handleSuccess<T, S>(response: T, action: S): void {
 
-function copyEventLink (event: SingleEvent) {
-    navigator.clipboard.writeText(
-        `${window.location.origin}/events/${event._id}`
-    );
-    toast('Link copied!', {position: 'top-center'});
 }

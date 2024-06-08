@@ -180,7 +180,7 @@ type NewlyCreatedUserAccountData = {
     status: string
 }
 
-type Callback = (param: Any) => void;
+type Callback = (param: Any, ...rest: any[]) => void;
 
 type CloudinaryResponseData = {
     asset_id: string;
@@ -236,5 +236,52 @@ interface AppUser {
     canUpdateEvent: boolean;
     canDeleteEvent: boolean;
     canDeleteTicket: boolean;
-    setProperty (property: string, value: unknown): void;
+    setProperty: (property: string, value: unknown) => void;
 }
+
+type GridColumnDef<TData> = {
+    id: string | number;
+    accessorKey: string;
+    content: (column: TData) => React.ReactNode | string ;
+}
+
+type GridColumn<TData> = {
+    id: string | number;
+    accessorKey: string;
+    getContent: () => React.ReactNode | string;
+};
+
+type GridRow<TData> = {
+    id: string | number;
+    getColumns: () => Array<GridColumn<TData>>;
+    getIsSelected: () => boolean;
+};
+
+type GridRows = Array<GridRow>;
+
+type RowModel<TData> = {
+    rows: Array<GridRow<TData>>;
+}
+
+type GridLayout<TData> = {
+    data: TData[] | TData[][];
+    // rows: GridRows<TData>;
+    getRowModel: () => RowModel<TData>,
+    getColumn: (columnId: number | string, rowId?: number | string) => GridColumn<TData>  | null | undefined
+}
+
+
+type GridComponentOptions<TData> = {
+    data: TData[] | TData[][] | {};
+    columnDef: GridColumnDef<TData>;
+    onSortingChange: React.Dispatch<React.SetStateAction<any>>;
+    onColumnFiltersChange: React.Dispatch<React.SetStateAction<any>>;
+    // getCoreRowModel: getCoreRowModel();
+    // getPaginationRowModel: getPaginationRowModel();
+    // getSortedRowModel: getSortedRowModel();
+    // getFilteredRowModel: getFilteredRowModel();
+    onColumnVisibilityChange: React.Dispatch<React.SetStateAction<any>>;
+    onRowSelectionChange: React.Dispatch<React.SetStateAction<any>>;
+    state: {},
+}
+

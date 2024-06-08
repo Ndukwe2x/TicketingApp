@@ -9,6 +9,7 @@ import { DataGrid } from "../ui/data-grid";
 import InternalErrorPage from "@/app/internal-error";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 import { AxiosError } from "axios";
+import EventGridTemplate from "./grid-data-templates/event";
 
 const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & { 
     layout: string;  
@@ -23,7 +24,7 @@ const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & {
     const [isLoading, events, error] = useGetEventsByUser(owner, actor);
     
     if ( error?.code ) {
-        if ( error.code == 'ERR_NETWORK' ) {
+        if ( ['ERR_NETWORK','ECONNABORTED'].includes(error.code) ) {
             return <NoNetwork />
         } else {
             return <InternalErrorPage />
@@ -45,9 +46,7 @@ const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & {
                     }
                 </colgroup>
             </DataTable>
-            : <DataGrid columns={dataGridColumns} data={ events } columnCount={4} >
-                Sorry, this layout cannot be loaded at the moment.
-            </DataGrid>
+            : <DataGrid Template={EventGridTemplate} data={ events } columnRule={ {sm: 2, md: 2, lg: 3, xl: 3} } fallback="Loading..." />
         )
     )
 } 

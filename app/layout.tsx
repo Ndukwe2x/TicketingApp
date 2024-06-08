@@ -26,7 +26,7 @@ export default function RootLayout({
                 className={cn(inter.variable, 'min-h-screen bg-background font-sans antialiased')}
             >
                 <Providers>{children}</Providers>
-                <Toaster position='bottom-right' pauseWhenPageIsHidden={true} closeButton={true} />
+                <Toaster position='top-center' pauseWhenPageIsHidden={true} closeButton={true} />
             </body>
         </html>
     );
