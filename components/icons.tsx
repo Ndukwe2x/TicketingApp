@@ -1,4 +1,7 @@
-type IconProps = React.HTMLAttributes<SVGElement>;
+interface IconProps extends React.HTMLAttributes<SVGElement> {
+    width?: string | number;
+    height?: string | number;
+};
 
 export const Icons = {
     logo: (props: IconProps) => (

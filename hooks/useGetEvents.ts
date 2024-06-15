@@ -147,10 +147,10 @@ export const useGetEventsWithoutAuthorization = (): [isLoading: boolean, events:
  * @param actor `AppUser` The current user of the application
  * @returns Returns an array of `SingleEvent` on success and an empty array `[]` otherwise 
  */
-export const useGetEventsByUser = ( theUser: AppUser, actor: AppUser): [ isLoading: boolean, events: SingleEvent[] | [], error: Error | AxiosError | null] => {
+export const useGetEventsByUser = ( theUser: AppUser, actor: AppUser): [ isLoading: boolean, events: SingleEvent[] | [], error: Error | AxiosError | null | unknown] => {
     const [isLoading, setIsLoading] = useState(false);
     const [events, setEvents] = useState<SingleEvent[]>([]);
-    const [error, setError] = useState<Error | AxiosError | null>(null);
+    const [error, setError] = useState<Error | AxiosError | null | unknown>(null);
     
     useEffect(() => {
         if ( [theUser, actor].includes(null) ) {
@@ -191,9 +191,9 @@ export const useGetEventsByUser = ( theUser: AppUser, actor: AppUser): [ isLoadi
  * @param actor AuthInfo The current user of the application
  * @returns An array of SingleEvent object
  */
-export const useGetEventsByIds = (eventIds: string[], actor: AppUser): [isLoading: boolean, events: SingleEvent[] | [], error: AxiosError | null] => {
+export const useGetEventsByIds = (eventIds: string[], actor: AppUser): [isLoading: boolean, events: SingleEvent[] | [], error: AxiosError | null | unknown] => {
     const [events, setEvents] = useState<SingleEvent[] | []>([]);
-    const [error, setError] = useState<AxiosError | null>(null);
+    const [error, setError] = useState<AxiosError | null | unknown>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     
     
@@ -221,23 +221,23 @@ export const useGetEventsByIds = (eventIds: string[], actor: AppUser): [isLoadin
 
 export const decorateEvent = async (event: SingleEvent & { ticketsSold: Ticket[]}) => {
     const actor = useAuthenticatedUser();
-    const [isLoading, ticketsSold] = useGetTicketSales(actor, event);
+    const [isLoading, ticketsSold] = useGetTicketSales(actor as AppUser, event);
     event.ticketsSold = ticketsSold;
     
     return event;
 }
 
 export const useGetTicketSales = (actor: AppUser, event?: SingleEvent, ignoreError: boolean = false): 
-[isLoading: boolean, tickets: Ticket[] | [], error: AxiosError | null] => {
+[isLoading: boolean, tickets: Ticket[] | [], error: AxiosError | null | unknown] => {
     let url = [Api.server, Api.endpoints.admin.searchTickets].join('');
 
     const [tickets, setTickets] = useState<Ticket[] | []>([]);
-    const [error, setError] = useState<AxiosError | null>(null);
+    const [error, setError] = useState<AxiosError | null | unknown>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const decorateTickets = async (tickets: Ticket[] | []) => {
         const decoratedTickets = await Promise.all(
-            tickets.map((ticket) => getEventAssociatedToTicket(ticket, actor))
+            tickets.map((ticket) => getEventAssociatedToTicket(ticket))
         );
         return decoratedTickets.filter((ticket) => ticket.event_title != null);
     };
@@ -296,7 +296,7 @@ export const useGetTicketSales = (actor: AppUser, event?: SingleEvent, ignoreErr
 export const useGetEventTicketsWithAssociatedEvent = (actor: AppUser, event?: SingleEvent, ignoreError: boolean = false) => {
     const url = Api.server + Api.endpoints.admin.searchTickets + (event ? '?eventRef=' + event._id : '');
     const [tickets, setTickets] = useState<Ticket[] | []>([]);
-    const [error, setError] = useState<AxiosError | null>(null);
+    const [error, setError] = useState<AxiosError | null | unknown>(null);
     const [initialTickets, setInitialTickets] = useState();
 
     useEffect(() => {
@@ -315,8 +315,8 @@ export const useGetEventTicketsWithAssociatedEvent = (actor: AppUser, event?: Si
                     }
                 }
             } catch (error) {
-                setError(err as AxiosError);
-                console.error(err);
+                setError(error);
+                console.error(error);
             }
         }
 

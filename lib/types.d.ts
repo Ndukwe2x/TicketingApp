@@ -33,7 +33,7 @@ type DashboardEvent = {
 type ImageInfo = {
     url: string;
     public_id: string;
-    _id: string;
+    _id?: string;
 }
 
 type SingleEvent = {
@@ -49,7 +49,7 @@ type SingleEvent = {
     eventBanner: ImageInfo;
     posters: ImageInfo[];
     createdAt: string;
-    __v: number;
+    __v?: number;
 }
 
 type TicketCategory = {
@@ -182,10 +182,10 @@ type NewlyCreatedUserAccountData = {
 
 type Callback = (param: Any, ...rest: any[]) => void;
 
-type CloudinaryResponseData = {
+interface CloudinaryUploadResponseData {
     asset_id: string;
     public_id: string;
-    version: string;
+    version: number;
     version_id: string;
     signature: string;
     width: string;
@@ -203,6 +203,7 @@ type CloudinaryResponseData = {
     folder: string;
     access_mode: string;
     original_filename: string;
+    api_key?: string;
 }
 
 interface AppUser {
@@ -285,3 +286,14 @@ type GridComponentOptions<TData> = {
     state: {},
 }
 
+interface TitleContextType {
+    title: string;
+    setTitle: (title: string) => void;
+}
+
+interface FormDataContextType {
+    formData: Record<string, any>;
+    setFormData: React.Dispatch<React.SetStateAction<Record<string, any>>>;
+}
+
+type TypeOfFormControl = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;

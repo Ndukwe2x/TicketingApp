@@ -14,7 +14,6 @@ const Users = () => {
 
     return (
         <div className='flex flex-col gap-5'>
-            <Heading variant='h1' className='page-title'>Users</Heading>
             <Card>
                 <CardContent className='pt-5'>
                     <DataTable 
