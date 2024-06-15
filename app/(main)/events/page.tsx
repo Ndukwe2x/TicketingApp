@@ -20,9 +20,6 @@ export default function Events() {
     return (
         (actor) && 
         <div className='flex flex-col gap-5'>
-            <div className="flex flex-row items-center justify-between">
-                <Heading variant='h1' className='page-title'>{ actor?.isUser && 'My '}Events</Heading>
-            </div>
             <Card>
                 <CardHeader className='flex-row items-center justify-between'>
                     {/* <Text variant='h4'>Events</Text> */}

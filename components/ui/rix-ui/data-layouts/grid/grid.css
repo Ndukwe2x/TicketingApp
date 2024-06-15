@@ -62,4 +62,10 @@
             grid-template-columns: repeat(5, 1fr);
         }
     }
+
+    .rix-ui-grid-card-header {
+        height: 12.5rem;
+        min-height: 12rem;
+        max-height: 12.5rem;
+    }
 }

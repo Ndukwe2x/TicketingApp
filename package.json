@@ -30,6 +30,7 @@
     "cloudinary": "^2.2.0",
     "clsx": "^2.1.0",
     "cookies-next": "^4.1.1",
+    "crypto": "^1.0.1",
     "crypto-js": "^4.2.0",
     "date-and-time": "^3.1.1",
     "embla-carousel-autoplay": "8.0.0-rc22",

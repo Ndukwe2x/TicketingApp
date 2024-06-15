@@ -5,15 +5,15 @@ import { setCookie } from 'cookies-next';
 import { APPCONFIG } from './app-config';
 import { toast } from '@/components/ui/sonner';
 
-export function cn(...inputs: ClassValue[]) {
+function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }
 
-export function formatNumber(value: number) {
+function formatNumber(value: number) {
     return new Intl.NumberFormat().format(value)
 }
 
-export function formatCurrency(value: number) {
+function formatCurrency(value: number) {
     return new Intl.NumberFormat('en-NG', {
         style: 'currency',
         currency: 'NGN',
@@ -22,12 +22,12 @@ export function formatCurrency(value: number) {
     }).format(value);
 }
 
-export const formatDate = dateTime.format;
+const formatDate = dateTime.format;
 
 
 type DateTimeFormatOptions = {};
 
-export const humanReadableDateFormat = (datetimeStr: string): string => {
+const humanReadableDateFormat = (datetimeStr: string): string => {
     const dt = new Date(datetimeStr);
     const options: DateTimeFormatOptions = {
         year: 'numeric',
@@ -41,38 +41,140 @@ export const humanReadableDateFormat = (datetimeStr: string): string => {
     return dt.toLocaleString('en-US', options);
 }
 
-export const getElementSiblings = (element: Element): Element[] => {
+const getElementSiblings = (element: Element): Element[] => {
     const parent = element.parentNode;
     return parent ? Array.from(parent.children).filter(child => child !== element) : [];
 }
 
-export const parseInputName = (name: string): { key: string; readable: string } => {
-    let key = '', readable = '';
-    const matches = name.match(/\[(\w+)\]/g);
-    if (matches) {
-        key = matches.map(m => m.replace(/\[|\]/g, '')).join('.');
+// const parseInputName = (name: string): { key: string; readable: string } => {
+//     let key = '', readable = '';
+//     const matches = name.match(/\[(\w+)\]/g);
+//     if (matches) {
+//         key = matches.map(m => m.replace(/\[|\]/g, '')).join('.');
   
-        readable = matches
-          .map(m => m.replace(/\[|\]/g, ''))
-          .map((s, i, arr) => (i === arr.length - 1 ? `name of category ${s}` : `category ${s}`))
-          .join(' > ');
-    } else {
-        key = name;
+//         readable = matches
+//           .map(m => m.replace(/\[|\]/g, ''))
+//           .map((s, i, arr) => (i === arr.length - 1 ? `name of category ${s}` : `category ${s}`))
+//           .join(' > ');
+//     } else {
+//         key = name;
+//     }
+  
+//     return { key, readable };
+// }
+
+function formDataToObjects(formData: IterableIterator<[string, FormDataEntryValue]>): { name: string; value: string }[] {
+    const result: { name: string; value: string }[] = [];
+
+    for ( const [key, value] of formData ) {
+        result.push({ name: key, value: value.toString() });
     }
-  
-    return { key, readable };
+
+    return result;
 }
 
-export const orderByDate= (data: unknown[], prop: string, dir: string = 'asc'): Array<S> => {
-    const ordered = [...data].toSorted((a, b) => {
+// function parseFormFields(formFields: { name: string; value: string }[], inputObject?: Record<string, any>): Record<string, any> {
+//     const result: Record<string, any> = {...inputObject};
+
+//     for ( const field of formFields ) {
+//         const fieldNameParts = field.name.split('[');
+//         if ( fieldNameParts.length > 1 ) {
+//             const key = fieldNameParts[0];
+//             const index = parseInt(fieldNameParts[1].replace(']', ''), 10);
+
+//             if ( !result[key] ) {
+//                 result[key] = [];
+//             }
+
+//             if ( !result[key][index] ) {
+//                 if ( fieldNameParts[2] ) {
+//                     result[key][index] = {}
+//                 } else {
+//                     result[key][index] = field.value;
+//                 }
+//             }
+
+//             if ( typeof result[key][index] !== 'string' ) {
+//                 const subKey = fieldNameParts[2].replace(']', '');
+//                 result[key][index][subKey] = field.value;
+//             }
+//         } else {
+//             result[field.name] = field.value;
+//         }
+//     }
+
+//     return result;
+// }
+// foo[bar][0][barz][hi][hello]' & 'foo[bar][1][barz][hi][bye]
+// function parseFormFields(formFields: { name: string; value: string }[], inputObject?: Record<string, any>): Record<string, any> {
+//     const result: Record<string, any> = { ...inputObject };
+
+//     for (const field of formFields) {
+//         const fieldNameParts = field.name.split('[');
+//         if (fieldNameParts.length > 1) {
+//             let currentObj = result;
+//             for (let i = 0; i < fieldNameParts.length; i++) {
+//                 const part = fieldNameParts[i];
+//                 if (part.endsWith(']')) {
+//                     const key = part.slice(0, -1);
+//                     if (!currentObj[key]) {
+//                         currentObj[key] = i === fieldNameParts.length - 1 ? field.value : {};
+//                     }
+//                     currentObj = currentObj[key];
+
+//                 } else {
+//                     currentObj[part] = i === fieldNameParts.length - 1 ? field.value : {};
+//                     currentObj = currentObj[part];
+//                 }
+//             }
+//             result[]
+//         } else {
+//             result[field.name] = field.value;
+//         }
+//     }
+
+//     return result;
+// }
+function parseFormFields(formFields: { name: string; value: string }[], inputObject?: Record<string, any>
+  ): Record<string, any> {
+    const outputObject: Record<string, any> = {...inputObject};
+
+    for (const field of formFields) {
+      const keys = field.name.split(/\[|\]/).filter(Boolean);
+      let currentObject = outputObject;
+  
+      for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        if (!currentObject[key]) {
+          currentObject[key] = /^\d+$/.test(keys[i + 1]) ? [] : {};
+        }
+        if (i === keys.length - 1) {
+          currentObject[key] = field.value;
+        } else {
+          currentObject = currentObject[key];
+        }
+      }
+    }
+  
+    return outputObject;
+}  
+
+function convertToDotNotation(path: string): string {
+    return path.replace(/\[(\w+)\]/g, '.$1');
+}
+  
+
+const orderByDate = (data: {key: string; value: string}[], prop = 'createdAt', dir = 'asc'): Record<string, string>[] => {
+    const ordered: Record<string, string>[] = [...data].toSorted((a, b) => {
         return dir === 'desc' 
             ? (new Date(a[prop])).valueOf() - (new Date(b[prop])).valueOf()
             : (new Date(b[prop])).valueOf() - (new Date(a[prop])).valueOf()
     });
+
     return ordered;
 }
 
-export const calculateTimeDifference = (timestamp1: string, timestamp2: string): {
+const calculateTimeDifference = (timestamp1: string, timestamp2: string): {
     milliseconds: number;
     seconds: number;
     minutes: number;
@@ -116,7 +218,58 @@ Array.prototype.chunk = function (size: number): any[][] {
     return result;
 };
 
-export function copyLink (link: string) {
+function copyLink (link: string) {
     navigator.clipboard.writeText(link);
     toast('Link copied!', {position: 'top-center'});
+}
+
+function parseFileToDataUri(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            if (typeof reader.result === 'string') {
+                resolve(reader.result);
+            } else {
+                reject(new Error('Failed to read data from file.'));
+            }
+        };
+        reader.onerror = (error) => {
+            reject(error);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+
+type StaticVariableSetterAction<TData> = (value: TData | ((prevValue: TData) => TData)) => void;
+
+function defineStaticVariable<T>(iniValue: T): [T, StaticVariableSetterAction<T>] {
+    let data: T = iniValue;
+    const setter: StaticVariableSetterAction<T> = (newValueOrCallback: T | ((prevValue: T) => T)): void => {
+        if (typeof newValueOrCallback === 'function') {
+            data = (newValueOrCallback as (prevValue: T) => T)(data);
+        } else {
+            data = newValueOrCallback;
+        }
+    };
+
+    return [data, setter];
+}
+
+
+export {
+    cn,
+    formatNumber,
+    formatCurrency,
+    formatDate,
+    humanReadableDateFormat,
+    getElementSiblings,
+    formDataToObjects,
+    parseFormFields,
+    convertToDotNotation,
+    orderByDate,
+    calculateTimeDifference,
+    copyLink,
+    parseFileToDataUri,
+    defineStaticVariable
 }

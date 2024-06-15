@@ -7,8 +7,9 @@ import { MdEvent } from "react-icons/md";
 import EventForm from "../dashboard/event-form";
 import { AxiosError, AxiosResponse } from "axios";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
+import { toast } from "../ui/sonner";
 
-interface CreateEventButtonProps extends HtmlHTMLAttributes<HTMLButtonElement> {
+interface CreateEventButtonProps extends React.HtmlHTMLAttributes<HTMLButtonElement> {
     displayText?: ReactNode | string | null;
 }
 const CreateEventButton: React.FC<CreateEventButtonProps> = ({ displayText }) => {
@@ -26,12 +27,15 @@ const CreateEventButton: React.FC<CreateEventButtonProps> = ({ displayText }) =>
         setIsDialogOpen(false);
     }
 
-    const handleSuccess = (response: AxiosResponse) => {
+    const handleSuccess = (data: Record<string, string>) => {
+        toast('Event created');
+        setIsDialogOpen(false);
         
-    }
+        location.assign('/events/' + data.eventId);
+    };
 
-    const handleFailure = (error: AxiosError) => {
-        
+    const handleFailure = (error: unknown) => {
+        toast("Sorry, we're unable to update the event at the moment. Please try again later.");
     }
 
     return (
@@ -43,7 +47,7 @@ const CreateEventButton: React.FC<CreateEventButtonProps> = ({ displayText }) =>
                     <MdEvent size={24} />
                     <span className="hidden lg:inline">Create Event</span></Link> 
                 } 
-                content={ <EventForm actor={ actor } onSuccess={ handleSuccess } onFailure={ handleFailure} /> } 
+                content={ <EventForm actor={ actor as AppUser } onSuccess={ handleSuccess } onFailure={ handleFailure} /> } 
                 onSave={ handleSave } 
                 onClose={ handleClose }
                  />

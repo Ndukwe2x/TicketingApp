@@ -1,19 +1,19 @@
-import { APPCONFIG } from "./app-config";
+// import { APPCONFIG } from "./app-config";
 import { SHA256 } from "crypto-js";
 
-const signUpload = (uploadParams: {}, apiSecret: string) => {
+const signUpload = (signableParams: {}, apiSecret: string) => {
     const timestamp = Math.round((new Date).getTime() / 1000);
-    uploadParams = { ...uploadParams, timestamp: timestamp }
-    let sortedUploadParams = {};
-    const sortedParams = Object.keys(uploadParams).sort();
+    signableParams = { ...signableParams, timestamp: timestamp }
+    let sortedSignableParams = {};
+    const sortedParams = Object.keys(signableParams).sort();
     for (let key of sortedParams) {
-        sortedUploadParams[key] = uploadParams[key];
+        sortedSignableParams[key] = signableParams[key];
     }
 
-    const signableStr = sortedParams.map(key => `${key}=${uploadParams[key]}`).join('&') + apiSecret;
+    const signableStr = sortedParams.map(key => `${key}=${signableParams[key]}`).join('&') + apiSecret;
     const signature = SHA256(signableStr);
     
-    return { sortedUploadParams, signature }
+    return { sortedSignableParams, signature, timestamp }
 }
 
 export default signUpload;

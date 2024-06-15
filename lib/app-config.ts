@@ -5,9 +5,10 @@ export const APPCONFIG = {
     cloudinaryConfig: {
         cloudName: 'dtuznvywy',
         api: {
-            endpoint: 'https://api.cloudinary.com/v1_1/dtuznvywy/upload',
+            upload: 'https://api.cloudinary.com/v1_1/dtuznvywy/upload',
+            destroy: 'https://api.cloudinary.com/v1_1/dtuznvywy/image/destroy',
             key: '811318738171199',
-            secret: ''
+            secret: 'ClD3mJxylKcIEek_dSdLcIOsKY8'
         },
         uploadSettings: {
             upload_preset: 'lightup_ticketing_upload',
@@ -17,6 +18,9 @@ export const APPCONFIG = {
     },
     accountTypes: ['owner','user'],
     userRoles: ['Super','Regular','Basic'],
+    paginationOptions: {
+        maxItemsPerPage: 10,
+    }
 };
 
 export const sessionTimeOut = (timeout: number = 30) => {

@@ -1,4 +1,4 @@
-import React, { FormEvent } from "react";
+import React, { FormEvent, FormEventHandler, useRef } from "react";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
@@ -6,22 +6,28 @@ import { Api } from "@/lib/api";
 import { Text } from "../ui/text";
 import { Icons } from "../icons";
 import styles from '../styles/styles.module.css';
-import MediaUploader from "../buttons/media-uploader-2";
+import MediaUploader from "../buttons/media-uploader";
 import axios, { AxiosResponse } from "axios";
 import { Checkbox } from "../ui/checkbox";
-import { v4 as uuidv4 } from 'uuid';
 import AddTicketCategory from "./add-ticket-category";
-import { pascalCase, trainCase } from "change-case";
-import { formatDate, parseInputName } from "@/lib/utils";
+import { capitalCase, pascalCase, trainCase } from "change-case";
+import { cn, convertToDotNotation, defineStaticVariable, formDataToObjects, formatDate, parseFileToDataUri, parseFormFields } from "@/lib/utils";
+import { toast } from "../ui/sonner";
+import DateTimeControls from "./event-form-datetime-control";
+import generateRandomString from "@/lib/random-string-generator";
+import { MdInfo } from "react-icons/md";
+import EventEditFormSummary from "./event-edit-form-summary";
+import { FormDataContext, useFormData } from "@/hooks/useFormDataContext";
+import { Result } from "postcss";
+import { url } from "inspector";
+
 
 const EventForm = (
-        { actor, onSuccess, onFailure, action, isNew, event }: 
+        { actor, onSuccess, onFailure, event }: 
         { 
             actor: AppUser; 
-            onSuccess: (data: {eventId: string}) => void;
+            onSuccess: (data: Record<string, string>) => void;
             onFailure?: (error?: unknown) => void;
-            action?: string;
-            isNew?: boolean;
             event?: SingleEvent;
         }
     ) => {
@@ -35,9 +41,21 @@ const EventForm = (
     const dynamicCurrentPage = () => document.querySelector(currentPageSelector);
     const [pages, setPages] = React.useState<Array<Element>>([]);
     const [pageCount, setPageCount] = React.useState(1);
-    const formId = 'event-form_' + uuidv4();
-    const [eventTitle, setEventTitle] = React.useState('');
-    const [formData, setFormData] = React.useState({});
+    const [eventTitle, setEventTitle] = React.useState(event ? event.title : '');
+    const formId: string = 'event_form_' + generateRandomString(32, 'mixed_lower', false);
+    const isNew: boolean = event ? false : true;
+    const formAction = isNew 
+        ? Api.server + Api.endpoints.admin.events
+        : Api.server + Api.endpoints.admin.event.replace(':id', event?._id as string);
+    const [filesToUpload, addFilesToUpload] = React.useState<{banner: File | null, posters: File[]}>({banner: null, posters: []});
+    const [formData, setFormData] = React.useState<Record<string, any> | SingleEvent>(event || {});
+    const uploadedImagesRef = useRef<{banner: ImageInfo, posters: ImageInfo[]} | {}>({});
+
+    let formDataRef = useRef<Partial<SingleEvent> | {}>({});
+    const formRef = useRef<HTMLFormElement>(null);
+    const bannerRef = useRef<HTMLDivElement>(null);
+    // const [formData, setFormData] = defineStaticVariable<Record<string, any>>({});
+
 
     React.useEffect(() => {
         const updatePages = () => {
@@ -56,40 +74,40 @@ const EventForm = (
 
         return () => {
             observer.disconnect();
+            updatePageStatus();
+            // Update the formData state on every call on updatePageStatus
+            // This helps us currate all the form data as the user fills the form,
+            // and then use to create a summary of the entire user inputs
+            
+            // else if ( formRef.current !== null ) {
+            //     const enteredData = new FormData(formRef.current as HTMLFormElement);
+            //     const objectifiedFormData = formDataToObjects(enteredData.entries())
+            //     .filter(({name, value}) => value != '[object File]');
+                
+            //     const processedData = parseFormFields(
+            //         objectifiedFormData,
+            //     );
+            //     // formDataRef.current = processedData as Partial<SingleEvent> | {};
+            //     setFormData(processedData);
+            //     console.log('Initial Values: ', processedData);
+            // }
         };
     }, []);
+    
 
     const getInputsFromCurrentPage = () => {
-        const fieldList = 'input:not([type="file"]), textarea, select';
-        return document.querySelector(currentPageSelector)?.querySelectorAll(fieldList);
+        const fieldList: string = 'input:not([type="file"]), textarea, select';
+        return (formRef.current?.querySelector(currentPageSelector)?.querySelectorAll(fieldList) as unknown) as HTMLFormControlsCollection;
     }
-    getInputsFromCurrentPage()?.forEach(input => {
-        ['input','change'].map((type) => {
-            input.addEventListener(type, ev => {
-                updatePageStatus();
-            });
-        });
-    });
 
-    const updatePageStatus = (): void => {
-        const inputs = getInputsFromCurrentPage();
-
-        // Update the formData state on every call on updatePageStatus
-        // This helps us currate all the form data as the user fills the form,
-        // and then use to create a summary of the entire user inputs
-        const unemptyFields = Array.from(inputs).filter(input => input.value != '');
-        unemptyFields.forEach(item => {
-            const {key, readable} = parseInputName(item.name);
-            setFormData({...formData, [key]: item.value});
-        });
+    const updatePageStatus = () => {
+        const inputFields = getInputsFromCurrentPage();
 
         // Check to see if the user has filled all the required fields on a the active page
         // and activate/deactivate the forward button accordingly
         let totalUnfilled = 0;
-
-        inputs?.forEach(item => {
-            let elem = item as HTMLInputElement;
-            // let itemHasValue = elem.value ?? false;
+        inputFields && Array.from(inputFields).forEach(field => {
+            let elem = field as TypeOfFormControl;
             if ( elem.required && !elem.value ) {
                 totalUnfilled += 1;
             }
@@ -102,13 +120,27 @@ const EventForm = (
         }
     };
 
-    const gotoNextPage = (ev: MouseEvent) => {
+
+    const updateFormData: FormEventHandler = (ev) => {
+        const target: (typeof ev.target) = ev.target;
+        const {name, value} = target as TypeOfFormControl;
+        
+        const objectified = parseFormFields([{name, value}]);
+        setFormData(state => ({
+            ...state,
+            ...objectified
+        }));
+        updatePageStatus();
+    }
+
+    const gotoNextPage = (ev: any) => {
         ev.preventDefault();
 
         if ( !isCurrentPageCompleted ) {
             return;
         }
-        if ( ev.target?.type == 'submit') {
+        const target = ev.target as HTMLButtonElement;
+        if ( target.type == 'submit') {
             document.getElementById('event-form')?.dispatchEvent(
                 new Event('submit', )
             );
@@ -136,7 +168,7 @@ const EventForm = (
         });
     }
 
-    const backToPreviousPage = (ev: MouseEvent) => {
+    const backToPreviousPage = (ev: any) => {
         ev.preventDefault();
 
         const staticCurrentPage = document.querySelector(currentPageSelector);
@@ -161,109 +193,115 @@ const EventForm = (
         });
     }
 
-    const previewBanner = (data: CloudinaryResponseData) => {
-        const imageUrl = data.secure_url;
-        const bannerPreview = document.getElementById('banner-preview') || document.createElement('div');
-        const bannerBox = document.getElementById('banner-box');
 
-        if ( !bannerPreview.id ) {
-            bannerPreview.id = 'banner-preview';
-            bannerBox?.prepend(bannerPreview);
-            createSuspense('banner-preview');
+    /**
+     * Create a preview of the previously uploaded image, and pass its url to a hidden form field
+     * with the name 'eventBanner';
+     * @param data The response data returned from Cloudinary after a successful image upload
+     */
+    const previewBanner = (file: File) => {
+        if (bannerRef.current == null) {
+            return;
         }
-        
+        const bannerPreview = bannerRef.current;
+        createSuspense(bannerPreview);
         bannerPreview.classList.remove('hidden');
         bannerPreview.style.display = 'flex';
+
+        parseFileToDataUri(file)
+        .then((dataUri) => {
+            const img = new Image();
+            img.src = dataUri;
+            img.alt = file.name;
+
+            img.onload = () => {
+                bannerPreview.replaceChild(img, bannerPreview.getElementsByClassName('suspense')[0]);
+                let btn = bannerPreview.getElementsByClassName(styles.edit_btn)[0] as HTMLElement;
+                btn.style.display = 'flex';
+            }
+            bannerPreview.style.backgroundImage = `url(${dataUri})`;
+
+            // Replace any existing image with the new one
+            if ( bannerPreview.getElementsByTagName('img').length ) {
+                bannerPreview.replaceChild(img, bannerPreview.getElementsByTagName('img')[0])
+            } else {
+                bannerPreview.appendChild(img);
+            }
+
+            addFilesToUpload(files => ({
+                ...files,
+                banner: file
+            }));
+
+            setFormData(formData => ({...formData, eventBanner: {url: dataUri}}));
+        })
+        .catch((error) => {
+            const msg = 'Unable to preview image';
+            toast(msg)
+            console.error(`${msg}: `, error.message());
+        });
         
-        const img = new Image();
-        img.src = imageUrl;
-        img.alt = data.public_id;
-        img.onload = () => {
-            bannerPreview.replaceChild(img, bannerPreview.getElementsByClassName('suspense')[0]);
-            let btn = bannerPreview.getElementsByClassName(styles.edit_btn)[0] as HTMLElement;
-            btn.style.display = 'flex';
-            const bannerPermalink = document.getElementById('banner') as HTMLInputElement;
-            if (bannerPermalink) bannerPermalink.value = imageUrl;
-            updatePageStatus();
-        }
-        bannerPreview.style.backgroundImage = `url(${imageUrl})`;
-        if (bannerPreview.getElementsByTagName('img').length) {
-            bannerPreview.replaceChild(img, bannerPreview.getElementsByTagName('img')[0])
-        } else {
-            bannerPreview.appendChild(img);
-        }
-        // bannerPermalink?.dispatchEvent(
-        //     new Event('change')
-        // )
     }
 
-    const previewPoster = (data: any) => {
-        const imagePreview = document.querySelector('.poster-group.loading') as HTMLElement;
+    const previewPosters = (file: File) => {
+        createPosterGroup('#posters');
 
-        if ( !imagePreview ) {
-            console.error('Unable to preview image');
+        const posterPreview = document.querySelector('.poster-group.loading') as HTMLElement;
+        const errorMsg: string = 'Unable to preview image';
+        if ( !posterPreview ) {
+            toast(errorMsg);
+            console.error(errorMsg);
             return;
         };
-        const groupId = imagePreview.id;
-        const groupIndex = groupId.slice(groupId.length - 1);
-        const groupFieldName = `poseters[${groupIndex}]`;
-        const imageUrl = data.secure_url;
-        const imageId = data.public_id;
-        // const mediaBox = document.getElementById('media-box');
+        
+        posterPreview.classList.remove('hidden');
+        posterPreview.style.display = 'flex';
 
-        // if ( !imagePreview.id ) {
-            // imagePreview.id = output;
-            // mediaBox?.prepend(imagePreview);
-            // createSuspense(output);
-        // }
-        
-        imagePreview.classList.remove('hidden');
-        imagePreview.style.display = 'flex';
-        
-        const img = new Image();
-        img.src = imageUrl;
-        img.alt = data.public_id;
-        img.onload = () => {
-            const suspense = imagePreview.getElementsByClassName('suspense')[0];
-            if (suspense) {
-                imagePreview.replaceChild(img, suspense);
+        parseFileToDataUri(file)
+        .then(dataUri => {
+            const img = new Image();
+            img.src = dataUri;
+            img.alt = file.name;
+            img.onload = () => {
+                const suspense = posterPreview.getElementsByClassName('suspense')[0];
+                if (suspense) {
+                    posterPreview.replaceChild(img, suspense);
+                }
+                updatePageStatus();
+                posterPreview.classList.remove('loading');
             }
-            // imagePreview.getElementsByClassName(styles.edit_btn)[0].style.display = 'flex';
-
-            const hiddenField = document.createElement('input');
-            hiddenField.name = groupFieldName;
-            hiddenField.type = 'hidden';
-            const permalink = hiddenField.cloneNode() as HTMLInputElement;
-            const publicId = hiddenField.cloneNode() as HTMLInputElement;
-            // permalink.classList.add('poster_permalink');
-            permalink.name += '[url]';
-            permalink.value = data.secure_url;
-            publicId.name += '[public_id]';
-            publicId.value = data.public_id;
-            imagePreview.appendChild(permalink);
-            imagePreview.appendChild(publicId);
             
-            // const imagePermalink = imagePreview.querySelector('input.poster_permalink') as HTMLInputElement;
-            // if (imagePermalink) imagePermalink.value = imageUrl;
-            updatePageStatus();
-            imagePreview.classList.remove('loading');
-        }
-        
-        imagePreview.style.backgroundImage = `url(${imageUrl})`;
-        if (imagePreview.getElementsByTagName('img').length) {
-            imagePreview.replaceChild(img, imagePreview.getElementsByTagName('img')[0])
-        } else {
-            imagePreview.appendChild(img);
-        }
+            posterPreview.style.backgroundImage = `url(${dataUri})`;
+            if (posterPreview.getElementsByTagName('img').length) {
+                posterPreview.replaceChild(img, posterPreview.getElementsByTagName('img')[0])
+            } else {
+                posterPreview.appendChild(img);
+            }
+            addFilesToUpload(files => {
+                return {
+                    ...files,
+                    posters: [...files.posters, file]
+                }
+            });
+
+            setFormData(formData => ({
+                ...formData,
+                posters: [...formData.posters || [], {url: dataUri}]
+            }))
+        })
+        .catch(error => {
+            toast(errorMsg);
+            console.error(errorMsg, error);
+        });
     }
 
     const createPosterGroup = (containerId: string | HTMLElement) => {
-        const container: HTMLElement | null =
+        const container: Element =
             typeof containerId === 'string'
-                ? document.getElementById(containerId)
+                ? document.querySelector(containerId) as HTMLElement
                 : containerId;
 
-        if ( !container ) {
+        if ( container == null ) {
             console.error('Target container not found.');
             return;
         }
@@ -286,12 +324,12 @@ const EventForm = (
     }
 
     const createSuspense = (containerId: string | HTMLElement, hideUploadBtn: boolean = true): void => {
-        const container: HTMLElement | null =
+        const container: HTMLElement =
             typeof containerId === 'string'
-                ? document.querySelector(containerId)
+                ? document.querySelector(containerId) as HTMLElement
                 : containerId;
-    
-        if (!container) {
+
+        if ( container == null ) {
             console.error('Target container not found.');
             return;
         }
@@ -310,52 +348,106 @@ const EventForm = (
     
         const uploadBtn = container.parentElement?.getElementsByClassName('upload-btn')[0];
         if (uploadBtn && hideUploadBtn) {
-            // container.parentElement?.removeChild(uploadBtn);
             uploadBtn.remove();
         }
     
         container.style.display = 'flex';
     };
 
-    const handleSubmit = (ev: FormEvent) => {
+    const uploadImages = async (): Promise<Record<string, any>> => {
+        if ( filesToUpload.banner === null ) {
+            throw new Error('No banner selected');
+        }
+        // let currentFormData = {...formDataRef.current};
+        const results = {
+            banner: {},
+            posters: []
+        }
+
+        try {
+            const bannerRes = await MediaUploader.uploadFile(filesToUpload.banner, 0, eventTitle);
+            if ( bannerRes.error ) {
+                throw bannerRes.error;
+            }
+            results.banner = bannerRes;
+
+            for (const file of filesToUpload.posters) {
+                const posterRes = await MediaUploader.uploadFile(file, 0, eventTitle);
+                if (posterRes.error) {
+                    throw posterRes.error;
+                }
+                results.posters.push(posterRes);
+            }
+            return results;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /** Submit the event if everything is ok */
+    const handleSubmit = async (ev: FormEvent) => {
         if ( !ev.isDefaultPrevented() ) {
             ev.preventDefault();
         }
 
-        const form = ev.target as HTMLFormElement;
-        const fd = new FormData(form);
-
-        axios.post(form.action, Object.fromEntries(fd.entries()), {
-            headers: {
-                Authorization: `Bearer ${actor?.token}`
+        try {
+            const uploadResponse = await uploadImages();
+            if ( !Object.values(uploadResponse.banner).length)  {
+                throw new Error('Image upload failed');
             }
-        })
-        .then(onSuccess)
-        .catch(error => {
-            console.log(error);
-        })
+            const {banner, posters} = uploadResponse;
+            
+            const data = {
+                ...formData,
+                ...{
+                    eventBanner: {url: banner.secure_url as string, public_id: banner.public_id as string},
+                    posters: [...posters.map(poster => ({url: poster.secure_url as string, public_id: poster.public_id as string}))],
+                }
+            };
+            setFormData(data);
+
+            try {
+                const requestHandler = isNew ? axios.post : axios.patch;
+                const eventResponse = await requestHandler(formAction, data, {
+                    headers: {
+                        Authorization: `Bearer ${actor?.token}`
+                    }
+                });
+                if ( eventResponse.status == 200 ) {
+                    if ( onSuccess ) {
+                        onSuccess(eventResponse.data);
+                    } else {
+                        const msg = <span>Event {isNew ? 'created' : 'updated'}. {actor.isSuperOwner && 'Attach a user to this event'}</span>
+                        toast(msg);
+                    }
+                }
+            } catch (error) {
+                const {eventBanner, posters = []} = formData as SingleEvent;
+    
+                MediaUploader.deleteRecentlyUploadedImages([eventBanner, ...posters]);
+                toast('Unable to create event. An internal server error has occured.');
+                console.error(error);
+            }
+        } catch(error) {
+            toast('Unable to create event. One of the selected images could not be uploaded');
+            console.error(error);
+            return;
+        }
+        
     }
 
-    const RenderSummary = React.useCallback(() => {
-
-        return Object.entries(formData).map(([value, name], index) => {
-            return (
-                <div key={index} className="border-b py-2">
-                    <p className="grid grid-cols-[2fr_5fr]">
-                        <label className="font-bold">{ pascalCase(name as string) }:</label> 
-                        <span>{value}</span>
-                    </p>
-                </div>
-            )
-        })
-    }, [formData]);
+    const createSummary = React.useCallback(() => {
+        console.log(formData);
+        return <EventEditFormSummary data={ formData as SingleEvent } />
+    }, [formData])
 
     return (
-        <>
+        <FormDataContext.Provider value={{formData, setFormData}}>
             <form id={ formId } 
                 name={ formId } 
-                action={ action || Api.server + Api.endpoints.admin.events } 
+                action={ formAction } 
                 method={ isNew ? 'post' : 'patch' }
+                ref={ formRef }
                 onSubmit={ handleSubmit }>
                 <div className='flex flex-col gap-4 py-4'>
                     <div>
@@ -366,130 +458,115 @@ const EventForm = (
                         <div className='flex flex-col gap-2'>
                             <Label htmlFor='title'>Title:</Label>
                             <Input id='title' name="title" 
-                            onInput={ (ev) => { setEventTitle(ev.target.value); updatePageStatus(); return }} 
+                            onChange={ (ev) => { setEventTitle(ev.target.value); updateFormData(ev); }} 
                             type='text' className="input h-14 text-lg" 
                             placeholder='The Big Friday Nights Party' 
                             defaultValue={ event ? event.title : '' }
                             required aria-required="true" />
                         </div>
                         <div className="flex flex-col gap-4">
-                            <DateTimeInput datetime={event ? event.eventDate : ''} onUpdate={updatePageStatus} />
+                            <DateTimeControls datetime={event ? event.eventDate : ''} />
                             <div className="flex flex-col flex-1 gap-4">
                                 <div className='flex flex-col gap-2'>
                                     <Label htmlFor='state'>State/Region:</Label>
                                     <Input id='state' name="state" placeholder="State/Region:" 
-                                    onChange={ () => updatePageStatus() } required aria-required='true'
+                                    onChange={ updateFormData } required aria-required='true'
                                     defaultValue={ event ? event.state : '' } />
                                 </div>
                                 <div className='flex flex-col gap-2'>
                                     <Label htmlFor='city'>Town/City:</Label>
                                     <Input id='city' name="city" placeholder="Town/City:" 
-                                    onInput={ () => updatePageStatus() } required aria-required='true'
+                                    onChange={ updateFormData } required aria-required='true'
                                     defaultValue={ event ? event.city : '' } />
                                 </div>
                                 <div className='flex flex-col gap-2'>
                                     <Label htmlFor='address'>Address:</Label>
                                     <Input id='address' name="address" placeholder="Street address:" 
-                                    onInput={ () => updatePageStatus() } required aria-required='true'
+                                    onChange={ updateFormData} required aria-required='true'
                                     defaultValue={ event ? event.address : '' } />
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div id="event-form_page_b" className={ `${pageBaseClass} flex-col gap-4 flex-1` }>
-                    <Text variant='h4'>Ticket Categories</Text>
-                        { AddTicketCategory() }
-                        <Text variant='h4'>Event Featuring</Text>
-                        <div className='flex flex-col gap-2'>
-                            <Label htmlFor='featured'><Checkbox id='featured' name="featured" value='true' /> Feature this event</Label>
-                        </div>
+                        <Text variant='h4'>Ticket Categories</Text>
+                        <AddTicketCategory categories={event ? event.ticketCategories : []} />
                     </div>
                     <div id="event-form_page_c" className={ `${pageBaseClass} flex-col gap-4 flex-1` }>
                         <Text variant='h4'>Event banner:</Text>
                         <div className='flex flex-col gap-2'>
                             <div id='banner-box' className={ styles.banner_box }>
-                                <div id='banner-preview' className={`${styles.image_picker_facade} ${styles.banner} ${ styles.img_preview } ${ styles.banner_preview} hidden`} >
-                                    <MediaUploader.editButton onSuccess={ previewBanner } onInit={ () => createSuspense('#banner-preview') } />
+                                <div id='banner-preview' ref={ bannerRef } style={ (event && event.eventBanner.url) ? {backgroundImage: `url(${event.eventBanner.url})`} : {} } 
+                                className={cn(styles.image_picker_facade, styles.banner, styles.img_preview, styles.banner_preview, event ? 'flex' : 'hidden') }>
+                                    {(event && event.eventBanner.url) && <img src={ event.eventBanner.url } alt={ event.eventBanner.public_id } title={ event.title } /> }
+                                    <MediaUploader.editButton name="eventBanner" onFileSelection={ e => readSelectedFiles(e, previewBanner) } 
+                                        className={cn((event && event.eventBanner.url) && 'block')} />
                                 </div>
-                                <MediaUploader.uploadButton 
-                                    onSuccess={ previewBanner } 
-                                    onInit={ () => createSuspense('#banner-preview') } 
-                                    assetFolder={ trainCase(eventTitle).toLowerCase() }
-                                    className={styles.banner} />
+                                {(!event || !event.eventBanner.url) && <MediaUploader.uploadButton name="eventBanner"
+                                    onFileSelection={ e => readSelectedFiles(e, previewBanner) }
+                                    isRequired={true}
+                                    className={cn(styles.banner)} />}
                             </div>
-                            <Input id='banner' name="eventBanner" type='hidden' 
-                            onInput={ updatePageStatus } required aria-required='true' />
+                            { event && event.eventBanner.url && <input type="hidden" name="eventBanner[url]" defaultValue={ event.eventBanner.url } /> }
+                            {event && event.eventBanner.public_id && <input type="hidden" name="eventBanner[public_id]" defaultValue={ event.eventBanner.public_id || '' } /> }
                         </div>
                     </div>
                     <div id="event-form_page_d" className={ `${pageBaseClass} flex-col gap-4 flex-1` }>
                         <Text variant='h4'>Event posters:</Text>
                         <div className='flex flex-col gap-2'>
                             <div id="posters" className="poster-groups gap-3 grid grid-cols-3">
-                                    <MediaUploader.uploadButton onSuccess={ previewPoster } 
-                                    onInit={ () => createPosterGroup('posters') } className={styles.poster} />
-                               
+                                <MediaUploader.uploadButton name="posters" onFileSelection={ e => readSelectedFiles(e, previewPosters) } 
+                                className={styles.poster} />
                             </div>
                         </div>
                     </div>
                     <div id="event-form_page_e" className={ `${pageBaseClass} flex-col gap-4 flex-1` }>
+                        <div className='flex flex-col gap-2'>
+                            <Text variant='h4'>Ticket Duration</Text>
+                            <Label htmlFor='ticket-closing-date'>Ticket Sales Closes:</Label>
+                            <Input type="date" name="ticketClosingDate" 
+                                defaultValue={ event && event.ticketClosingDate ? formatDate(new Date(event.ticketClosingDate), 'YYYY-MM-DD') : '' }
+                                onChange={updateFormData} />
+                        </div>
+                        <div className='flex flex-col gap-2'>
+                            <Text variant='h4'>Event Featuring</Text>
+                            <Label htmlFor='featured'>
+                                <Checkbox id='featured' name="featured" value='true' 
+                                defaultChecked={event && event.featured } onCheckedChange={(status) => setFormData(state => ({...state, featured: status}))} /> Feature this event</Label>
+                            <p className="text-xs flex items-center gap-2">
+                                <MdInfo size={16} className="text-muted-foreground" /> Featuring an event puts it in the spotlight and is a great way to make your event reach more people.
+                            </p>
+                        </div>
+                    </div>
+                    <div id="event-form_page_f" className={ `${pageBaseClass} flex-col gap-4 flex-1` }>
                         <Text variant='h3'>Preview</Text>
                         <div id="preview-form-data">
-                            { RenderSummary() }
+                            { createSummary() }
                         </div>
                     </div>
                     <div className="flex flex-row justify-content-between pt-5">
-                        { !isFirstPage && <Button type="button" onClick={ backToPreviousPage } className="max-w-max"><Icons.backward /> Back</Button> }
+                        { !isFirstPage && <Button type="button" onClick={(ev) => backToPreviousPage(ev) } className="max-w-max"><Icons.backward /> Back</Button> }
                         { isLastPage && <Button type='submit' disabled={ !isCurrentPageCompleted } className="max-w-max ml-auto">Submit <Icons.forward /></Button> }
                         { !isLastPage && <Button type='button' disabled={ !isCurrentPageCompleted } onClick={ gotoNextPage } className="max-w-max ml-auto">Next <Icons.forward /></Button> }
                     </div>
                 </div>
             </form>
-        </>
+        </FormDataContext.Provider>
     )
 }
 
 export default EventForm;
 
-interface DateTimeProps extends Partial<HTMLInputElement> {
-    datetime: string | Date,
-    onUpdate?: () => void
-};
-const DateTimeInput: React.FC<DateTimeProps> = ({datetime, onUpdate}) => {
-    const [eventTimestamp, setEventTimestamp] = React.useState<string | number | Date>(datetime ? new Date(datetime) : '');
-    
-    const handleDateTimeInput = (e: InputEvent) => {
-        const input = e.target as HTMLInputElement;
-        let [date, time]: string[] = eventTimestamp instanceof Date ? eventTimestamp.toISOString().split('T') : ['',''];
-        
-        switch (input?.type) {
-            case 'date':
-                date = input.value;
-                break;
-            case 'time':
-                time = input.value;
-            default:
-                break;
-        }
-        const finalDate = new Date(`${date} ${time}`).toISOString();
-        setEventTimestamp(new Date(finalDate));
+const readSelectedFiles = (ev: React.ChangeEvent<HTMLInputElement>, processor: Callback) => {
+    const files = ev.target.files // Get the selected file
+
+    if ( !files?.length ) {
+        console.error('No file selected.');
+        return;
     }
 
-    return (
-        <div className="flex flex-row flex-1 gap-4">
-            <input id='date' name="eventDate" type='hidden' value={ eventTimestamp instanceof Date ? eventTimestamp.toISOString() : eventTimestamp } onChange={() => onUpdate ? onUpdate() : null} />
-            <div className='flex flex-col gap-2 flex-1'>
-                <Label htmlFor='date-control'>Date:</Label>
-                <Input id='date-control' type='date'  
-                onInput={ handleDateTimeInput } required aria-required='true' 
-                defaultValue={ eventTimestamp instanceof Date ? formatDate(new Date(eventTimestamp), 'YYYY-MM-DD') : '' } />
-            </div>
-            <div className='flex flex-col gap-2 flex-1 relative'>
-                <Label htmlFor='time-control'>Time:</Label>
-                <Input id='time-control' type='time'  
-                onInput={ handleDateTimeInput } required aria-required='true' 
-                defaultValue={ eventTimestamp instanceof Date ? formatDate(eventTimestamp, 'hh:mm') : '' } />
-                <span className="absolute time-of-day">{eventTimestamp instanceof Date ? formatDate(eventTimestamp, 'A') : '' }</span>
-            </div>
-        </div>
-    )
+    for (let i = 0; i < files.length; i++) {
+        const file: File = files[i];
+        processor(file);
+    }
 }

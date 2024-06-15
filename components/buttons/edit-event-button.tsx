@@ -12,7 +12,6 @@ interface EditButtonProps extends HtmlHTMLAttributes<HTMLButtonElement> {
 }
 const EditEventButton: React.FC<EditButtonProps> = ({children, className, event, actor, ...props}) => {
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-    const formAction = Api.server + Api.endpoints.admin.event.replace(':id', event._id);
     
     const handleClose = () => {
         setIsDialogOpen(false);
@@ -27,22 +26,20 @@ const EditEventButton: React.FC<EditButtonProps> = ({children, className, event,
     </Button>;
 
     
-    const handleSuccess = (data: {eventId: string}) => {
+    const handleSuccess = (data: Record<string, string>) => {
         toast('Event updated');
-        setIsDialogOpen(state => !state);
+        setIsDialogOpen(false);
         
-        location.assign('/events/' + data.eventId);
+        location.assign('/events/' + data.showId);
     };
 
     const handleFailure = (error: unknown) => {
-
+        toast("Sorry, we're unable to update the event at the moment. Please try again later.");
     }
     
     const content = <EventForm actor={ actor } 
         onSuccess={ handleSuccess }
         onFailure={ handleFailure }
-        isNew={ false }
-        action={ formAction }
         event={event} />;
 
     return (

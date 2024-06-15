@@ -203,6 +203,9 @@
     .responsive-text-2 {
         font-size: calc(.63rem + 0.712vw);
     }
+    .responsive-title {
+        font-size: calc(1rem + 2vw) !important;
+    }
 
     .dialog-responsive {
         height: 100vh;

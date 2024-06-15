@@ -16,11 +16,8 @@ export default function Dashboard() {
     const [ticketsLayout, setTicketsLayout] = React.useState<string>('table');
     const [owner, setOwner] = React.useState(actor?.isUser ? actor : null);
 
-
     return (
         <div className='flex flex-col gap-5'>
-            <Heading variant='h1' className='page-title'>Dashboard</Heading>
-
             <Card>
                 <CardHeader className='flex-row items-center justify-between'>
                     <Text variant='h4'>Recent Events</Text>
