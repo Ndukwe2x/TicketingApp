@@ -33,8 +33,8 @@ export const DashboardNav = () => {
                     <ul className='menu'>
                         {
                             actor && actor.isOwner
-                            ? <OwnerMenu actor={ actor } /> 
-                            : <UserMenu actor={ actor } />
+                            ? <OwnerMenu actor={ actor as AppUser } /> 
+                            : <UserMenu actor={ actor as AppUser } />
                         }
                     </ul>
                 </nav>
@@ -64,7 +64,7 @@ function MenuBuilder(menu: NavItem[]) {
                 item.addon ? 'has-addon ' : '', 
                 item.submenu ? 'has-submenu' : '',
                 isOpen ? 'expanded' : '') }>
-                <Link href={item.href}>
+                <Link href={item.href as string}>
                     <div
                         className={cn(
                             'flex items-center px-3 lg:px-4 py-2 cursor-pointer font-semibold'
@@ -159,24 +159,25 @@ const UserMenu = ({actor}: {actor: AppUser}) => {
             } /> : null
         },
         { title: 'Tickets', href: '/tickets', icon: <FaMoneyBills /> },
-        { 
-            title: 'Team', 
-            href: '/team', 
-            icon: <HiMiniUsers />,
-            submenu: actor?.isSuperUser ? <AddTeamMember displayText={
-                <Link href='#' className='rounded-lg hover:bg-gray-400/40 cursor-pointer flex items-center lg:px-4 px-3 py-2'>
-                    <MdPersonAdd size={20} className='mr-2 ml-4' /><span className='sr' aria-description='Add New Team Member'>Add New Team Member</span>
-                </Link>
-            } /> : null
-        }
     ];
 
-    return (
-        <>
-            {
-                MenuBuilder(menuItems)
+    if (actor?.isSuperUser) {
+        menuItems.push(
+            { 
+                title: 'Team', 
+                href: '/team', 
+                icon: <HiMiniUsers />,
+                submenu: actor?.isSuperUser ? <AddTeamMember displayText={
+                    <Link href='#' className='rounded-lg hover:bg-gray-400/40 cursor-pointer flex items-center lg:px-4 px-3 py-2'>
+                        <MdPersonAdd size={20} className='mr-2 ml-4' /><span className='sr' aria-description='Add New Team Member'>Add New Team Member</span>
+                    </Link>
+                } /> : null
             }
-        </>
+        )
+    }
+
+    return (
+        actor && MenuBuilder(menuItems)
     )
 }
 

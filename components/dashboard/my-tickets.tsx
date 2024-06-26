@@ -1,6 +1,6 @@
 "use client";
 
-import React, { HtmlHTMLAttributes, useEffect } from "react";
+import React, { HtmlHTMLAttributes, useEffect, useState } from "react";
 import { Api } from "@/lib/api";
 import axios, { AxiosError } from "axios";
 import { useGetTicketSales } from "@/hooks/useGetEvents";
@@ -12,35 +12,56 @@ import InternalErrorPage from "@/app/internal-error";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 import TicketGridTemplate from "./grid-data-templates/ticket";
 
-const MyTickets: React.FC<HtmlHTMLAttributes<HTMLDivElement> & { layout: string;  isFilteringEnabled: boolean; filterParams: string[] }> = ({children, layout,  isFilteringEnabled = false, filterParams = [], ...props}) => {
+const MyTickets: React.FC<HtmlHTMLAttributes<HTMLDivElement> & { layout: string; isFilteringEnabled: boolean; filterParams: string[] }> = ({ children, layout, isFilteringEnabled = false, filterParams = [], ...props }) => {
     const actor = useAuthenticatedUser();
     const dataGridColumns: [] = [];
-    const [isLoading, tickets, error] = useGetTicketSales( actor );
+    const [isLoading, userTickets, error] = useGetTicketSales(actor as AppUser);
+    const [tickets, setTickets] = useState<Ticket[]>([]);
+    const [output, setOutput] = useState(<div className="text-center">Loading, please waith...</div>);
 
-    if ( error?.code ) {
-        if ( ['ERR_NETWORK','ECONNABORTED'].includes(error.code) ) {
-            return <NoNetwork />
-        } else {
-            return <InternalErrorPage />
+    useEffect(() => {
+        if (isLoading) {
+            return;
         }
-    } else if ( tickets.length < 1 && !isLoading ) {
-        return <div className="text-center">No tickets to show.</div>;
-    }
-    
+        if (error && error?.code) {
+            if (['ERR_NETWORK', 'ECONNABORTED'].includes(error.code)) {
+                setOutput(<NoNetwork />)
+            } else {
+                setOutput(<InternalErrorPage />)
+            }
+            return;
+        }
+        console.log(userTickets);
+        if (userTickets.length < 1) {
+            setOutput(<div className="text-center">No tickets to show</div>);
+            return;
+        }
+        setTickets(userTickets);
+    }, [error, userTickets, isLoading]);
+
+
     return (
-        layout === 'table' 
-        ? <DataTable className="vertical-stripe" columns={ dataTableColumns.columns } data={ tickets }
-            fallback={ <DataTableLoading /> } 
-            isFilteringEnabled={ true } 
-            filterFields={ filterParams }>
-            <colgroup>
-                {
-                    dataTableColumns.columns.map((column, index) => <col key={index} />)
-                }
-            </colgroup>
-        </DataTable>
-        : <DataGrid Template={TicketGridTemplate} data={ tickets } columnRule={ {sm: 2, md: 2, lg: 3, xl: 3} } fallback="Loading..." />
+        (tickets.length > 0)
+            ? (
+                layout === 'table'
+                    ? (
+                        <DataTable className="vertical-stripe" columns={dataTableColumns.columns} data={tickets}
+                            fallback={<DataTableLoading />}
+                            isFilteringEnabled={true}
+                            filterFields={filterParams}>
+                            <colgroup>
+                                {
+                                    dataTableColumns.columns.map((column, index) => <col key={index} />)
+                                }
+                            </colgroup>
+                        </DataTable>
+                    ) : (
+                        <DataGrid Template={TicketGridTemplate} data={tickets} columnRule={{ sm: 2, md: 2, lg: 3, xl: 3 }} fallback="Loading..." />
+                    )
+            ) : (
+                output
+            )
     )
-} 
+}
 
 export default MyTickets;

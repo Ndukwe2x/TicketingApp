@@ -11,10 +11,11 @@ import { snakeCase, trainCase } from "change-case";
 import { cn } from "@/lib/utils";
 
 
-interface UploaderProps extends React.HtmlHTMLAttributes<HTMLInputElement> {
+interface UploaderProps extends React.HTMLAttributes<HTMLInputElement> {
     onFileSelection: ( ev: React.ChangeEvent<HTMLInputElement>) => void;
     isRequired?: boolean;
     allowMultiple?: boolean;
+    name?: string,
 }
 
 const MediaUploader = {

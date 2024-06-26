@@ -376,7 +376,7 @@ const EventForm = (
                 if (posterRes.error) {
                     throw posterRes.error;
                 }
-                results.posters.push(posterRes);
+                results.posters.push((posterRes as unknown) as never);
             }
             return results;
         } catch (error) {
@@ -401,7 +401,7 @@ const EventForm = (
                 ...formData,
                 ...{
                     eventBanner: {url: banner.secure_url as string, public_id: banner.public_id as string},
-                    posters: [...posters.map(poster => ({url: poster.secure_url as string, public_id: poster.public_id as string}))],
+                    posters: [...posters.map((poster: CloudinaryUploadResponseData) => ({url: poster.secure_url as string, public_id: poster.public_id as string}))],
                 }
             };
             setFormData(data);

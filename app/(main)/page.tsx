@@ -14,7 +14,13 @@ export default function Dashboard() {
     const actor = useAuthenticatedUser();
     const [eventsLayout, setEventsLayout] = React.useState<string>('table');
     const [ticketsLayout, setTicketsLayout] = React.useState<string>('table');
-    const [owner, setOwner] = React.useState(actor?.isUser ? actor : null);
+    const [owner, setOwner] = React.useState<AppUser | null>(null);
+
+    React.useEffect(() => {
+        if (actor != null && actor?.isUser) {
+            setOwner(actor);
+        }
+    }, [actor])
 
     return (
         <div className='flex flex-col gap-5'>

@@ -8,7 +8,7 @@ import React, { useEffect, useState } from 'react';
 import useAuthenticatedUser from './useAuthenticatedUser';
 
 
-async function fetchEventById (eventId: string, surpressError: boolean = false) {
+async function fetchEventById(eventId: string, surpressError: boolean = false) {
     let url = Api.server + Api.endpoints.public.singleEvent.replace(':id', eventId);
 
     try {
@@ -16,12 +16,10 @@ async function fetchEventById (eventId: string, surpressError: boolean = false) 
 
         return res.data.data || null;
     } catch (err) {
-        if ( !surpressError ) {
+        if (!surpressError) {
             throw err;
         }
         console.error(err);
-    } finally {
-        return null;
     }
 }
 
@@ -33,7 +31,7 @@ const fetchEventsWithoutAuthorisation = async () => {
     const url = Api.server + Api.endpoints.public.events;
     const response = await axios.get(url);
     const data = response.data.data || {};
-    
+
     return data.events || [];
 }
 
@@ -46,10 +44,10 @@ const fetchEventsWithoutAuthorisation = async () => {
  * @param surpressError `boolean` Whether or not to throw exceptions if error occurs
  * @returns `SingleEvent | null`
  */
-export const useGetEventById = ( refid: string, actor: AppUser, surpressError?: boolean ): [boolean, SingleEvent | null, AxiosError | Error | null] => {
+export const useGetEventById = (refid: string, actor: AppUser, surpressError?: boolean): [boolean, SingleEvent | null, AxiosError | Error | null] => {
     let url = Api.server + Api.endpoints.public.singleEvent;
-        url = url.replace( ':id', refid );
-        surpressError = surpressError || false;
+    url = url.replace(':id', refid);
+    surpressError = surpressError || false;
     const [event, setEvent] = useState<SingleEvent | null>(null);
     const [error, setError] = useState<AxiosError | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -58,21 +56,21 @@ export const useGetEventById = ( refid: string, actor: AppUser, surpressError?: 
         if (actor == null) {
             return;
         }
-        axios.get( url, {
+        axios.get(url, {
             headers: {
                 Authorization: `Bearer ${actor.token}`
             }
         })
-        .then(res => {
-            const data = res.data.data || null;
-            setEvent(data);
-            setIsLoading(false);
-        })
-        .catch(err => {
-            setError(err);
-            setIsLoading(false);
-            console.error(err);
-        })
+            .then(res => {
+                const data = res.data.data || null;
+                setEvent(data);
+                setIsLoading(false);
+            })
+            .catch(err => {
+                setError(err);
+                setIsLoading(false);
+                console.error(err);
+            })
     }, [actor]);
 
     return [isLoading, event, error];
@@ -83,7 +81,7 @@ export const useGetEvents = (actor: AppUser): [isLoading: boolean, events: Singl
     const [events, setEvents] = useState<SingleEvent[]>([]);
     const [error, setError] = useState<AxiosError | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    
+
     useEffect(() => {
         setIsLoading(true);
         const fetchData = () => {
@@ -92,21 +90,21 @@ export const useGetEvents = (actor: AppUser): [isLoading: boolean, events: Singl
                     Authorization: `Bearer ${actor.token}`
                 }
             })
-            .then(res => {
-                let data = res.data.data ? res.data.data.events : [];
-                setEvents(data);
-            })
-            .catch(err => {
-                setError(err);
-                // console.error(err);
-            })
-            .finally(() => setIsLoading(false));
+                .then(res => {
+                    let data = res.data.data ? res.data.data.events : [];
+                    setEvents(data);
+                })
+                .catch(err => {
+                    setError(err);
+                    // console.error(err);
+                })
+                .finally(() => setIsLoading(false));
         }
-        if ( actor != null ) {
+        if (actor != null) {
             fetchData();
         }
     }, [actor]);
-    
+
     return [isLoading, events, error];
 };
 
@@ -122,21 +120,21 @@ export const useGetEventsWithoutAuthorization = (): [isLoading: boolean, events:
     const [events, setEvents] = useState<SingleEvent[] | []>([]);
     const [error, setError] = useState<AxiosError | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    
+
     React.useEffect(() => {
         axios.get(url)
-        .then(res => {
-            const data = res.data.data || {};
-            const fetchedEvents = data.events || [];
-            setEvents(fetchedEvents);
-        })
-        .catch(err => {
-            setError(err);
-            console.error(err);
-        })
-        .finally(() => setIsLoading(false))
+            .then(res => {
+                const data = res.data.data || {};
+                const fetchedEvents = data.events || [];
+                setEvents(fetchedEvents);
+            })
+            .catch(err => {
+                setError(err);
+                console.error(err);
+            })
+            .finally(() => setIsLoading(false))
     }, []);
-    
+
     return [isLoading, events, error];
 };
 
@@ -147,29 +145,31 @@ export const useGetEventsWithoutAuthorization = (): [isLoading: boolean, events:
  * @param actor `AppUser` The current user of the application
  * @returns Returns an array of `SingleEvent` on success and an empty array `[]` otherwise 
  */
-export const useGetEventsByUser = ( theUser: AppUser, actor: AppUser): [ isLoading: boolean, events: SingleEvent[] | [], error: Error | AxiosError | null | unknown] => {
+export const useGetEventsByUser = (theUser: AppUser, actor: AppUser): [isLoading: boolean, events: SingleEvent[] | [], error: Error | AxiosError | null | unknown] => {
     const [isLoading, setIsLoading] = useState(false);
     const [events, setEvents] = useState<SingleEvent[]>([]);
     const [error, setError] = useState<Error | AxiosError | null | unknown>(null);
-    
+
     useEffect(() => {
-        if ( [theUser, actor].includes(null) ) {
+        if ([theUser, actor].includes(null)) {
             return;
         }
 
         (async (IDs: string[]) => {
             setIsLoading(true);
 
+            if (!IDs.length) {
+                setIsLoading(false);
+                return;
+            }
             try {
-                if ( IDs && IDs.length) {
-                    const fetchedEvents = IDs.includes('*') 
+                const fetchedEvents = IDs.includes('*')
                     ? await fetchEventsWithoutAuthorisation()
                     : await Promise.all(
                         IDs.map(id => fetchEventById(id))
                     );
-    
-                    setEvents(fetchedEvents);
-                }
+
+                setEvents(fetchedEvents);
             } catch (error) {
                 setError(error);
                 console.error(error);
@@ -195,13 +195,13 @@ export const useGetEventsByIds = (eventIds: string[], actor: AppUser): [isLoadin
     const [events, setEvents] = useState<SingleEvent[] | []>([]);
     const [error, setError] = useState<AxiosError | null | unknown>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    
-    
+
+
     useEffect(() => {
         (async (IDs: string[]) => {
             setIsLoading(true);
             try {
-                if ( IDs && IDs.length && actor != null) {
+                if (IDs && IDs.length && actor != null) {
                     const fetchedEvents = await Promise.all(
                         IDs.map(id => fetchEventById(id, true))
                     );
@@ -219,16 +219,16 @@ export const useGetEventsByIds = (eventIds: string[], actor: AppUser): [isLoadin
     return [isLoading, events, error];
 }
 
-export const decorateEvent = async (event: SingleEvent & { ticketsSold: Ticket[]}) => {
+export const decorateEvent = async (event: SingleEvent & { ticketsSold: Ticket[] }) => {
     const actor = useAuthenticatedUser();
     const [isLoading, ticketsSold] = useGetTicketSales(actor as AppUser, event);
     event.ticketsSold = ticketsSold;
-    
+
     return event;
 }
 
-export const useGetTicketSales = (actor: AppUser, event?: SingleEvent, ignoreError: boolean = false): 
-[isLoading: boolean, tickets: Ticket[] | [], error: AxiosError | null | unknown] => {
+export const useGetTicketSales = (actor: AppUser, event?: SingleEvent, ignoreError: boolean = false):
+    [isLoading: boolean, tickets: Ticket[] | [], error: AxiosError | null | unknown] => {
     let url = [Api.server, Api.endpoints.admin.searchTickets].join('');
 
     const [tickets, setTickets] = useState<Ticket[] | []>([]);
@@ -241,8 +241,8 @@ export const useGetTicketSales = (actor: AppUser, event?: SingleEvent, ignoreErr
         );
         return decoratedTickets.filter((ticket) => ticket.event_title != null);
     };
-    
-    const fetchTickets = async (url: string): Promise<Ticket[] | []> => {
+
+    const fetchUserTickets = async (url: string): Promise<Ticket[] | []> => {
         const res = await axios.get(url, {
             headers: {
                 Authorization: `Bearer ${actor.token}`
@@ -250,46 +250,64 @@ export const useGetTicketSales = (actor: AppUser, event?: SingleEvent, ignoreErr
         });
         const data = res.data.data || {};
         const decoratedTickets = await decorateTickets(data.tickets || []);
-        const orderedByDate = orderByDate(decoratedTickets, 'dateOfPurchase', 'asc');
+        const orderedByDate = (orderByDate(
+            (decoratedTickets as unknown) as { key: string, value: string }[],
+            'dateOfPurchase', 'asc'
+        ) as unknown) as Tickets;
 
         return orderedByDate;
     }
 
     useEffect(() => {
-        if ( actor !== null ) {
-            setIsLoading(true);
-            (async () => {
-                try {
-                    let eventIds: string[] = [];
-    
-                    if ( event ) {
-                        eventIds.push(event._id);
-                    } else if ( actor.isUser && actor.eventRef.length > 0 ) {
-                        eventIds = [...eventIds, ...actor.eventRef];
-                    }
-                    if ( eventIds.length > 0 ) {
-                        const userTickets: any[] | [] = await Promise.all(
-                            eventIds.map(async id => {
-                                const eventUrl = url +  '?eventRef=' + id;
-                                return await fetchTickets(eventUrl);
-                            }
-                        ));
-                        setTickets(userTickets);
-                    } else if ( actor.isOwner && actor.eventRef.includes('*') ) {
-                        const allTickets = await fetchTickets(url);
-                        setTickets(allTickets);
-                    }
-                } catch (error) {
-                    setError(error);
-                    console.error(error);
-                } finally {
-                    setIsLoading(false);
-                }
-            })();
+        if (actor === null) {
+            return;
         }
-        
+        const fetchTickets = async () => {
+            setIsLoading(true);
+            let eventIds: string[] = [];
+            if (event) {
+                eventIds.push(event._id);
+            } else if (actor.isUser && actor.eventRef.length > 0) {
+                eventIds = [...eventIds, ...actor.eventRef];
+            }
+
+            try {
+                let allTickets: any[] = [];
+                if (eventIds.length > 0) {
+                    const eventsTickets: Ticket[][] | [] = await Promise.all(
+                        eventIds.map(async id => {
+                            const eventUrl = url + '?eventRef=' + id;
+                            return await fetchUserTickets(eventUrl);
+                        }
+                        ));
+
+                    for (const eventTickets of eventsTickets) {
+                        for (const eventTicket of eventTickets) {
+                            allTickets.push(eventTicket);
+                        }
+                    }
+                } else if (actor.isOwner && actor.eventRef.includes('*')) {
+                    allTickets = await fetchUserTickets(url);
+                }
+                if (allTickets.length > 0) {
+                    const ordered: Ticket[] = (orderByDate(allTickets) as unknown) as Ticket[];
+                    setTickets(ordered);
+                }
+            } catch (err) {
+                setError(err);
+                console.error(err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchTickets();
+
+        return function cleanup() {
+            // Clean up every effect, to avoid side-effects
+        }
     }, [actor]);
-    
+
     return [isLoading, tickets, error];
 }
 
@@ -309,7 +327,7 @@ export const useGetEventTicketsWithAssociatedEvent = (actor: AppUser, event?: Si
                 });
                 if (res.status === 200 && res.data.data) {
                     const data = res.data.data;
-                    
+
                     if (res.data) {
                         setTickets(data.tickets);
                     }
@@ -322,13 +340,13 @@ export const useGetEventTicketsWithAssociatedEvent = (actor: AppUser, event?: Si
 
         actor !== null && fetchTickets();
     }, [event])
-    
+
     return [tickets, error];
 }
 
-export const getEventAssociatedToTicket = async ( ticket: Ticket): Promise<Ticket & {event_title?: string}> => {
+export const getEventAssociatedToTicket = async (ticket: Ticket): Promise<Ticket & { event_title?: string }> => {
     let url = Api.server + Api.endpoints.public.singleEvent;
-        url = url.replace( ':id', ticket.eventRef );
+    url = url.replace(':id', ticket.eventRef);
     let event: SingleEvent | null = null, error = null;
 
     try {
@@ -338,6 +356,6 @@ export const getEventAssociatedToTicket = async ( ticket: Ticket): Promise<Ticke
         error = err;
         console.error(err);
     }
-    
-    return {...ticket, event_title: event?.title};
+
+    return { ...ticket, event_title: event?.title };
 };
