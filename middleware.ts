@@ -1,5 +1,5 @@
 import UserClass from "@/lib/User.class";
-import { NextRequest, NextResponse, URLPattern } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { AuthFreeRoutes } from "./lib/app-routes";
 
 export default function middleware(req: NextRequest) {
