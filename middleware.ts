@@ -22,10 +22,10 @@ export default function middleware(req: NextRequest) {
     }
 
     let entryRoute: string = <string>routeParts[0];
-    if (!entryRoute.startsWith('/')) {
+    if (entryRoute && !entryRoute.startsWith('/')) {
         entryRoute = '/' + entryRoute;
     }
-    if (!sessionUser?.value && !AuthFreeRoutes.includes(entryRoute)) {
+    if (entryRoute && !sessionUser?.value && !AuthFreeRoutes.includes(entryRoute)) {
         url.pathname = '/login/';
         url.search = '?redir=' + req.nextUrl.pathname;
         return NextResponse.redirect(url);
