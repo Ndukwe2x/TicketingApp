@@ -21,6 +21,7 @@ import { FormDataContext, useFormData } from "@/hooks/useFormDataContext";
 import { Result } from "postcss";
 import { url } from "inspector";
 import { deleteEvent } from "@/hooks/useGetEvent";
+import { useRouter } from "next/navigation";
 
 
 const EventForm = (
@@ -57,7 +58,7 @@ const EventForm = (
     const bannerRef = useRef<HTMLDivElement>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccessful, setIsSuccessful] = useState(false);
-    // const [formData, setFormData] = defineStaticVariable<Record<string, any>>({});
+    const router = useRouter();
 
 
     React.useEffect(() => {
