@@ -7,19 +7,30 @@ import { columns } from '@/components/dashboard/table-columns/users';
 import { Heading } from '@/components/ui/headers';
 import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
 import { useGetUsers } from '@/hooks/useGetUsers';
+import { useRouter } from 'next/navigation';
+import NotFoundPage from '../[...not-found]/page';
+import InternalErrorPage from '@/app/internal-error';
 
 const Users = () => {
     const actor = useAuthenticatedUser();
     const [isLoading, users, error] = useGetUsers(actor as AppUser);
+    const router = useRouter();
+
+    if (isLoading) {
+        return null;
+    }
+    if (error) {
+        return <InternalErrorPage />
+    }
 
     return (
         <div className='flex flex-col gap-5'>
             <Card>
                 <CardContent className='pt-5'>
-                    <DataTable 
-                    columns={columns} 
-                    data={users} 
-                    fallback={ isLoading ? 'Loading, please wait...' : 'No users at the moment...'} />
+                    <DataTable
+                        columns={columns}
+                        data={users}
+                        fallback={isLoading ? 'Loading, please wait...' : 'No users at the moment...'} />
                 </CardContent>
             </Card>
         </div>

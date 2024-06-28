@@ -31,15 +31,20 @@ export const columns: ColumnDef<AppUser>[] = [
             return <Icons.user />
         },
         cell: ({ row }) => <div className='capitalize'>
-            <Avatar user={row.original} size={ 45 } />
+            <Avatar user={row.original} size={45} />
         </div>,
     },
     {
         accessorKey: 'name',
         header: 'Name',
-        cell: ({ row }) => <div className='capitalize'>
-                <Link href={ '/users/' + row.original.id }>{row.original.firstname} {row.original.lastname}</Link>
-            </div>,
+        cell: ({ row }) => {
+            const actor = useAuthenticatedUser();
+            return (
+                <div className='capitalize'>
+                    <Link href={(actor?.isOwner ? '/users/' : '/team/') + row.original.id}>{row.original.firstname} {row.original.lastname}</Link>
+                </div>
+            )
+        },
     },
     {
         accessorKey: 'email',
@@ -53,7 +58,7 @@ export const columns: ColumnDef<AppUser>[] = [
     {
         accessorKey: 'eventRef',
         header: 'Total Events',
-        cell: ({ row }) => <div>{ row.original.eventRef.length }</div>,
+        cell: ({ row }) => <div>{row.original.eventRef.length}</div>,
     },
     {
         accessorKey: 'createdAt',
@@ -86,13 +91,13 @@ export const columns: ColumnDef<AppUser>[] = [
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align='end'>
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <Link href={ '/users/' + user.id } className='flex gap-6 hover:bg-accent items-center justify-between p-1.5 rounded-sm w-full'>Profile <MdPerson size={18} /></Link>
-                            <CreateEventForUser variant={null} actor={ actor } user={ user } className='flex gap-6 text-foreground hover:bg-accent items-center justify-between p-1.5 rounded-sm w-full' />
-                        
-                            <EditUserButton variant={ null } actor={ actor } userId={ user.id } className='flex gap-6 text-foreground hover:bg-accent items-center justify-between p-1.5 rounded-sm w-full' />
+                        <Link href={'/users/' + user.id} className='flex gap-6 hover:bg-accent items-center justify-between p-1.5 rounded-sm w-full'>Profile <MdPerson size={18} /></Link>
+                        <CreateEventForUser variant={null} actor={actor} user={user} className='flex gap-6 text-foreground hover:bg-accent items-center justify-between p-1.5 rounded-sm w-full' />
+
+                        <EditUserButton variant={null} actor={actor} userId={user.id} className='flex gap-6 text-foreground hover:bg-accent items-center justify-between p-1.5 rounded-sm w-full' />
                         <DropdownMenuSeparator />
-                            <DeleteUserButton actor={ actor } account={ user } className='flex gap-6 hover:bg-accent items-center justify-between p-1.5 rounded-sm w-full text-destructive' />
-                        
+                        <DeleteUserButton actor={actor} account={user} className='flex gap-6 hover:bg-accent items-center justify-between p-1.5 rounded-sm w-full text-destructive' />
+
                     </DropdownMenuContent>
                 </DropdownMenu>
             );

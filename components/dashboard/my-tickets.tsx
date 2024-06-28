@@ -11,33 +11,40 @@ import * as dataTableColumns from "./table-columns/sales";
 import InternalErrorPage from "@/app/internal-error";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 import TicketGridTemplate from "./grid-data-templates/ticket";
+import { orderByDate } from "@/lib/utils";
 
 const MyTickets: React.FC<HtmlHTMLAttributes<HTMLDivElement> & { layout: string; isFilteringEnabled: boolean; filterParams: string[] }> = ({ children, layout, isFilteringEnabled = false, filterParams = [], ...props }) => {
     const actor = useAuthenticatedUser();
     const dataGridColumns: [] = [];
     const [isLoading, userTickets, error] = useGetTicketSales(actor as AppUser);
     const [tickets, setTickets] = useState<Ticket[]>([]);
-    const [output, setOutput] = useState(<div className="text-center">Loading, please waith...</div>);
+    const [fallback, setFallback] = useState(<div className="text-center">Loading, please waith...</div>);
 
     useEffect(() => {
         if (isLoading) {
             return;
         }
-        if (error && error?.code) {
-            if (['ERR_NETWORK', 'ECONNABORTED'].includes(error.code)) {
-                setOutput(<NoNetwork />)
+        if (error != null) {
+            if (error?.code && ['ERR_NETWORK', 'ECONNABORTED'].includes(error.code)) {
+                setFallback(<NoNetwork />)
             } else {
-                setOutput(<InternalErrorPage />)
+                setFallback(<InternalErrorPage />)
             }
             return;
         }
-        console.log(userTickets);
+
         if (userTickets.length < 1) {
-            setOutput(<div className="text-center">No tickets to show</div>);
+            setFallback(<div className="text-center">No tickets to show</div>);
             return;
         }
-        setTickets(userTickets);
-    }, [error, userTickets, isLoading]);
+
+        const ordered: Record<string, string>[] = orderByDate((userTickets as unknown) as any);
+        setTickets((ordered as unknown) as Ticket[]);
+
+        return function cleanup() {
+            // Clean up every possible side-effects
+        }
+    }, [isLoading, error, userTickets]);
 
 
     return (
@@ -59,7 +66,7 @@ const MyTickets: React.FC<HtmlHTMLAttributes<HTMLDivElement> & { layout: string;
                         <DataGrid Template={TicketGridTemplate} data={tickets} columnRule={{ sm: 2, md: 2, lg: 3, xl: 3 }} fallback="Loading..." />
                     )
             ) : (
-                output
+                fallback
             )
     )
 }

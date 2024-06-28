@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { AppLogo } from '@/components/app-logo';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
+// import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
 import UserClass from '@/lib/User.class';
 
 export default function AuthLayout({
@@ -13,19 +13,18 @@ export default function AuthLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    
-    const [processing, setProcessing] = React.useState(true);
-    
-    useAuthenticatedUser(authUser => {
-        if ( authUser instanceof UserClass ) {
-            window.location.assign('/');
-        } else {
-            setProcessing(false);
-        }
-    });
+
+    // const [processing, setProcessing] = React.useState(true);
+
+    // useAuthenticatedUser(authUser => {
+    //     if ( authUser instanceof UserClass ) {
+    //         window.location.assign('/');
+    //     } else {
+    //         setProcessing(false);
+    //     }
+    // });
 
     return (
-        processing ? null :
         <div className='container relative h-dvh overflow-hidden flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0'>
             <div className='relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r'>
                 <div className='absolute inset-0'>

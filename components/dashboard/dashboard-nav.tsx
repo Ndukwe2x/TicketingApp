@@ -12,7 +12,6 @@ import CreateEventButton from '../buttons/create-event-button';
 import CreateUserButton from '../buttons/create-user-button';
 import AddTeamMember from '../buttons/add-team-member';
 import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
-import { title } from 'process';
 import { Button } from '../ui/button';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 
@@ -33,8 +32,8 @@ export const DashboardNav = () => {
                     <ul className='menu'>
                         {
                             actor && actor.isOwner
-                            ? <OwnerMenu actor={ actor as AppUser } /> 
-                            : <UserMenu actor={ actor as AppUser } />
+                                ? <OwnerMenu actor={actor as AppUser} />
+                                : <UserMenu actor={actor as AppUser} />
                         }
                     </ul>
                 </nav>
@@ -43,12 +42,12 @@ export const DashboardNav = () => {
     );
 };
 
-type NavItem = { 
-    title: string | ReactNode; 
-    href?: string; 
-    icon?: React.ReactNode, 
-    addon?: React.ReactNode; 
-    submenu?: NavItem[] | React.ReactNode; 
+type NavItem = {
+    title: string | ReactNode;
+    href?: string;
+    icon?: React.ReactNode,
+    addon?: React.ReactNode;
+    submenu?: NavItem[] | React.ReactNode;
 };
 
 function MenuBuilder(menu: NavItem[]) {
@@ -58,12 +57,12 @@ function MenuBuilder(menu: NavItem[]) {
         const isActive = pathname === item.href;
         const [isOpen, toggleOpen] = useReducer(state => !state, false);
         return (
-            <li key={ index } className={ cn(
+            <li key={index} className={cn(
                 'hover:bg-primary hover:text-primary-foreground rounded-lg text-muted-foreground my-2 overflow-hidden',
-                isActive && 'bg-primary text-primary-foreground', 
-                item.addon ? 'has-addon ' : '', 
+                isActive && 'bg-primary text-primary-foreground',
+                item.addon ? 'has-addon ' : '',
                 item.submenu ? 'has-submenu' : '',
-                isOpen ? 'expanded' : '') }>
+                isOpen ? 'expanded' : '')}>
                 <Link href={item.href as string}>
                     <div
                         className={cn(
@@ -78,22 +77,22 @@ function MenuBuilder(menu: NavItem[]) {
                     </div>
                 </Link>
                 {
-                    (item.addon) && <div className='menu-addon hidden xl:block'>{ item.addon }</div>
+                    (item.addon) && <div className='menu-addon hidden xl:block'>{item.addon}</div>
                 }
                 {
                     (item.submenu) && <div className='menu-toggle hidden xl:flex items-center justify-between'>
-                        <Button 
-                            variant={null} onClick={() => {toggleOpen()}} 
+                        <Button
+                            variant={null} onClick={() => { toggleOpen() }}
                             className='px-1 h-auto my-auto py-0 ml-auto'>
-                            {isOpen ? <FiChevronUp size={20} /> : <FiChevronDown size={20} /> }
+                            {isOpen ? <FiChevronUp size={20} /> : <FiChevronDown size={20} />}
                         </Button>
                     </div>
                 }
                 {
                     (item.submenu) && (
-                        React.isValidElement(item.submenu) 
+                        React.isValidElement(item.submenu)
                             ? <div id={`db_menuitem_${index}_submenu`} className='submenu rounded-lg'>{item.submenu}</div>
-                            : <ul id={`db_menuitem_${index}_submenu`} className='submenu rounded-lg'>{ MenuBuilder(item.submenu as NavItem[]) }</ul>
+                            : <ul id={`db_menuitem_${index}_submenu`} className='submenu rounded-lg'>{MenuBuilder(item.submenu as NavItem[])}</ul>
                     )
                 }
             </li>
@@ -102,13 +101,13 @@ function MenuBuilder(menu: NavItem[]) {
 }
 
 
-const OwnerMenu = ({actor}: {actor: AppUser}) => {
+const OwnerMenu = ({ actor }: { actor: AppUser }) => {
 
     const menuItems: NavItem[] = [
         { title: 'Dashboard', href: '/', icon: <MdHomeFilled /> },
-        { 
-            title: 'Events', 
-            href: '/events', 
+        {
+            title: 'Events',
+            href: '/events',
             icon: <MdEvent />,
             submenu: actor?.canCreateEvent ? <CreateEventButton displayText={
                 <Link href='#' className='rounded-lg hover:bg-gray-400/40 cursor-pointer flex items-center lg:px-4 px-3 py-2'>
@@ -116,14 +115,14 @@ const OwnerMenu = ({actor}: {actor: AppUser}) => {
                 </Link>
             } /> : null
         },
-        { 
-            title: 'Tickets', 
-            href: '/tickets', 
+        {
+            title: 'Tickets',
+            href: '/tickets',
             icon: <FaMoneyBills />
         },
-        { 
-            title: 'Users', 
-            href: '/users', 
+        {
+            title: 'Users',
+            href: '/users',
             icon: <HiMiniUsers />,
             // addon: <MdAddBox size={26} />,
             submenu: actor?.canCreateUser ? <CreateUserButton displayText={
@@ -144,13 +143,13 @@ const OwnerMenu = ({actor}: {actor: AppUser}) => {
     )
 }
 
-const UserMenu = ({actor}: {actor: AppUser}) => {
+const UserMenu = ({ actor }: { actor: AppUser }) => {
 
     const menuItems: NavItem[] = [
         { title: 'Dashboard', href: '/', icon: <MdHomeFilled /> },
-        { 
-            title: 'My Events', 
-            href: '/events', 
+        {
+            title: 'My Events',
+            href: '/events',
             icon: <MdEvent />,
             submenu: actor?.canCreateEvent ? <CreateEventButton displayText={
                 <Link href='#' className='rounded-lg hover:bg-gray-400/40 cursor-pointer flex items-center lg:px-4 px-3 py-2'>
@@ -163,9 +162,9 @@ const UserMenu = ({actor}: {actor: AppUser}) => {
 
     if (actor?.isSuperUser) {
         menuItems.push(
-            { 
-                title: 'Team', 
-                href: '/team', 
+            {
+                title: 'Team',
+                href: '/team',
                 icon: <HiMiniUsers />,
                 submenu: actor?.isSuperUser ? <AddTeamMember displayText={
                     <Link href='#' className='rounded-lg hover:bg-gray-400/40 cursor-pointer flex items-center lg:px-4 px-3 py-2'>

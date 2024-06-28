@@ -15,7 +15,6 @@ import axios from 'axios';
 import { Session } from '@/lib/session';
 import { getAuthenticatedUserFullData } from '@/hooks/useGetUsers';
 import { toast } from '@/components/ui/sonner';
-import NoNetwork from '@/components/no-network';
 
 export function LoginForm() {
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
@@ -31,21 +30,21 @@ export function LoginForm() {
         setIsLoading(true);
 
         try {
-            const response = await axios.post(url, {email: userId, password: pass});
+            const response = await axios.post(url, { email: userId, password: pass });
             if (response.status === 200) {
                 const authData = response.data;
                 let fullData: UserInfo = await getAuthenticatedUserFullData(authData.user.userEmail, authData.token) as UserInfo;
-                if ( !fullData.id ) {
+                if (!fullData.id) {
                     toast('Login failed. An internal error has occurred. Please try again.');
                     return;
                 }
-                fullData = {...fullData, token: authData.token}
+                fullData = { ...fullData, token: authData.token }
                 Session.authenticate(fullData);
                 toast('Login successful.');
                 setIsLoading(false);
                 setIsSuccess(true);
                 let nextDestination = searchParams.get('redir');
-                
+
                 if (nextDestination) {
                     location.assign(nextDestination)
                 } else {
@@ -55,7 +54,7 @@ export function LoginForm() {
         } catch (error) {
             setIsLoading(false);
             console.error('Error logging in:', error);
-            if ( ["ECONNABORTED", "ERR_NETWORK"].includes(error.code) ) {
+            if (["ECONNABORTED", "ERR_NETWORK"].includes(error.code)) {
                 toast('Unable to login. It appears your connection was lost. Check your internet connectivity.');
                 return;
             }
@@ -102,7 +101,7 @@ export function LoginForm() {
                     <Button disabled={isLoading}>
                         {isLoading && <><Icons.spinner className='mr-2 h-4 w-4 animate-spin' /> Loading...</>}
                         {isSuccess && <><Icons.userChecked className='mr-2 h-4 w-4 text-white' /> Successful</>}
-                        { ! (isLoading || isSuccess) && <span>Sign In</span> }
+                        {!(isLoading || isSuccess) && <span>Sign In</span>}
                     </Button>
                 </div>
             </form>

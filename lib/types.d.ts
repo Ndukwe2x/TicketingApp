@@ -176,7 +176,7 @@ type AuthInfo = {
 }
 
 type NewlyCreatedUserAccountData = {
-    userId: string; 
+    userId: string;
     status: string
 }
 
@@ -207,6 +207,7 @@ interface CloudinaryUploadResponseData {
 }
 
 interface AppUser {
+    rawData: Record<string, any> | UserInfo;
     id: string;
     firstname: string;
     lastname: string;
@@ -237,13 +238,14 @@ interface AppUser {
     canUpdateEvent: boolean;
     canDeleteEvent: boolean;
     canDeleteTicket: boolean;
-    setProperty: (property: string, value: unknown) => void;
+    setProperty: (property: string, value: any) => void;
+    getRawData: () => Record<string, any> | UserInfo
 }
 
 type GridColumnDef<TData> = {
     id: string | number;
     accessorKey: string;
-    content: (column: TData) => React.ReactNode | string ;
+    content: (column: TData) => React.ReactNode | string;
 }
 
 type GridColumn<TData> = {
@@ -268,7 +270,7 @@ type GridLayout<TData> = {
     data: TData[] | TData[][];
     // rows: GridRows<TData>;
     getRowModel: () => RowModel<TData>,
-    getColumn: (columnId: number | string, rowId?: number | string) => GridColumn<TData>  | null | undefined
+    getColumn: (columnId: number | string, rowId?: number | string) => GridColumn<TData> | null | undefined
 }
 
 
@@ -287,8 +289,10 @@ type GridComponentOptions<TData> = {
 }
 
 interface TitleContextType {
-    title: string;
+    title: string | null;
     setTitle: (title: string) => void;
+    isTitleEnabled: boolean;
+    setIsTitleEnabled: (option: boolean) => void;
 }
 
 interface FormDataContextType {

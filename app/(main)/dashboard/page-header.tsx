@@ -1,6 +1,5 @@
 import NavigateBack from "@/components/dashboard/navigate-back";
 import { Heading } from "@/components/ui/headers";
-import { Text } from "@/components/ui/text";
 import { useTitle } from "@/hooks/useTitleContext";
 import { cn } from "@/lib/utils";
 import { capitalCase } from "change-case";
@@ -10,12 +9,12 @@ import React, { useEffect, useRef, useState } from "react";
 interface PageHeaderProps extends React.HTMLAttributes<HTMLElement> {
 }
 
-export default function PageHeader ({children, className, ...props}: PageHeaderProps) {
-    const {title, setTitle} = useTitle() as TitleContextType;
+export default function PageHeader({ children, className, ...props }: PageHeaderProps) {
+    const { title, setTitle, isTitleEnabled } = useTitle() as TitleContextType;
     const path = usePathname();
     const titleRef = useRef<string | null>(null);
     const [pageTitle, setPageTitle] = useState<string | null>(null);
-    
+
     useEffect(() => {
         const route = path.slice(path.length > 1 ? 1 : path.length - 1);
         const routeArr = route.split('/');
@@ -23,10 +22,10 @@ export default function PageHeader ({children, className, ...props}: PageHeaderP
 
         // if title is null or empty, that means this page has no title defined.
         // So we use the route
-        if ([null,''].includes(title)) {
+        if ([null, ''].includes(title)) {
             titleRef.current = page;
             setPageTitle(page);
-        } else if ( 
+        } else if (
             ![titleRef.current, page, pageTitle].includes(title.toLocaleLowerCase()) &&
             page.indexOf(title.toLocaleLowerCase()) < 0
         ) {
@@ -36,9 +35,9 @@ export default function PageHeader ({children, className, ...props}: PageHeaderP
     }, [title, path]);
 
     return (
-        <div className={cn('flex items-center mb-4 gap-3', className)} {...props}>
+        isTitleEnabled && <div className={cn('flex items-center mb-4 gap-3', className)} {...props}>
             <NavigateBack className="xl:hidden" />
-            {pageTitle && <Heading variant='h1' className='page-title responsive-title'>{ capitalCase(pageTitle) }</Heading>}
+            {pageTitle && <Heading variant='h1' className='page-title responsive-title'>{capitalCase(pageTitle)}</Heading>}
         </div>
     )
 }

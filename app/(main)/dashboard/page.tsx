@@ -8,7 +8,7 @@ import { getDashboardSummary } from '@/hooks/useGetDashboard';
 // import { SalesTable } from '../tickets/page';
 import { DataTableLoading } from '@/components/ui/data-table';
 import { AddTicket } from '@/components/dashboard/old-add-ticket';
-import { AddCategory } from '@/components/dashboard/create-ticket';
+// import { AddCategory } from '@/components/dashboard/create-ticket';
 
 
 export default async function Dashboard() {
@@ -22,7 +22,7 @@ export default async function Dashboard() {
             <Card>
                 <CardHeader className='flex-row items-center justify-between'>
                     <Text variant='h4'>Sales</Text>
-                    <AddCategory />
+                    {/* <AddCategory /> */}
                 </CardHeader>
                 <CardContent className='overflow-auto'>
                     <Suspense fallback={<DataTableLoading />}>

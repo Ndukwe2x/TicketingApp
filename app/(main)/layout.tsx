@@ -9,7 +9,6 @@ import { AppLogo } from '@/components/app-logo';
 import { FaFacebook, FaInstagram, FaXTwitter } from 'react-icons/fa6';
 import React, { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { AuthFreeRoutes } from '@/lib/auth-free-routes';
 import { Session } from '@/lib/session';
 import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
 import UserClass from '@/lib/User.class';
@@ -23,29 +22,13 @@ export default function MainLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const route = usePathname();
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    // const route = usePathname();
+    // const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-    const actor = useAuthenticatedUser(authUser => {
-        if (authUser === null && !AuthFreeRoutes.includes(route)) {
-            window.location.assign('/login?redir=' + route);
-            return;
-        } else if (authUser instanceof UserClass) {
-            if (['/login', '/register'].includes(route)) {
-                window.location.assign('/');
-                return;
-            }
-            setIsAuthenticated(true);
-        }
-    });
-
-    // Return a blank screen until we are sure that the user is authenticated
-    if (!isAuthenticated) {
-        return null;
-    }
+    const actor = useAuthenticatedUser();
 
     // Validate the user session every 10 minutes to ensure that they still have a valid token;
-    Session.validateSession(actor as AppUser, 10);
+    // Session.validateSession(actor as AppUser, 10);
 
     return (
         <TitleProvider>
@@ -55,8 +38,14 @@ export default function MainLayout({
                     <div className='flex relative '>
                         <DashboardNav />
                         <main id="main" className='flex-1 overflow-y-auto lg:px-10 lg:py-10'>
-                            <PageHeader />
-                            {navigator.onLine ? children : <NoNetwork />}
+                            {navigator.onLine ? (
+                                <React.Fragment>
+                                    <PageHeader />
+                                    {children}
+                                </React.Fragment>
+                            ) : (
+                                <NoNetwork />
+                            )}
                         </main>
                     </div>
                 </div>

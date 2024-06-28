@@ -12,53 +12,66 @@ import EventGridTemplate from "./grid-data-templates/event";
 import { orderByDate } from "@/lib/utils";
 import { APPCONFIG } from "@/lib/app-config";
 
-const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & { 
-    layout: string;  
-    isFilteringEnabled: boolean; 
+const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & {
+    layout: string;
+    isFilteringEnabled: boolean;
     filterParams: string[];
     owner?: AppUser | UserInfo | null;
-}> = ({layout,  isFilteringEnabled = false, filterParams = [], owner = null, ...props}) => {
+}> = ({ layout, isFilteringEnabled = false, filterParams = [], owner = null, ...props }) => {
     const actor = useAuthenticatedUser();
     owner = owner ?? actor;
-    const {maxItemsPerPage = 10} = APPCONFIG.paginationOptions;
-    
+    const { maxItemsPerPage = 10 } = APPCONFIG.paginationOptions;
+
     const [isLoading, rawEvents, error] = useGetEventsByUser(owner as AppUser, actor as AppUser);
     const [events, setEvents] = useState<SingleEvent[] | []>([]);
+    const [fallback, setFallback] = useState(<div className="text-center">Loading, please wait...</div>);
 
     React.useEffect(() => {
-        if (rawEvents.length) {
-            const orderedByDate: Record<string, string>[] = orderByDate((rawEvents as unknown) as any);
-            setEvents((orderedByDate as unknown) as SingleEvent[]);
+        if (isLoading) {
+            return;
         }
-    }, [rawEvents]);
-    
-    if ( error?.code ) {
-        if ( ['ERR_NETWORK','ECONNABORTED'].includes(error.code) ) {
-            return <NoNetwork />
-        } else {
-            return <InternalErrorPage />
+        if (error) {
+            if (error?.code && ['ERR_NETWORK', 'ECONNABORTED'].includes(error.code)) {
+                setFallback(<NoNetwork />)
+            } else {
+                setFallback(<InternalErrorPage />)
+            }
+            return;
         }
-    } else if ( events.length < 1 && !isLoading ) {
-        return <div className="text-center">No events to show.</div>;
-    }
-    
+        if (rawEvents.length < 1) {
+            setFallback(<div className="text-center">No event to show.</div>);
+            return;
+        }
+        const orderedByDate: Record<string, string>[] = orderByDate((rawEvents as unknown) as any);
+        setEvents((orderedByDate as unknown) as SingleEvent[]);
+
+        return function cleanup() {
+            // Clean up every possible side-effects
+        }
+    }, [isLoading, error, rawEvents]);
+
     return (
-        (
-            layout === 'table' 
-            ? <DataTable className="vertical-stripe" columns={ dataTableColumns.columns } data={ events } 
-                fallback={ <DataTableLoading /> } 
-                isFilteringEnabled={ true } 
-                filterFields={ filterParams }>
-                <colgroup>
-                    {
-                        dataTableColumns.columns.map((column, index) => <col id={ column.id} key={index} />)
-                    }
-                </colgroup>
-            </DataTable>
-            : <DataGrid Template={EventGridTemplate} data={ events } columnRule={ {sm: 2, md: 2, lg: 3, xl: 3} } paginationOptions={{ itemsPerPage: maxItemsPerPage }} fallback="Loading... Please wait" />
+        (events.length > 0) ? (
+            layout === 'table'
+                ? (
+                    <DataTable className="vertical-stripe" columns={dataTableColumns.columns} data={events}
+                        fallback={<DataTableLoading />}
+                        isFilteringEnabled={true}
+                        filterFields={filterParams}>
+                        <colgroup>
+                            {
+                                dataTableColumns.columns.map((column, index) => <col id={column.id} key={index} />)
+                            }
+                        </colgroup>
+                    </DataTable>
+                ) : (
+                    <DataGrid Template={EventGridTemplate} data={events} columnRule={{ sm: 2, md: 2, lg: 3, xl: 3 }} paginationOptions={{ itemsPerPage: maxItemsPerPage }} fallback="Loading... Please wait" />
+                )
+        ) : (
+            fallback
         )
     )
-} 
+}
 
 
 export default MyEvents;

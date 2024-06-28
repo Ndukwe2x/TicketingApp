@@ -6,20 +6,21 @@ import { orderByDate } from '@/lib/utils';
 import axios, { AxiosError } from 'axios';
 import React, { useEffect, useState } from 'react';
 import useAuthenticatedUser from './useAuthenticatedUser';
+import { fetchUserById } from './useGetUsers';
 
 
-async function fetchEventById(eventId: string, surpressError: boolean = false) {
+export async function fetchEventById(eventId: string, surpressError: boolean = false) {
     let url = Api.server + Api.endpoints.public.singleEvent.replace(':id', eventId);
 
     try {
         const res = await axios.get(url);
-
         return res.data.data || null;
-    } catch (err) {
-        if (!surpressError) {
-            throw err;
+    } catch (error) {
+        if (surpressError) {
+            console.error(error);
+            return false;
         }
-        console.error(err);
+        throw error;
     }
 }
 
@@ -27,12 +28,35 @@ async function fetchEventById(eventId: string, surpressError: boolean = false) {
 //     return await Promise.all(eventIds.map(id => fetchEventById(id, actor)));
 // }
 
-const fetchEventsWithoutAuthorisation = async () => {
+export const fetchEventsWithoutAuthorisation = async () => {
     const url = Api.server + Api.endpoints.public.events;
     const response = await axios.get(url);
     const data = response.data.data || {};
 
     return data.events || [];
+}
+
+export const fetchUserEvents = async (userId: string, actor: AppUser): Promise<SingleEvent[] | [] | unknown> => {
+    if (!userId || !actor) {
+        throw new Error('No user or actor provided');
+    }
+
+    try {
+        const user = await fetchUserById(userId, actor);
+        if (user === null) {
+            return false;
+        }
+        const eventIds = user.eventRef;
+        const fetchedEvents = eventIds.includes('*')
+            ? await fetchEventsWithoutAuthorisation()
+            : await Promise.all(
+                eventIds.map(id => fetchEventById(id))
+            );
+
+        return fetchedEvents;
+    } catch (error) {
+        return error;
+    }
 }
 
 
@@ -146,39 +170,23 @@ export const useGetEventsWithoutAuthorization = (): [isLoading: boolean, events:
  * @returns Returns an array of `SingleEvent` on success and an empty array `[]` otherwise 
  */
 export const useGetEventsByUser = (theUser: AppUser, actor: AppUser): [isLoading: boolean, events: SingleEvent[] | [], error: Error | AxiosError | null | unknown] => {
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [events, setEvents] = useState<SingleEvent[]>([]);
     const [error, setError] = useState<Error | AxiosError | null | unknown>(null);
 
     useEffect(() => {
-        if ([theUser, actor].includes(null)) {
+        if (theUser === null || actor === null) {
+            setIsLoading(false);
             return;
         }
 
-        (async (IDs: string[]) => {
-            setIsLoading(true);
+        (async () => {
+            const fetchedEvents = await fetchUserEvents(theUser.id, actor);
 
-            if (!IDs.length) {
-                setIsLoading(false);
-                return;
-            }
-            try {
-                const fetchedEvents = IDs.includes('*')
-                    ? await fetchEventsWithoutAuthorisation()
-                    : await Promise.all(
-                        IDs.map(id => fetchEventById(id))
-                    );
+            setEvents(fetchedEvents);
+        })();
 
-                setEvents(fetchedEvents);
-            } catch (error) {
-                setError(error);
-                console.error(error);
-            } finally {
-                setIsLoading(false);
-            }
-        })(theUser.eventRef);
-
-    }, [theUser]);
+    }, [theUser, actor]);
 
 
     return [isLoading, events, error];
@@ -199,18 +207,23 @@ export const useGetEventsByIds = (eventIds: string[], actor: AppUser): [isLoadin
 
     useEffect(() => {
         (async (IDs: string[]) => {
-            setIsLoading(true);
+            // if (!navigator.onLine) {
+            //     setIsLoading(false);
+            //     return;
+            // }
             try {
                 if (IDs && IDs.length && actor != null) {
                     const fetchedEvents = await Promise.all(
-                        IDs.map(id => fetchEventById(id, true))
+                        IDs.map(id => fetchEventById(id))
                     );
-                    setEvents(fetchedEvents);
+                    const filteredEvents = fetchedEvents.filter(event => typeof event._id !== 'undefined')
+
+                    setEvents(filteredEvents);
+                    setIsLoading(false);
                 }
             } catch (error) {
                 setError(error);
                 console.error(error);
-            } finally {
                 setIsLoading(false);
             }
         })(eventIds);
@@ -233,7 +246,7 @@ export const useGetTicketSales = (actor: AppUser, event?: SingleEvent, ignoreErr
 
     const [tickets, setTickets] = useState<Ticket[] | []>([]);
     const [error, setError] = useState<AxiosError | null | unknown>(null);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
 
     const decorateTickets = async (tickets: Ticket[] | []) => {
         const decoratedTickets = await Promise.all(
@@ -262,8 +275,9 @@ export const useGetTicketSales = (actor: AppUser, event?: SingleEvent, ignoreErr
         if (actor === null) {
             return;
         }
+        // setIsLoading(true);
+
         const fetchTickets = async () => {
-            setIsLoading(true);
             let eventIds: string[] = [];
             if (event) {
                 eventIds.push(event._id);
@@ -289,10 +303,7 @@ export const useGetTicketSales = (actor: AppUser, event?: SingleEvent, ignoreErr
                 } else if (actor.isOwner && actor.eventRef.includes('*')) {
                     allTickets = await fetchUserTickets(url);
                 }
-                if (allTickets.length > 0) {
-                    const ordered: Ticket[] = (orderByDate(allTickets) as unknown) as Ticket[];
-                    setTickets(ordered);
-                }
+                setTickets(allTickets);
             } catch (err) {
                 setError(err);
                 console.error(err);
