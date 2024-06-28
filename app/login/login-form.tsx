@@ -106,7 +106,7 @@ export function LoginForm() {
                 </div>
             </form>
 
-            <div
+            {/* <div
                 className={cn(
                     'flex items-center justify-center gap-1',
                     textVariants({ asLabel: true })
@@ -116,7 +116,7 @@ export function LoginForm() {
                 <Link href='/register' className='text-primary underline'>
                     Sign Up
                 </Link>
-            </div>
+            </div> */}
 
             {/*<div className='relative'>
                 <div className='absolute inset-0 flex items-center'>
