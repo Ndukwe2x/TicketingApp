@@ -28,7 +28,7 @@ const EventForm = (
         {
             actor: AppUser;
             onSuccess: (data: Record<string, any>) => any;
-            onFailure?: (error?: unknown) => void;
+            onFailure?: (error?: any) => void;
             event?: SingleEvent;
         }
 ) => {
@@ -557,7 +557,13 @@ const EventForm = (
                     </div>
                     <div className="flex flex-row justify-content-between pt-5">
                         {!isFirstPage && <Button type="button" onClick={(ev) => backToPreviousPage(ev)} className="max-w-max"><Icons.backward /> Back</Button>}
-                        {isLastPage && <Button type='submit' disabled={!isCurrentPageCompleted} className="max-w-max ml-auto">Submit <Icons.forward /></Button>}
+                        {isLastPage && <Button type='submit' disabled={!isCurrentPageCompleted} className="max-w-max ml-auto">
+                            {
+                                isLoading ?
+                                    <><Icons.spinner className='mr-2 h-4 w-4 animate-spin' /> Loading...</>
+                                    : <>Submit <Icons.forward /></>
+                            }
+                        </Button>}
                         {!isLastPage && <Button type='button' disabled={!isCurrentPageCompleted} onClick={gotoNextPage} className="max-w-max ml-auto">Next <Icons.forward /></Button>}
                     </div>
                 </div>

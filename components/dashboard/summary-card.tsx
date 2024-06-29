@@ -10,7 +10,7 @@ type SummaryCardProps = {
 export function SummaryCard({ summary }: SummaryCardProps) {
     return (
         <Card className=''>
-            <CardHeader className='pb-2 flex-row items-center justify-between gap-2'>
+            {/* <CardHeader className='pb-2 flex-row items-center justify-between gap-2'>
                 <Text variant='h4' className=''>
                     {summary.title}
                 </Text>
@@ -23,7 +23,7 @@ export function SummaryCard({ summary }: SummaryCardProps) {
                 <Text asLabel className='text-xs'>
                     {summary.label}
                 </Text>
-            </CardContent>
+            </CardContent> */}
         </Card>
     );
 }
@@ -31,12 +31,12 @@ export function SummaryCard({ summary }: SummaryCardProps) {
 export function SummaryCardLoading() {
     return (
         <div className='relative'>
-            <Skeleton className='absolute h-32 w-full' />
+            {/* <Skeleton className='absolute h-32 w-full' />
             <div className='p-6'>
                 <Skeleton className='h-4 w-2/3' />
                 <Skeleton className='h-8 w-1/3 my-2' />
                 <Skeleton className='h-3 w-1/2' />
-            </div>
+            </div> */}
         </div>
     );
 }
