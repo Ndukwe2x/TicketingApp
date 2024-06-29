@@ -51,7 +51,7 @@ export function LoginForm() {
                     location.assign('/');
                 }
             }
-        } catch (error) {
+        } catch (error: any) {
             setIsLoading(false);
             console.error('Error logging in:', error);
             if (error.code) {
