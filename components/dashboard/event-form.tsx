@@ -59,6 +59,10 @@ const EventForm = (
     const [isSuccessful, setIsSuccessful] = useState(false);
     const router = useRouter();
 
+    const getInputsFromCurrentPage = () => {
+        const fieldList: string = 'input:not([type="file"]), textarea, select';
+        return (formRef.current?.querySelector(currentPageSelector)?.querySelectorAll(fieldList) as unknown) as HTMLFormControlsCollection;
+    }
 
     const updatePageStatus = useCallback(() => {
         const inputFields = getInputsFromCurrentPage();
@@ -78,7 +82,7 @@ const EventForm = (
         } else {
             setIsCurrentPageCompleted(true)
         }
-    }, []);
+    }, [getInputsFromCurrentPage]);
     updatePageStatus();
 
     React.useEffect(() => {
@@ -118,11 +122,6 @@ const EventForm = (
         };
     }, [formId, pageBaseClass]);
 
-
-    const getInputsFromCurrentPage = () => {
-        const fieldList: string = 'input:not([type="file"]), textarea, select';
-        return (formRef.current?.querySelector(currentPageSelector)?.querySelectorAll(fieldList) as unknown) as HTMLFormControlsCollection;
-    }
 
 
     const updateFormData: FormEventHandler = (ev) => {

@@ -70,7 +70,7 @@ const UserForm = (
         } else {
             setIsCurrentPageCompleted(false)
         }
-    }, []);
+    }, [getInputsFromCurrentPage]);
     updatePageStatus();
 
     React.useEffect(() => {
