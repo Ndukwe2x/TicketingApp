@@ -75,8 +75,11 @@ const AddTeamMember = ({ user, displayText, variant }: { user?: AppUser; display
 
 const SelectEventToAddTeamMember:
     React.FC<HtmlHTMLAttributes<HTMLDivElement> &
-    { onSuccess?: (data: NewlyCreatedUserAccountData) => void }
-    > = ({ children, className, onSuccess }) => {
+    {
+        onSuccess?: (data: NewlyCreatedUserAccountData) => void;
+        onFailure?: (error: any) => void;
+    }
+    > = ({ children, className, onSuccess, onFailure }) => {
 
         const actor = useAuthenticatedUser();
         const [isLoading, events, error] = useGetEventsByIds(actor?.eventRef as string[], actor as AppUser);
@@ -246,13 +249,5 @@ const SelectEventToAddTeamMember:
         );
     }
 
-const SelectableEvent = ({ event }: { event: SingleEvent }) => {
-
-    return (
-        <li>
-
-        </li>
-    )
-}
 
 export default AddTeamMember;
