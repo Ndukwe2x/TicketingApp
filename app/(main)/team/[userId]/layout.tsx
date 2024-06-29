@@ -21,13 +21,12 @@ export default function ProfileLayout({
     params: { userId: string };
 }>) {
     const actor = useAuthenticatedUser();
-    const route = usePathname();
     const { setIsTitleEnabled } = useTitle();
 
     setIsTitleEnabled(false);
 
     const { userId } = params;
-    const [isLoading, user, error] = useGetUserById(userId, actor);
+    const [isLoading, user, error] = useGetUserById(userId, actor as AppUser);
 
     if (!isLoading) {
         if (error !== null && error.code) {

@@ -2,7 +2,7 @@
 
 import React, { useCallback } from "react";
 import NotFoundPage from '@/app/not-found';
-import { useGetUserById, useGetUserProperties } from '@/hooks/useGetUsers';
+import { useGetUserById } from '@/hooks/useGetUsers';
 import NoNetwork from '@/components/no-network';
 import ProfileHeader from '@/components/profile/header';
 import ProfileCard from '@/components/profile/profile-card';
@@ -20,7 +20,7 @@ export default function ProfileLayout({
 }>) {
     const actor = useAuthenticatedUser();
     const { userId } = params;
-    const [isLoading, user, error] = useGetUserById(userId, actor);
+    const [isLoading, user, error] = useGetUserById(userId, actor as AppUser);
 
     if (!isLoading) {
         if (error !== null && error.code) {
