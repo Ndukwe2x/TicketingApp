@@ -83,7 +83,7 @@ const EventForm = (
         } else {
             setIsCurrentPageCompleted(true)
         }
-    }, []);
+    }, [formRef.current, currentPageSelector]);
     updatePageStatus();
 
     React.useEffect(() => {

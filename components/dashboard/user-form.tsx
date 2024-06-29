@@ -68,7 +68,7 @@ const UserForm = (
         } else {
             setIsCurrentPageCompleted(false)
         }
-    }, []);
+    }, [currentPageSelector]);
     updatePageStatus();
 
     React.useEffect(() => {

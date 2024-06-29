@@ -26,7 +26,7 @@ export default function MainLayout({
     // const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     const actor = useAuthenticatedUser();
-    const [client, setClient] = useState(undefined);
+    const [client, setClient] = useState<any>(null);
 
     useEffect(() => {
         if (navigator) {
@@ -45,8 +45,8 @@ export default function MainLayout({
                 <MainNav id="app-header" />
                 <div className='bg-secondary flex flex-1 flex-col md:py-16 py-8 w-full'>
                     <div className='flex relative '>
+                        <DashboardNav />
                         <main id="main" className='flex-1 overflow-y-auto lg:px-10 lg:py-10'>
-                            <DashboardNav />
                             {client && client.onLine ? (
                                 <React.Fragment>
                                     <PageHeader />
