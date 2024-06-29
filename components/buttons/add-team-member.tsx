@@ -235,7 +235,7 @@ const SelectEventToAddTeamMember:
                             </section>
                             <section id="user-selector" className="form-page">
                                 <div>
-                                    <UserForm actor={actor as AppUser} onSuccess={onSuccess} eventsToAttach={selections} />
+                                    <UserForm onSuccess={onSuccess} eventsToAttach={selections} />
                                 </div>
                             </section>
                         </div>

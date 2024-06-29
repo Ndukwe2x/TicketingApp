@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react"
+import React, { useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
@@ -15,38 +15,39 @@ import PasswordGenerator from "../password-generator";
 import { Label } from "../ui/label";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import { useCallback } from "react";
+import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 
 
 const UserForm = (
-    { actor, onSuccess, onFailure, action, isNew = true, account = null, eventsToAttach = [] }:
+    { onSuccess, onFailure, action, isNew = true, account = null, eventsToAttach = [] }:
         {
-            actor: AppUser;
-            onSuccess?: (data: NewlyCreatedUserAccountData | AppUser) => void;
+            onSuccess?: (data: NewlyCreatedUserAccountData) => void;
             onFailure?: (error?: unknown) => void;
             action?: string;
             isNew?: boolean;
             account?: AppUser | null;
-            eventsToAttach: string[]
+            eventsToAttach?: string[]
         }
 ) => {
-    const [isFirstPage, setIsFirstPage] = React.useState<boolean>(true);
-    const [isLastPage, setIsLastPage] = React.useState<boolean>(false);
-    const [isCurrentPageCompleted, setIsCurrentPageCompleted] = React.useState<boolean>(false);
-    const [pageNumber, setPageNumber] = React.useState(1);
+    const actor = useAuthenticatedUser();
+    const [isFirstPage, setIsFirstPage] = useState<boolean>(true);
+    const [isLastPage, setIsLastPage] = useState<boolean>(false);
+    const [isCurrentPageCompleted, setIsCurrentPageCompleted] = useState<boolean>(false);
+    const [pageNumber, setPageNumber] = useState<number>(1);
     const pageBaseClass = 'user-form-page';
     const pageActiveClass = 'active';
     const currentPageSelector = `.${pageBaseClass}.${pageActiveClass}`;
     const { accountTypes, userRoles } = APPCONFIG;
 
     const dynamicCurrentPage = () => document.querySelector(currentPageSelector);
-    const [pages, setPages] = React.useState<Array<Element>>([]);
-    const [pageCount, setPageCount] = React.useState(1);
-    const [selectedAccountType, setSelectedAccountType] = React.useState((account ? account.accountType : null));
-    const [selectedRole, setSelectedRole] = React.useState((account ? account.role : null));
-    // const [randomPassword, setRandomPassword] = React.useState(
+    const [pages, setPages] = useState<Array<Element>>([]);
+    const [pageCount, setPageCount] = useState(1);
+    const [selectedAccountType, setSelectedAccountType] = useState((account ? account.accountType : null));
+    const [selectedRole, setSelectedRole] = useState((account ? account.role : null));
+    // const [randomPassword, setRandomPassword] = useState(
     //     generateRandomString(10, 'alphanumeric', true)
     // );
-    const [passwordHidden, togglePasswordHidden] = React.useReducer(state => !state, true);
+    const [passwordHidden, togglePasswordHidden] = React.useReducer<boolean>(state => !state, true);
 
     const updatePageStatus = useCallback((): void => {
         const getInputsFromCurrentPage = () => {
@@ -194,20 +195,20 @@ const UserForm = (
         const form = ev.target as HTMLFormElement;
         const formData = new FormData(form);
         let finalData = (Object.fromEntries(formData.entries()) as unknown) as UserInfo;
-        if (eventsToAttach.length > 0) {
+        if (eventsToAttach?.length > 0) {
             finalData = { ...finalData, eventRef: eventsToAttach }
         }
 
         axios.post(form.action, finalData, {
             headers: {
-                Authorization: `Bearer ${actor.token}`
+                Authorization: `Bearer ${actor?.token}`
             }
         })
             .then(
                 response => {
-                    const { userId } = typeof response.data === 'string'
-                        ? JSON.parse(response.data)
-                        : response.data;
+                    // const { userId } = typeof response.data === 'string'
+                    //     ? JSON.parse(response.data)
+                    //     : response.data;
 
                     if (typeof onSuccess === 'function') {
                         onSuccess(response.data);

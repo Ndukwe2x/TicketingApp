@@ -32,7 +32,7 @@ const EditUserButton: React.FC<EditButtonProps> = ({ children, className, userId
     </Button>;
 
 
-    const handleSuccess = (data: NewlyCreatedUserAccountData | AppUser) => {
+    const handleSuccess = (data: NewlyCreatedUserAccountData) => {
         toast('User account updated!');
         setIsDialogOpen(state => !state);
         const userId: string = data instanceof UserClass ? data.id : data.userId;
@@ -44,7 +44,7 @@ const EditUserButton: React.FC<EditButtonProps> = ({ children, className, userId
 
     }
 
-    const content = <UserForm actor={actor}
+    const content = <UserForm
         onSuccess={handleSuccess}
         onFailure={handleFailure}
         isNew={false}
