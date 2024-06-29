@@ -142,11 +142,11 @@ const useGetUsersByEvent = (eventId: string, actor: AppUser):
     return [isLoading, users, error];
 }
 
-const getAuthenticatedUserFullData = async (email: string, token: string): Promise<AppUser | null> => {
+const getAuthenticatedUserFullData = async (email: string, token: string): Promise<UserInfo | null> => {
 
     const url = Api.server + Api.endpoints.admin.search + '?email=' + email;
     let result: { data: { accounts: [] } } | null = null;
-    let user: AppUser | null = null;
+    let user: UserInfo | null = null;
 
     try {
         const response = await axios.get(url, {
