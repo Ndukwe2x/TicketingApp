@@ -52,7 +52,7 @@ const CreateUserButton = ({ displayText }: { displayText?: string | React.ReactN
         actor ? (
             <Modal title={btnText}
                 displayText={displayText}
-                content={<UserForm actor={actor} onSuccess={handleSuccess} onFailure={handleFailure} />}
+                content={<UserForm onSuccess={handleSuccess} onFailure={handleFailure} />}
                 onSave={handleSave}
                 onClose={handleClose}
                 open={isDialogOpen}
