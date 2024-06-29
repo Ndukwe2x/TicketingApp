@@ -16,12 +16,13 @@ import { Checkbox } from "../ui/checkbox";
 import { CheckboxProps } from "@radix-ui/react-checkbox";
 import { Input } from "../ui/input";
 import CreateUserButton from "./create-user-button";
+import { Skeleton } from "../ui/skeleton";
 
 const AddTeamMember = ({ user, displayText, variant }: { user?: AppUser; displayText?: string | React.ReactNode; variant?: string }) => {
     const actor = useAuthenticatedUser();
     const [dialogOpenState, toggleDialogOpenState] = React.useReducer(state => !state, false);
-    const router = useRouter();
-    const event = null;
+    // const router = useRouter();
+    // const event = null;
 
     const handleClose = () => {
         toggleDialogOpenState();
@@ -52,21 +53,23 @@ const AddTeamMember = ({ user, displayText, variant }: { user?: AppUser; display
     };
 
     const handleFailure = (error: unknown) => {
-
+        toast('Unable to create user account')
     }
 
 
     return (
-        <>
+        actor ? (
             <Modal title={btnText}
                 displayText={displayText || btn}
-                content={<SelectEventToAddTeamMember onSuccess={handleSuccess} />}
+                content={<SelectEventToAddTeamMember onSuccess={handleSuccess} onFailure={handleFailure} />}
                 onSave={handleSave}
                 onClose={handleClose}
                 open={dialogOpenState}
                 onOpenChange={toggleDialogOpenState}
                 style={{ maxWidth: '45rem' }} />
-        </>
+        ) : (
+            <Skeleton className="h-10 rounded-full" />
+        )
     )
 }
 

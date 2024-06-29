@@ -16,13 +16,15 @@ import DeleteEventButton from "../buttons/delete-event-button";
 import EditEventButton from "../buttons/edit-event-button";
 import { Button } from "../ui/button";
 import { copyLink } from "@/lib/utils";
+import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 
-const EventsListActionsDropdownMenu = ({ event, actor, onSuccess }: {event: SingleEvent; actor: AppUser; onSuccess?: <T, S>(response: T, action: S) => void}) => {
+const EventsListActionsDropdownMenu = ({ event, onSuccess }: {event: SingleEvent; onSuccess?: <T, S>(response: T, action: S) => void}) => {
     const [isOpen, setIsOpen] = React.useState(false);
-    
+    const actor = useAuthenticatedUser();
     
 
     return (
+        actor &&
         <DropdownMenu onOpenChange={setIsOpen} open={isOpen}>
             <DropdownMenuTrigger asChild>
                 <Button variant='ghost' className='h-8 w-8 p-0'>

@@ -11,22 +11,22 @@ const Profile = ({ params }: { params: { userId: string } }) => {
     const actor = useAuthenticatedUser();
     const [eventsLayout, setEventsLayout] = React.useState('table');
     const [isLoading, user] = useGetUserById(userId, actor as AppUser, true);
-    
+
     return (
         user != null &&
         <Card>
             <CardHeader>
                 <CardTitle>
-                    { user.firstname }'s Events
+                    {`${user.firstname}'s Events`}
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <MyEvents layout={ eventsLayout }
+                <MyEvents layout={eventsLayout}
                     isFilteringEnabled={true}
                     filterParams={[]}
-                    owner={ user } />
+                    owner={user} />
             </CardContent>
-        </Card> 
+        </Card>
     )
 }
 

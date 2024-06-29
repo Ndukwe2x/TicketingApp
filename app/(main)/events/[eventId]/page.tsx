@@ -10,13 +10,13 @@ import { useGetEventById } from '@/hooks/useGetEvents';
 import { formatDate } from '@/lib/utils';
 import { DataTable } from '@/components/ui/data-table';
 import { ticketCategoryColumns } from '@/components/dashboard/table-columns/ticket-categories';
-import { AxiosError } from 'axios';
 import TicketsSoldForEvent from '@/components/dashboard/tickets-sold-for-event';
 import Loading from './loading';
 import { EventPosters } from '@/components/dashboard/event-posters';
 import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
 import { useGetUsersByEvent } from '@/hooks/useGetUsers';
 import { columns } from '@/components/dashboard/table-columns/team';
+import { useTitle } from '@/hooks/useTitleContext';
 
 export default function ViewEvent({ params }: { params: { eventId: string } }) {
     const actor = useAuthenticatedUser();
@@ -24,12 +24,16 @@ export default function ViewEvent({ params }: { params: { eventId: string } }) {
     const [eventLoading, event, eventError] = useGetEventById(eventId, actor as AppUser);
     const [teamLoading, organizingTeam, teamError] = useGetUsersByEvent(eventId, actor as AppUser);
     const [teamFallback, setTeamFallback] = useState('Loading team, please wait...');
+    const { setIsTitleEnabled } = useTitle();
 
     useEffect(() => {
         if (teamError) {
             setTeamFallback(teamError.message);
         }
     }, [teamLoading, organizingTeam, teamError]);
+
+    setIsTitleEnabled(false);
+
 
     return (
         event
@@ -40,8 +44,7 @@ export default function ViewEvent({ params }: { params: { eventId: string } }) {
                         <Image
                             src={event.eventBanner.url}
                             alt={event.title}
-                            objectFit='contain'
-                            className='rounded-lg event-page_event-banner'
+                            className='rounded-lg card-img event-page_event-banner'
                             width={1000}
                             height={400}
                         />

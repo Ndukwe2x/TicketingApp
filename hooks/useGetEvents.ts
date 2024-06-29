@@ -36,6 +36,13 @@ export const fetchEventsWithoutAuthorisation = async () => {
     return data.events || [];
 }
 
+/**
+ * 
+ * @param userId string
+ * @param actor AppUser
+ * @returns Promise<SingleEvent[] | [] | unknown>
+ * @throws Error | AxiosError
+ */
 export const fetchUserEvents = async (userId: string, actor: AppUser): Promise<SingleEvent[] | [] | unknown> => {
     if (!userId || !actor) {
         throw new Error('No user or actor provided');
@@ -44,7 +51,7 @@ export const fetchUserEvents = async (userId: string, actor: AppUser): Promise<S
     try {
         const user = await fetchUserById(userId, actor);
         if (user === null) {
-            return false;
+            throw new Error(`Unknown user! No user found for id: (${userId})`);
         }
         const eventIds = user.eventRef;
         const fetchedEvents = eventIds.includes('*')
@@ -181,12 +188,19 @@ export const useGetEventsByUser = (theUser: AppUser, actor: AppUser): [isLoading
         }
 
         (async () => {
-            const fetchedEvents = await fetchUserEvents(theUser.id, actor);
-
-            setEvents(fetchedEvents);
+            try {
+                const fetchedEvents = await fetchUserEvents(theUser.id, actor);
+                setEvents(fetchedEvents);
+            } catch (err) {
+                console.error(err);
+                setError(err);
+            }
         })();
 
-    }, [theUser, actor]);
+        return function cleanup() {
+
+        }
+    }, [theUser, actor, setError, setEvents]);
 
 
     return [isLoading, events, error];

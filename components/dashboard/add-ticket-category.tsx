@@ -1,15 +1,13 @@
 "use client";
 
-import React, { FormEvent, FormEventHandler, MouseEvent, useCallback, useEffect, useRef, useState } from "react";
+import React, { FormEvent, FormEventHandler, MouseEvent, useEffect, useState } from "react";
 import { Accordion, AccordionItem } from "../ui/rix-ui/accordion/accordion";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import { MdAdd, MdClose, MdPlusOne } from "react-icons/md";
+import { MdAdd, MdClose } from "react-icons/md";
 import { Button } from "../ui/button";
-import { cn, formDataToObjects, formatCurrency, parseFormFields } from "@/lib/utils";
-// import { Content } from "next/font/google";
+import { cn, formatCurrency } from "@/lib/utils";
 import { Text } from "../ui/text";
-import { toast } from "../ui/sonner";
 import { useFormData } from "@/hooks/useFormDataContext";
 
 const CallbackContext = React.createContext<any>(null);
@@ -47,7 +45,7 @@ const RenderCategoryForm = (
                 return { ...prevData, ticketCategories: ticketCategories }
             });
         }
-    }, [groupData]);
+    }, [groupData, formData, setFormData, key]);
 
     return (
         <div className='flex flex-col gap-4 p-4'>
@@ -161,8 +159,8 @@ const AddTicketCategory = ({ categories }: { categories?: TicketCategory[] | nul
     return (
         <>
             <Text variant='p' className="leading-5 mt-0 text-muted-foreground text-xs" style={{ marginTop: '0' }}>
-                Hint: Click/tap on the 'Add Ticket Category' tab to add a new category accordion panel.
-                Then, click/tap on the panel to provide details. You can add multiple categories.</Text>
+                {`Hint: Click/tap on the 'Add Ticket Category' tab to add a new category accordion panel.
+                Then, click/tap on the panel to provide details. You can add multiple categories.`}</Text>
             <Accordion id="ticket-categories">
                 {
                     (categories?.length > 0) &&

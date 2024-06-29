@@ -18,7 +18,7 @@ const TicketsSoldForEvent: React.FC<HtmlHTMLAttributes<HTMLDivElement> &
         if (!isLoading && tickets.length == 0) {
             setFallback('No tickets sold yet...');
         }
-    }, [isLoading, tickets]);
+    }, [isLoading, tickets, error]);
 
     return (
         <DataTable

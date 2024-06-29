@@ -14,26 +14,36 @@ import AddTeamMember from '../buttons/add-team-member';
 import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
 import { Button } from '../ui/button';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { Skeleton } from '../ui/skeleton';
 
 export const DashboardNav = () => {
     const actor = useAuthenticatedUser();
     const viewPort = useDeviceViewPort();
     // const [state, setState] = React.useState('collapsed');
-    let state = 'collapsed';
-    if (viewPort && viewPort?.deviceWidth && viewPort?.deviceWidth > 1200) {
+    let state = 'expanded';
+    if (viewPort && viewPort?.deviceWidth && viewPort?.deviceWidth <= 768) {
         // setState('expanded');
-        state = 'expanded';
+        state = 'collapsed';
     }
     // Testing...
     return (
         <div id='dashboard-navigation' className={cn(`transition-[width] lg:flex ${state}`)}>
             <div className='fixed top-16'>
                 <nav className='py-8 px-4 lg:px-8 border-r h-[90vh] flex flex-col gap-3'>
-                    <ul className='menu'>
+                    <ul className='menu w-full'>
                         {
-                            actor && actor.isOwner
-                                ? <OwnerMenu actor={actor as AppUser} />
-                                : <UserMenu actor={actor as AppUser} />
+                            actor ? (
+                                actor.isOwner
+                                    ? (<OwnerMenu actor={actor as AppUser} />)
+                                    : (<UserMenu actor={actor as AppUser} />)
+                            ) : (
+                                <>
+                                    <li className='mb-2'><Skeleton className='w-full h-9' /></li>
+                                    <li className='mb-2'><Skeleton className='w-full h-9' /></li>
+                                    <li className='mb-2'><Skeleton className='w-full h-9' /></li>
+                                    <li className='mb-2'><Skeleton className='w-full h-9' /></li>
+                                </>
+                            )
                         }
                     </ul>
                 </nav>
@@ -51,53 +61,56 @@ type NavItem = {
 };
 
 function MenuBuilder(menu: NavItem[]) {
-    const pathname = usePathname();
 
-    return menu.map((item, index) => {
-        const isActive = pathname === item.href;
-        const [isOpen, toggleOpen] = useReducer(state => !state, false);
-        return (
-            <li key={index} className={cn(
-                'hover:bg-primary hover:text-primary-foreground rounded-lg text-muted-foreground my-2 overflow-hidden',
-                isActive && 'bg-primary text-primary-foreground',
-                item.addon ? 'has-addon ' : '',
-                item.submenu ? 'has-submenu' : '',
-                isOpen ? 'expanded' : '')}>
-                <Link href={item.href as string}>
+    return menu.map((item, index) => (<MenuItem key={index} item={item} index={index} />));
+}
+
+const MenuItem = ({ item, index }: { item: NavItem, index: number }) => {
+    const pathname = usePathname();
+    const isActive = pathname === item.href;
+    const [isOpen, toggleOpen] = useReducer(state => !state, false);
+
+    return (
+        <li className={cn(
+            'hover:bg-primary hover:text-primary-foreground rounded-lg text-muted-foreground my-2 overflow-hidden',
+            isActive && 'bg-primary text-primary-foreground',
+            item.addon ? 'has-addon ' : '',
+            item.submenu ? 'has-submenu' : '',
+            isOpen ? 'expanded' : '')}>
+            <Link href={item.href as string}>
+                <div
+                    className={cn(
+                        'flex items-center px-3 lg:px-4 py-2 cursor-pointer font-semibold'
+                    )}
+                >
+                    <span className='text-lg'>{item.icon}</span>
                     <div
-                        className={cn(
-                            'flex items-center px-3 lg:px-4 py-2 cursor-pointer font-semibold'
-                        )}
-                    >
-                        <span className='text-lg'>{item.icon}</span>
-                        <div
-                            className={cn('text-sm overflow-hidden transition-[width]')}>
-                            <span className='pl-2 menu-text'>{item.title}</span>
-                        </div>
+                        className={cn('text-sm overflow-hidden transition-[width]')}>
+                        <span className='pl-2 menu-text'>{item.title}</span>
                     </div>
-                </Link>
-                {
-                    (item.addon) && <div className='menu-addon hidden xl:block'>{item.addon}</div>
-                }
-                {
-                    (item.submenu) && <div className='menu-toggle hidden xl:flex items-center justify-between'>
-                        <Button
-                            variant={null} onClick={() => { toggleOpen() }}
-                            className='px-1 h-auto my-auto py-0 ml-auto'>
-                            {isOpen ? <FiChevronUp size={20} /> : <FiChevronDown size={20} />}
-                        </Button>
-                    </div>
-                }
-                {
-                    (item.submenu) && (
-                        React.isValidElement(item.submenu)
-                            ? <div id={`db_menuitem_${index}_submenu`} className='submenu rounded-lg'>{item.submenu}</div>
-                            : <ul id={`db_menuitem_${index}_submenu`} className='submenu rounded-lg'>{MenuBuilder(item.submenu as NavItem[])}</ul>
-                    )
-                }
-            </li>
-        );
-    });
+                </div>
+            </Link>
+            {
+                (item.addon) && <div className='menu-addon hidden xl:block'>{item.addon}</div>
+            }
+            {
+                (item.submenu) && <div className='menu-toggle hidden xl:flex items-center justify-between'>
+                    <Button
+                        variant={null} onClick={() => { toggleOpen() }}
+                        className='px-1 h-auto my-auto py-0 ml-auto'>
+                        {isOpen ? <FiChevronUp size={20} /> : <FiChevronDown size={20} />}
+                    </Button>
+                </div>
+            }
+            {
+                (item.submenu) && (
+                    React.isValidElement(item.submenu)
+                        ? <div id={`db_menuitem_${index}_submenu`} className='submenu rounded-lg'>{item.submenu}</div>
+                        : <ul id={`db_menuitem_${index}_submenu`} className='submenu rounded-lg'>{MenuBuilder(item.submenu as NavItem[])}</ul>
+                )
+            }
+        </li>
+    );
 }
 
 
@@ -179,14 +192,3 @@ const UserMenu = ({ actor }: { actor: AppUser }) => {
         actor && MenuBuilder(menuItems)
     )
 }
-
-// function toggleSubmenu(menuId: string) {
-//     const menu = document.querySelector(menuId) as HTMLElement;
-//     const style = window.getComputedStyle(menu);
-
-//     if (style.display == 'none') {
-//         menu.style.display = 'block';
-//     } else {
-//         menu.style.display = 'none';
-//     }
-// }

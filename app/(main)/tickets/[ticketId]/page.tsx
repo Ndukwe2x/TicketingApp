@@ -3,18 +3,13 @@
 import { Api } from "@/lib/api";
 import axios, { AxiosError } from "axios";
 import React, { FormEvent, useState } from "react";
-// import * as TicketNotFound from './not-found';
-// import * as EventNotFound from '../../events/[eventId]/not-found';
 import html2PDF from "jspdf-html2canvas";
-// import html2pdf from "html2pdf.js";
 import { Text } from "@/components/ui/text";
 import TicketSlip from "@/components/ticket-slip";
 import { Button } from "@/components/ui/button";
-import { MdArrowDropDown, MdFileDownload, MdSend } from "react-icons/md";
+import { MdArrowDropDown, MdFileDownload } from "react-icons/md";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
-import { toast } from "@/components/ui/sonner";
 import TicketResendForm from "@/components/dashboard/ticket-resend-form";
 
 
@@ -26,12 +21,12 @@ export default function ViewTicket({ params }: { params: { ticketId: string } })
     const [isSendOptionsTrayOpen, toggleSendOptionsTray] = React.useReducer(state => !state, false);
     const actor = useAuthenticatedUser();
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    
+
 
     const fetchTicketEvent = async (url: string, config: {}) => {
         const res = await axios.get(url, config);
         const data = res.data.data || null;
-        if ( data == null) {
+        if (data == null) {
             return;
         }
         setEvent(data);
@@ -49,7 +44,7 @@ export default function ViewTicket({ params }: { params: { ticketId: string } })
             const result = res.data.data || [];
             const data: Ticket | null = result.tickets ? result.tickets.shift() : null;
 
-            if ( data == null ) {
+            if (data == null) {
                 throw new AxiosError('Unable to fetch ticket info.', 'Internal Server Error');
             }
 
@@ -58,7 +53,7 @@ export default function ViewTicket({ params }: { params: { ticketId: string } })
             fetchTicketEvent(eventUrl, config);
         } catch (err) {
             console.error(err);
-                setSuspenseText('Oops! Something went wrong. Unable to fetch ticket or associated event.');
+            setSuspenseText('Oops! Something went wrong. Unable to fetch ticket or associated event.');
         } finally {
             setIsLoading(false)
         }
@@ -68,10 +63,10 @@ export default function ViewTicket({ params }: { params: { ticketId: string } })
     React.useEffect(() => {
         let url: string = [Api.server, Api.endpoints.admin.searchTickets, '?referenceNo=', ticketId].join('');
 
-        if ( actor != null ) {
+        if (actor != null) {
             fetchTicketData(url, actor);
         }
-    }, [actor]);
+    }, [actor, fetchTicketData, ticketId]);
 
 
     const cardRef = React.useRef<HTMLDivElement>(null);
@@ -96,80 +91,55 @@ export default function ViewTicket({ params }: { params: { ticketId: string } })
     return (
         <>
             <div className='flex flex-col gap-5'>
-            {
-                ticket && event &&
-                <div className='grid lg:grid-cols-[3fr_2fr] gap-7'>
-                    <div id="ticket-info">
-                        <Card>
-                            <CardHeader>Details</CardHeader>
-                            <CardContent>
-                                <div className="flex gap-5 py-2 border-b">
-                                    <Text className="font-semibold text-muted-foreground w-1/3">Customer Name:</Text>
-                                    <Text>{ ticket.name }</Text>
-                                </div>
-                                <div className="flex gap-5 py-2 border-b">
-                                    <Text className="font-semibold text-muted-foreground w-1/3">Customer Email:</Text>
-                                    <Text>{ ticket.email }</Text>
-                                </div>
-                                <div className="flex gap-5 py-2 border-b">
-                                    <Text className="font-semibold text-muted-foreground w-1/3">Customer Phone No:</Text>
-                                    <Text>{ ticket.phone }</Text>
-                                </div>
-                                <div className="flex gap-5 py-2 border-b">
-                                    <Text className="font-semibold text-muted-foreground w-1/3">Ticket Category:</Text>
-                                    <Text>{ ticket.ticketCategory }</Text>
-                                </div>
-                                <div className="flex gap-5 py-2 border-b">
-                                    <Text className="font-semibold text-muted-foreground w-1/3">Quantity:</Text>
-                                    <Text>{ ticket.numberOfTickets }</Text>
-                                </div>
-                                <div className="flex gap-5 py-2 border-b">
-                                    <Text className="font-semibold text-muted-foreground w-1/3">Ticket Reference:</Text>
-                                    <Text>{ ticket.referenceNo }</Text>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-                    <div id="ticket-preview" className="flex flex-col max-w-96">
-                        <Text variant='h2' className="mb-5">Ticket</Text>
-                        <TicketSlip ticket={ ticket } event={ event } cardRef={ cardRef } />
-                        <div className="flex gap-5 mt-6">
-                            <Button onClick={printTicket}>Download Ticket <MdFileDownload size={22} className="ml-2" /></Button>
-                            <Button variant='outline' onClick={ toggleSendOptionsTray }>Send to Customer <MdArrowDropDown size={22} className="ml-2" /></Button>
+                {
+                    ticket && event &&
+                    <div className='grid lg:grid-cols-[3fr_2fr] gap-7'>
+                        <div id="ticket-info">
+                            <Card>
+                                <CardHeader>Details</CardHeader>
+                                <CardContent>
+                                    <div className="flex gap-5 py-2 border-b">
+                                        <Text className="font-semibold text-muted-foreground w-1/3">Customer Name:</Text>
+                                        <Text>{ticket.name}</Text>
+                                    </div>
+                                    <div className="flex gap-5 py-2 border-b">
+                                        <Text className="font-semibold text-muted-foreground w-1/3">Customer Email:</Text>
+                                        <Text>{ticket.email}</Text>
+                                    </div>
+                                    <div className="flex gap-5 py-2 border-b">
+                                        <Text className="font-semibold text-muted-foreground w-1/3">Customer Phone No:</Text>
+                                        <Text>{ticket.phone}</Text>
+                                    </div>
+                                    <div className="flex gap-5 py-2 border-b">
+                                        <Text className="font-semibold text-muted-foreground w-1/3">Ticket Category:</Text>
+                                        <Text>{ticket.ticketCategory}</Text>
+                                    </div>
+                                    <div className="flex gap-5 py-2 border-b">
+                                        <Text className="font-semibold text-muted-foreground w-1/3">Quantity:</Text>
+                                        <Text>{ticket.numberOfTickets}</Text>
+                                    </div>
+                                    <div className="flex gap-5 py-2 border-b">
+                                        <Text className="font-semibold text-muted-foreground w-1/3">Ticket Reference:</Text>
+                                        <Text>{ticket.referenceNo}</Text>
+                                    </div>
+                                </CardContent>
+                            </Card>
                         </div>
-                        <div id="ticket-sending-options" className={ `mt-4 ${isSendOptionsTrayOpen ? 'shown' : 'hidden'}` }>
-                            <TicketResendForm ticketId={ ticket._id } />
-                            {/* <form onSubmit={ sendTicketToCustomer }>
-                                <Select name="messageType">
-                                    <SelectTrigger>
-                                        <SelectValue placeholder='Message Type' />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="email">Email</SelectItem>
-                                        <SelectItem value="phone">Phone</SelectItem>
-                                        <SelectItem value="both">Email & Phone</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <br />
-                                <div className="text-right"><Button type="submit" >Send<MdSend size={22} className="ml-2" /></Button></div>
-                            </form> */}
+                        <div id="ticket-preview" className="flex flex-col max-w-96">
+                            <Text variant='h2' className="mb-5">Ticket</Text>
+                            <TicketSlip ticket={ticket} event={event} cardRef={cardRef} />
+                            <div className="flex gap-5 mt-6">
+                                <Button onClick={printTicket}>Download Ticket <MdFileDownload size={22} className="ml-2" /></Button>
+                                <Button variant='outline' onClick={toggleSendOptionsTray}>Send to Customer <MdArrowDropDown size={22} className="ml-2" /></Button>
+                            </div>
+                            <div id="ticket-sending-options" className={`mt-4 ${isSendOptionsTrayOpen ? 'shown' : 'hidden'}`}>
+                                <TicketResendForm ticketId={ticket._id} />
+                            </div>
                         </div>
-                    </div>
-                </div> ||
-                <div className="text-center">{ suspenseText }</div>
-            }
+                    </div> ||
+                    <div className="text-center">{suspenseText}</div>
+                }
             </div>
         </>
     );
 }
-
-// const uploadToCloudinary = (encodedFile: string) => {
-//     const reqConf = {
-
-//     };
-//     axios.post('/path/to/ticket-sender', {'ticket_img': encodedFile}, reqConf)
-//     .then(res => {
-        
-//     })
-// }
-

@@ -44,6 +44,7 @@ export class Session {
     }
 
     static async validateSession(actor: AppUser, pollIntervalInMinutes: number = 30): Promise<void> {
+
         const startTimeStr: string = getCookie(this.authTimeCookieKey, { ...cookieOptions, maxAge: undefined, expires: undefined }) as string;
         const now = new Date();
         const { minutes } = calculateTimeDifference(startTimeStr, now.toUTCString());

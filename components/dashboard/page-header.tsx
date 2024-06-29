@@ -16,6 +16,9 @@ export default function PageHeader({ children, className, ...props }: PageHeader
     const [pageTitle, setPageTitle] = useState<string | null>(null);
 
     useEffect(() => {
+        // if (!title || !titleRef || !path) {
+        //     return;
+        // }
         const route = path.slice(path.length > 1 ? 1 : path.length - 1);
         const routeArr = route.split('/');
         let page = routeArr[0] || 'dashboard';
@@ -26,18 +29,18 @@ export default function PageHeader({ children, className, ...props }: PageHeader
             titleRef.current = page;
             setPageTitle(page);
         } else if (
-            ![titleRef.current, page, pageTitle].includes(title.toLocaleLowerCase()) &&
-            page.indexOf(title.toLocaleLowerCase()) < 0
+            ![titleRef.current, page, pageTitle].includes(title?.toLocaleLowerCase() as string) &&
+            page.indexOf(title?.toLocaleLowerCase() as string) < 0
         ) {
             setPageTitle(title);
-            titleRef.current = title.toLocaleLowerCase();
+            titleRef.current = (title?.toLocaleLowerCase() as string);
         }
-    }, [title, path]);
+    }, [title, path, titleRef, , pageTitle]);
 
     return (
-        isTitleEnabled && <div className={cn('flex items-center mb-4 gap-3', className)} {...props}>
-            <NavigateBack className="xl:hidden" />
-            {pageTitle && <Heading variant='h1' className='page-title responsive-title'>{capitalCase(pageTitle)}</Heading>}
+        <div className={cn('flex items-center mb-4 gap-3', className)} {...props}>
+            <NavigateBack />
+            {isTitleEnabled && pageTitle && <Heading variant='h1' className='page-title responsive-title'>{capitalCase(pageTitle)}</Heading>}
         </div>
     )
 }

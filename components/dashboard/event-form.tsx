@@ -61,6 +61,26 @@ const EventForm = (
     const router = useRouter();
 
 
+    const updatePageStatus = () => {
+        const inputFields = getInputsFromCurrentPage();
+
+        // Check to see if the user has filled all the required fields on a the active page
+        // and activate/deactivate the forward button accordingly
+        let totalUnfilled = 0;
+        inputFields && Array.from(inputFields).forEach(field => {
+            let elem = field as TypeOfFormControl;
+            if (elem.required && !elem.value) {
+                totalUnfilled += 1;
+            }
+        });
+
+        if (totalUnfilled > 0) {
+            setIsCurrentPageCompleted(false)
+        } else {
+            setIsCurrentPageCompleted(true)
+        }
+    };
+
     React.useEffect(() => {
         const updatePages = () => {
             const pageElements = document.querySelectorAll(`.${pageBaseClass}`);
@@ -96,33 +116,13 @@ const EventForm = (
             //     console.log('Initial Values: ', processedData);
             // }
         };
-    }, []);
+    }, [formId, pageBaseClass, updatePageStatus]);
 
 
     const getInputsFromCurrentPage = () => {
         const fieldList: string = 'input:not([type="file"]), textarea, select';
         return (formRef.current?.querySelector(currentPageSelector)?.querySelectorAll(fieldList) as unknown) as HTMLFormControlsCollection;
     }
-
-    const updatePageStatus = () => {
-        const inputFields = getInputsFromCurrentPage();
-
-        // Check to see if the user has filled all the required fields on a the active page
-        // and activate/deactivate the forward button accordingly
-        let totalUnfilled = 0;
-        inputFields && Array.from(inputFields).forEach(field => {
-            let elem = field as TypeOfFormControl;
-            if (elem.required && !elem.value) {
-                totalUnfilled += 1;
-            }
-        });
-
-        if (totalUnfilled > 0) {
-            setIsCurrentPageCompleted(false)
-        } else {
-            setIsCurrentPageCompleted(true)
-        }
-    };
 
 
     const updateFormData: FormEventHandler = (ev) => {
@@ -506,7 +506,9 @@ const EventForm = (
                             <div id='banner-box' className={styles.banner_box}>
                                 <div id='banner-preview' ref={bannerRef} style={(event && event.eventBanner.url) ? { backgroundImage: `url(${event.eventBanner.url})` } : {}}
                                     className={cn(styles.image_picker_facade, styles.banner, styles.img_preview, styles.banner_preview, event ? 'flex' : 'hidden')}>
-                                    {(event && event.eventBanner.url) && <img src={event.eventBanner.url} alt={event.eventBanner.public_id} title={event.title} />}
+                                    {(event && event.eventBanner.url) && <Image src={event.eventBanner.url}
+                                        alt={event.eventBanner.public_id}
+                                        title={event.title} width="280" height="200" />}
                                     <MediaUploader.editButton name="eventBanner" onFileSelection={e => readSelectedFiles(e, previewBanner)}
                                         className={cn((event && event.eventBanner.url) && 'block')} />
                                 </div>

@@ -301,3 +301,10 @@ interface FormDataContextType {
 }
 
 type TypeOfFormControl = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+
+type ViewType = 'list' | 'grid';
+
+interface ToggleViewProps {
+    dataSetId: string;
+    setExternalViewType: React.Dispatch<React.SetStateAction<ViewType>>;
+}

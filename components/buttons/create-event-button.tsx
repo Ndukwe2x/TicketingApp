@@ -9,6 +9,7 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 import { toast } from "../ui/sonner";
 import { Api } from "@/lib/api";
+import { Skeleton } from "../ui/skeleton";
 
 interface CreateEventButtonProps extends React.HtmlHTMLAttributes<HTMLButtonElement> {
     displayText?: ReactNode | string | null;
@@ -68,7 +69,7 @@ const CreateEventButton: React.FC<CreateEventButtonProps> = ({ displayText }) =>
     }
 
     return (
-        <>
+        actor ? (
             <Modal title="Create Event"
                 displayText={displayText || <Link href={'#'}
                     className={`bg-primary border border-primary flex flex-row gap-1.5 
@@ -80,7 +81,9 @@ const CreateEventButton: React.FC<CreateEventButtonProps> = ({ displayText }) =>
                 onSave={handleSave}
                 onClose={handleClose}
             />
-        </>
+        ) : (
+            <Skeleton className="h-10 rounded-full" />
+        )
     )
 }
 

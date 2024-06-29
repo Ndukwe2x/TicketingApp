@@ -30,6 +30,7 @@ import DataCreatorButton from './buttons/data-creator-button';
 import { ToggleSidebar } from '@/lib/sidebar-toggle';
 import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
 import AddTeamMember from './buttons/add-team-member';
+import { Skeleton } from './ui/skeleton';
 
 const components: { title: string; href: string }[] = [
     {
@@ -87,7 +88,6 @@ const MainNav: React.FC<NavProps> = ({ children, className, ...props }) => {
 
 
     return (
-        actor &&
         <nav {...props} className={cn(
             'fixed w-full top-0 left-0 z-10 transition-all duration-300 bg-background border-b ' + className,
             hasScrolled && 'shadow-md bg-background'
@@ -106,24 +106,31 @@ const MainNav: React.FC<NavProps> = ({ children, className, ...props }) => {
                 </div>
                 <div className='flex flex-row items-center gap-3'>
                     {
-                        (actor !== null && (actor.canCreateUser || actor.canCreateEvent)) &&
-                        <>
-                            <div className='hidden lg:flex items-center gap-3'>
-                                {
-                                    actor.isOwner && actor.canCreateUser
-                                        ? <CreateUserButton />
-                                        : <AddTeamMember user={actor} displayText={
-                                            <Button variant='outline' className='rounded-full h-auto border-primary text-primary hover:text-white hover:bg-primary flex gap-2 items-center lg:px-4 md:px-2 md:py-2 px-1 py-1'>
-                                                <MdPersonAdd size={24} /> Add Team Member
-                                            </Button>
-                                        } variant={'default'} className="foo" />
-                                }
-                                {
-                                    actor.canCreateEvent && <CreateEventButton />
-                                }
-                            </div>
-                            <div className='lg:hidden'><DataCreatorButton /></div>
-                        </>
+                        (actor !== null && (actor.canCreateUser || actor.canCreateEvent)) ? (
+                            <>
+                                <div className='hidden lg:flex items-center gap-3'>
+                                    {
+                                        actor.isOwner && actor.canCreateUser
+                                            ? <CreateUserButton />
+                                            : <AddTeamMember user={actor} displayText={
+                                                <Button variant='outline' className='rounded-full h-auto border-primary text-primary hover:text-white hover:bg-primary flex gap-2 items-center lg:px-4 md:px-2 md:py-2 px-1 py-1'>
+                                                    <MdPersonAdd size={24} /> Add Team Member
+                                                </Button>
+                                            } variant={'default'} className="foo" />
+                                    }
+                                    {
+                                        actor.canCreateEvent && <CreateEventButton />
+                                    }
+                                </div>
+                                <div className='lg:hidden'><DataCreatorButton /></div>
+                            </>
+                        ) : (
+                            <>
+                                <Skeleton className="h-10 rounded-full" style={{ width: "10.8rem" }} />
+                                <Skeleton className="h-10 rounded-full" style={{ width: "10.8rem" }} />
+                                <Skeleton className="rounded-full" style={{ width: "2.5rem", height: "2.5rem" }} />
+                            </>
+                        )
                     }
                     <NavbarUserDashboard />
                 </div>

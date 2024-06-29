@@ -14,8 +14,8 @@ import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
 import UserClass from '@/lib/User.class';
 import NoNetwork from '@/components/no-network';
 import TitleProvider from './title-provider';
-import PageHeader from './dashboard/page-header';
 import { useTitle } from '@/hooks/useTitleContext';
+import PageHeader from '@/components/dashboard/page-header';
 
 export default function MainLayout({
     children,
@@ -26,9 +26,18 @@ export default function MainLayout({
     // const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     const actor = useAuthenticatedUser();
+    const [client, setClient] = useState(undefined);
 
-    // Validate the user session every 10 minutes to ensure that they still have a valid token;
-    // Session.validateSession(actor as AppUser, 10);
+    useEffect(() => {
+        if (navigator) {
+            setClient(navigator);
+        }
+        if (!actor || !navigator.onLine) {
+            return;
+        }
+        // Validate the user session every 10 minutes to ensure that they still have a valid token;
+        Session.validateSession(actor as AppUser, 10);
+    }, [actor, setClient]);
 
     return (
         <TitleProvider>
@@ -36,15 +45,15 @@ export default function MainLayout({
                 <MainNav id="app-header" />
                 <div className='bg-secondary flex flex-1 flex-col md:py-16 py-8 w-full'>
                     <div className='flex relative '>
-                        <DashboardNav />
                         <main id="main" className='flex-1 overflow-y-auto lg:px-10 lg:py-10'>
-                            {navigator.onLine ? (
+                            <DashboardNav />
+                            {client && client.onLine ? (
                                 <React.Fragment>
                                     <PageHeader />
                                     {children}
                                 </React.Fragment>
                             ) : (
-                                <NoNetwork />
+                                <div className='text-center w-full py-9'><NoNetwork /></div>
                             )}
                         </main>
                     </div>

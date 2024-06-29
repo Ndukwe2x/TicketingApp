@@ -53,6 +53,24 @@ const UserForm = (
     // );
     const [passwordHidden, togglePasswordHidden] = React.useReducer(state => !state, true);
 
+    const updatePageStatus = (): void => {
+        const inputs = getInputsFromCurrentPage();
+        let totalUnfilled = 0;
+
+        inputs?.forEach(item => {
+            let itemHasValue = item.value || false;
+            if (!itemHasValue) {
+                totalUnfilled += 1;
+            }
+        });
+
+        if (totalUnfilled == 0) {
+            setIsCurrentPageCompleted(true)
+        } else {
+            setIsCurrentPageCompleted(false)
+        }
+    };
+
     React.useEffect(() => {
         const updatePages = () => {
             const pageElements = document.querySelectorAll(`.${pageBaseClass}`);
@@ -75,7 +93,7 @@ const UserForm = (
             updatePageStatus();
             observer.disconnect();
         };
-    }, []);
+    }, [updatePageStatus]);
 
     getInputsFromCurrentPage()?.forEach(input => {
         ['input', 'change'].map((type) => {
@@ -84,25 +102,6 @@ const UserForm = (
             });
         });
     });
-
-    const updatePageStatus = (): void => {
-        const inputs = getInputsFromCurrentPage();
-        // console.log(inputs);
-        let totalUnfilled = 0;
-
-        inputs?.forEach(item => {
-            let itemHasValue = item.value || false;
-            if (!itemHasValue) {
-                totalUnfilled += 1;
-            }
-        });
-
-        if (totalUnfilled == 0) {
-            setIsCurrentPageCompleted(true)
-        } else {
-            setIsCurrentPageCompleted(false)
-        }
-    };
 
     const gotoNextPage = (ev: MouseEvent) => {
         ev.preventDefault();

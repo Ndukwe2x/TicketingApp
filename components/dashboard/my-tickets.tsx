@@ -50,7 +50,7 @@ const MyTickets: React.FC<HtmlHTMLAttributes<HTMLDivElement> & { layout: string;
     return (
         (tickets.length > 0)
             ? (
-                layout === 'table'
+                layout === 'list'
                     ? (
                         <DataTable className="vertical-stripe" columns={dataTableColumns.columns} data={tickets}
                             fallback={<DataTableLoading />}

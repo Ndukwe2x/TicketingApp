@@ -6,7 +6,7 @@ type GeneratorProps = HtmlHTMLAttributes<HTMLButtonElement> & {
     options?: {};
 }
 
-const PasswordGenerator: React.FC<GeneratorProps> = ({outputRef, options, onClick, ...props}) => {
+const PasswordGenerator: React.FC<GeneratorProps> = ({ outputRef, options, onClick, ...props }) => {
     options = {
         length: 12,
         numbers: true,
@@ -16,11 +16,11 @@ const PasswordGenerator: React.FC<GeneratorProps> = ({outputRef, options, onClic
         ...options
     };
     const [password, setPassword] = useState(
-        generator.generate( options )
+        generator.generate(options)
     );
 
     useEffect(() => {
-        if ( outputRef.current ) {
+        if (outputRef.current) {
             outputRef.current.value = password;
             outputRef.current.dispatchEvent(
                 new Event('change')
@@ -33,13 +33,13 @@ const PasswordGenerator: React.FC<GeneratorProps> = ({outputRef, options, onClic
                 );
             })
         }
-    }, [password]);
+    }, [outputRef, password]);
 
     const generateRandomPassword = React.useCallback(() => {
-        const newPass = generator.generate( options );
+        const newPass = generator.generate(options);
         setPassword(newPass);
-    }, []);
-    
+    }, [options]);
+
     return (
         <div>
             <button type='button' onClick={(ev) => { onClick && onClick(ev); generateRandomPassword() }} {...props}>Generate Password</button>

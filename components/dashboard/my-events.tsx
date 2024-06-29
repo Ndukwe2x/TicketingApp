@@ -17,7 +17,7 @@ const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & {
     isFilteringEnabled: boolean;
     filterParams: string[];
     owner?: AppUser | UserInfo | null;
-}> = ({ layout, isFilteringEnabled = false, filterParams = [], owner = null, ...props }) => {
+}> = ({ layout, isFilteringEnabled = false, filterParams = [], owner, ...props }) => {
     const actor = useAuthenticatedUser();
     owner = owner ?? actor;
     const { maxItemsPerPage = 10 } = APPCONFIG.paginationOptions;
@@ -38,10 +38,12 @@ const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & {
             }
             return;
         }
+
         if (rawEvents.length < 1) {
             setFallback(<div className="text-center">No event to show.</div>);
             return;
         }
+
         const orderedByDate: Record<string, string>[] = orderByDate((rawEvents as unknown) as any);
         setEvents((orderedByDate as unknown) as SingleEvent[]);
 
@@ -52,7 +54,7 @@ const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & {
 
     return (
         (events.length > 0) ? (
-            layout === 'table'
+            layout === 'list'
                 ? (
                     <DataTable className="vertical-stripe" columns={dataTableColumns.columns} data={events}
                         fallback={<DataTableLoading />}
