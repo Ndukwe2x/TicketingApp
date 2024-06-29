@@ -11,6 +11,7 @@ import InternalErrorPage from '@/app/internal-error';
 import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
 import { cn } from '@/lib/utils';
 import { useTitle } from "@/hooks/useTitleContext";
+import { useState } from "react";
 
 
 export default function ProfileLayout({
@@ -27,21 +28,37 @@ export default function ProfileLayout({
 
     const { userId } = params;
     const [isLoading, user, error] = useGetUserById(userId, actor as AppUser);
+    const [fallback, setFallback] = useState(<div className="text-center">Loading, please wait...</div>)
 
-    if (!isLoading) {
-        if (error !== null && error.code) {
-            if (error?.code === 'ERR_NETWORK') {
-                return <NoNetwork />
+
+
+    useEffect(() => {
+        if (!isLoading) {
+            return;
+        }
+        if (error !== null) {
+            if (error.code) {
+                switch (error.code) {
+                    case 'ERR_NETWORK':
+                        setFallback(<NoNetwork />)
+                        break;
+                    default:
+                        break;
+                }
             }
             if (error.response && error.response.status == 404) {
-                const res = error.response.data;
-                return <NotFoundPage text='Sorry, we could not find any user by the given id. You must have followed a broken link.' />
+                // const res = error.response.data;
+                setFallback(<NotFoundPage text='Sorry, we could not find any user by the given id. You must have followed a broken link.' />);
             }
         } else if (user === null) {
             console.error(error);
-            return <InternalErrorPage />
+            setFallback(<InternalErrorPage />);
         }
-    }
+
+        return () => {
+
+        }
+    }, [isLoading, user, error]);
 
     return (
         user &&

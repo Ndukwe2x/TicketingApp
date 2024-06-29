@@ -37,7 +37,7 @@ const CreateUserButton = ({ displayText }: { displayText?: string | React.ReactN
         location.assign('/users/' + data.userId);
     };
 
-    const handleFailure = (error: unknown) => {
+    const handleFailure = (error: any) => {
 
     }
 

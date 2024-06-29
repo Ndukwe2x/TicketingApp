@@ -4,14 +4,13 @@ import { useEffect, useState } from "react";
 import { useGetEventsByIds, useGetEventById, useGetEventsByUser, fetchUserEvents } from "./useGetEvents";
 import UserClass from "@/lib/User.class";
 import { orderByDate } from "@/lib/utils";
-import { APPCONFIG } from "@/lib/app-config";
 
-const useGetUsers = (actor: AppUser): [isLoading: boolean, users: AppUser[] | [], error: AxiosError | null] => {
+const useGetUsers = (actor: AppUser): [isLoading: boolean, users: AppUser[] | [], error: any] => {
 
     const url = Api.server + Api.endpoints.admin.search
     const [users, setUsers] = useState<AppUser[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [error, setError] = useState<AxiosError | null>(null);
+    const [error, setError] = useState<any>(null);
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -66,10 +65,14 @@ const fetchUserById = async (userId: string, actor: AppUser): Promise<UserInfo |
 
 
 const useGetUserById = (userId: string, actor: AppUser, raw: boolean = false):
-    [isLoading: boolean, user: AppUser | UserInfo | null, error: Error | AxiosError | null] => {
+    [
+        isLoading: boolean,
+        user: AppUser | UserInfo | null,
+        error: any
+    ] => {
     const [user, setUser] = useState<AppUser | UserInfo | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const [error, setError] = useState<Error | AxiosError | null>(null);
+    const [error, setError] = useState<any>(null);
 
     const fetchUser = async (userId: string, actor: AppUser) => {
         setIsLoading(true);
@@ -99,10 +102,10 @@ const useGetUserById = (userId: string, actor: AppUser, raw: boolean = false):
 
 
 const useGetUsersByEvent = (eventId: string, actor: AppUser):
-    [isLoading: boolean, users: AppUser[] | null, error: AxiosError | Error | null] => {
+    [isLoading: boolean, users: AppUser[] | null, error: any] => {
     const [users, setUsers] = useState<AppUser[] | []>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [error, setError] = useState<AxiosError | Error | null>(null);
+    const [error, setError] = useState<any>(null);
 
     useEffect(() => {
         if (actor == null) {
@@ -164,11 +167,11 @@ const getAuthenticatedUserFullData = async (email: string, token: string): Promi
 }
 
 const useGetUserProperties = (userId: string, actor: AuthInfo):
-    [user: AppUser | null, events: SingleEvent[], isLoading: boolean, error: typeof AxiosError | null] => {
+    [user: AppUser | null, events: SingleEvent[], isLoading: boolean, error: any] => {
     const [user, setUser] = useState<AppUser | null>(null);
     const [events, setEvents] = useState<SingleEvent[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<any>(null);
     const usersSrc = Api.server + Api.endpoints.admin.singleUser.replace(':id', userId);
 
     useEffect(() => {
@@ -196,10 +199,10 @@ const useGetUserProperties = (userId: string, actor: AuthInfo):
     return [user, events, isLoading, error];
 }
 
-const useGetUserTeams = (user: AppUser | null, actor: AppUser | null, ignoreError: boolean = false): [isLoading: boolean, teams: Record<string, any>[], error: unknown] => {
+const useGetUserTeams = (user: AppUser | null, actor: AppUser | null, ignoreError: boolean = false): [isLoading: boolean, teams: Record<string, any>[], error: any] => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [teams, setTeams] = useState<Record<string, any>[]>([]);
-    const [error, setError] = useState<Error | AxiosError | null | unknown>(null);
+    const [error, setError] = useState<any>(null);
 
     const fetchTeams = async (userId: string, actor: AppUser) => {
         const userEvents = await fetchUserEvents(userId, actor) as any;
@@ -265,12 +268,12 @@ const useGetTeamMembers = (user: AppUser | null, actor: AppUser | null):
     [
         isLoading: boolean,
         teamMembers: UserInfo[] | [],
-        error: Error | AxiosError<unknown, any> | null
+        error: any
     ] => {
 
     const [teamMembers, setTeamMembers] = useState<UserInfo[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [error, setError] = useState<Error | AxiosError | null>(null);
+    const [error, setError] = useState<any>(null);
     const [teamsLoading, teams, teamsError] = useGetUserTeams(user, actor);
 
     useEffect(() => {

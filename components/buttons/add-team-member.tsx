@@ -52,7 +52,7 @@ const AddTeamMember = ({ user, displayText, variant }: { user?: AppUser; display
         location.assign('/users/' + data.userId);
     };
 
-    const handleFailure = (error: unknown) => {
+    const handleFailure = (error: any) => {
         toast('Unable to create user account')
     }
 

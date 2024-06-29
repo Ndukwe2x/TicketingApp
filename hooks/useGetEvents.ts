@@ -107,7 +107,7 @@ export const useGetEventById = (refid: string, actor: AppUser, surpressError?: b
     return [isLoading, event, error];
 };
 
-export const useGetEvents = (actor: AppUser): [isLoading: boolean, events: SingleEvent[] | [], error: AxiosError | null] => {
+export const useGetEvents = (actor: AppUser): [isLoading: boolean, events: SingleEvent[] | [], error: any] => {
     const url = Api.server + Api.endpoints.admin.events;
     const [events, setEvents] = useState<SingleEvent[]>([]);
     const [error, setError] = useState<AxiosError | null>(null);
@@ -146,10 +146,10 @@ export const useGetEvents = (actor: AppUser): [isLoading: boolean, events: Singl
  * 
  * @returns `Promise<SingleEvent[] | null>`
  */
-export const useGetEventsWithoutAuthorization = (): [isLoading: boolean, events: SingleEvent[] | [], error: AxiosError | null] => {
+export const useGetEventsWithoutAuthorization = (): [isLoading: boolean, events: SingleEvent[] | [], error: any] => {
     const url = Api.server + Api.endpoints.public.events;
     const [events, setEvents] = useState<SingleEvent[] | []>([]);
-    const [error, setError] = useState<AxiosError | null>(null);
+    const [error, setError] = useState<any>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
     React.useEffect(() => {
@@ -176,10 +176,14 @@ export const useGetEventsWithoutAuthorization = (): [isLoading: boolean, events:
  * @param actor `AppUser` The current user of the application
  * @returns Returns an array of `SingleEvent` on success and an empty array `[]` otherwise 
  */
-export const useGetEventsByUser = (theUser: AppUser, actor: AppUser): [isLoading: boolean, events: SingleEvent[] | [], error: Error | AxiosError | null | unknown] => {
+export const useGetEventsByUser = (theUser: AppUser, actor: AppUser): [
+    isLoading: boolean,
+    events: SingleEvent[] | [],
+    error: any
+] => {
     const [isLoading, setIsLoading] = useState(true);
     const [events, setEvents] = useState<SingleEvent[]>([]);
-    const [error, setError] = useState<Error | AxiosError | null | unknown>(null);
+    const [error, setError] = useState<any>(null);
 
     useEffect(() => {
         if (theUser === null || actor === null) {
@@ -213,9 +217,13 @@ export const useGetEventsByUser = (theUser: AppUser, actor: AppUser): [isLoading
  * @param actor AuthInfo The current user of the application
  * @returns An array of SingleEvent object
  */
-export const useGetEventsByIds = (eventIds: string[], actor: AppUser): [isLoading: boolean, events: SingleEvent[] | [], error: AxiosError | null | unknown] => {
+export const useGetEventsByIds = (eventIds: string[], actor: AppUser): [
+    isLoading: boolean,
+    events: SingleEvent[] | [],
+    error: any
+] => {
     const [events, setEvents] = useState<SingleEvent[] | []>([]);
-    const [error, setError] = useState<AxiosError | null | unknown>(null);
+    const [error, setError] = useState<any>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
 
@@ -255,11 +263,15 @@ export const decorateEvent = async (event: SingleEvent & { ticketsSold: Ticket[]
 }
 
 export const useGetTicketSales = (actor: AppUser, event?: SingleEvent, ignoreError: boolean = false):
-    [isLoading: boolean, tickets: Ticket[] | [], error: AxiosError | null | unknown] => {
+    [
+        isLoading: boolean,
+        tickets: Ticket[] | [],
+        error: any
+    ] => {
     let url = [Api.server, Api.endpoints.admin.searchTickets].join('');
 
     const [tickets, setTickets] = useState<Ticket[] | []>([]);
-    const [error, setError] = useState<AxiosError | null | unknown>(null);
+    const [error, setError] = useState<any>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
     const decorateTickets = async (tickets: Ticket[] | []) => {

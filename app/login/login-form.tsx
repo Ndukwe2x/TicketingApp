@@ -54,9 +54,11 @@ export function LoginForm() {
         } catch (error) {
             setIsLoading(false);
             console.error('Error logging in:', error);
-            if (["ECONNABORTED", "ERR_NETWORK"].includes(error.code)) {
-                toast('Unable to login. It appears your connection was lost. Check your internet connectivity.');
-                return;
+            if (error.code) {
+                if (["ECONNABORTED", "ERR_NETWORK"].includes(error.code)) {
+                    toast('Unable to login. It appears your connection was lost. Check your internet connectivity.');
+                    return;
+                }
             }
             toast('Error logging in! Please try again.');
         }

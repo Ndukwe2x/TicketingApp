@@ -64,7 +64,7 @@ const CreateEventButton: React.FC<CreateEventButtonProps> = ({ displayText }) =>
         location.assign('/events/' + data.eventId);
     };
 
-    const handleFailure = (error: unknown) => {
+    const handleFailure = (error: any) => {
         toast("Sorry, we're unable to update the event at the moment. Please try again later.");
     }
 
