@@ -7,14 +7,13 @@ import ToggleView from '@/components/buttons/viewtype-toggle';
 
 
 export default function Events() {
-    const [layout, setLayout] = useState('list');
+    const [layout, setLayout] = useState<ViewType>('list');
 
     return (
         // (actor) &&
         <div className='flex flex-col gap-5'>
             <Card>
                 <CardHeader className='flex-row items-center justify-between'>
-                    {/* <Text variant='h4'>Events</Text> */}
                     <div className='flex flex-row self-end items-center justify-between'>
                         <ToggleView setExternalViewType={setLayout} dataSetId='events' />
                     </div>

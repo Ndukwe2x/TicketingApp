@@ -11,8 +11,8 @@ import ToggleView from '@/components/buttons/viewtype-toggle';
 
 export default function Dashboard() {
     const actor = useAuthenticatedUser();
-    const [eventsLayout, setEventsLayout] = React.useState<string>('list');
-    const [ticketsLayout, setTicketsLayout] = React.useState<string>('list');
+    const [eventsLayout, setEventsLayout] = React.useState<ViewType>('list');
+    const [ticketsLayout, setTicketsLayout] = React.useState<ViewType>('list');
     const [owner, setOwner] = React.useState<AppUser | null>(null);
 
     React.useEffect(() => {

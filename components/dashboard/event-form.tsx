@@ -59,12 +59,13 @@ const EventForm = (
     const [isSuccessful, setIsSuccessful] = useState(false);
     const router = useRouter();
 
-    const getInputsFromCurrentPage = () => {
-        const fieldList: string = 'input:not([type="file"]), textarea, select';
-        return (formRef.current?.querySelector(currentPageSelector)?.querySelectorAll(fieldList) as unknown) as HTMLFormControlsCollection;
-    }
+
 
     const updatePageStatus = useCallback(() => {
+        const getInputsFromCurrentPage = () => {
+            const fieldList: string = 'input:not([type="file"]), textarea, select';
+            return (formRef.current?.querySelector(currentPageSelector)?.querySelectorAll(fieldList) as unknown) as HTMLFormControlsCollection;
+        }
         const inputFields = getInputsFromCurrentPage();
 
         // Check to see if the user has filled all the required fields on a the active page
@@ -82,7 +83,7 @@ const EventForm = (
         } else {
             setIsCurrentPageCompleted(true)
         }
-    }, [getInputsFromCurrentPage]);
+    }, []);
     updatePageStatus();
 
     React.useEffect(() => {

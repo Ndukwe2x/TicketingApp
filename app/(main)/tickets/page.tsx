@@ -12,7 +12,7 @@ import ToggleView from '@/components/buttons/viewtype-toggle';
 
 export default function Tickets() {
     const [fallback, setFallback] = React.useState<React.JSX.Element | string>(<DataTableLoading />);
-    const [layout, setLayout] = React.useState('list');
+    const [layout, setLayout] = React.useState<ViewType>('list');
     const actor = useAuthenticatedUser();
 
     return (

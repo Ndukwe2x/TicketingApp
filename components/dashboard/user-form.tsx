@@ -39,12 +39,6 @@ const UserForm = (
     const { accountTypes, userRoles } = APPCONFIG;
 
     const dynamicCurrentPage = () => document.querySelector(currentPageSelector);
-
-    const getInputsFromCurrentPage = () => {
-        const fieldList = 'input:not([type="file"]), textarea, select';
-        return document.querySelector(currentPageSelector)?.querySelectorAll(fieldList);
-    }
-
     const [pages, setPages] = React.useState<Array<Element>>([]);
     const [pageCount, setPageCount] = React.useState(1);
     const [selectedAccountType, setSelectedAccountType] = React.useState((account ? account.accountType : null));
@@ -55,6 +49,10 @@ const UserForm = (
     const [passwordHidden, togglePasswordHidden] = React.useReducer(state => !state, true);
 
     const updatePageStatus = useCallback((): void => {
+        const getInputsFromCurrentPage = () => {
+            const fieldList = 'input:not([type="file"]), textarea, select';
+            return document.querySelector(currentPageSelector)?.querySelectorAll(fieldList);
+        }
         const inputs = getInputsFromCurrentPage();
         let totalUnfilled = 0;
 
@@ -70,7 +68,7 @@ const UserForm = (
         } else {
             setIsCurrentPageCompleted(false)
         }
-    }, [getInputsFromCurrentPage]);
+    }, []);
     updatePageStatus();
 
     React.useEffect(() => {
@@ -92,18 +90,9 @@ const UserForm = (
         observer.observe(targetNode, config);
 
         return () => {
-            updatePageStatus();
             observer.disconnect();
         };
-    }, [updatePageStatus]);
-
-    getInputsFromCurrentPage()?.forEach(input => {
-        ['input', 'change'].map((type) => {
-            input.addEventListener(type, ev => {
-                updatePageStatus();
-            });
-        });
-    });
+    }, []);
 
     const gotoNextPage = (ev: MouseEvent) => {
         ev.preventDefault();
