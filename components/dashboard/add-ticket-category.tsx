@@ -163,7 +163,7 @@ const AddTicketCategory = ({ categories }: { categories?: TicketCategory[] | nul
                 Then, click/tap on the panel to provide details. You can add multiple categories.`}</Text>
             <Accordion id="ticket-categories">
                 {
-                    (categories?.length > 0) &&
+                    (categories) &&
                     categories?.map((category, index) => <TicketCategoryGroup category={category} groupId={index} key={index} />)
                 }
                 {
