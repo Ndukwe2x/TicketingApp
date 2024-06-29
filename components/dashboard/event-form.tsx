@@ -27,7 +27,7 @@ const EventForm = (
     { actor, onSuccess, onFailure, event }:
         {
             actor: AppUser;
-            onSuccess: (data: Record<string, string>) => any;
+            onSuccess: (data: Record<string, any>) => any;
             onFailure?: (error?: unknown) => void;
             event?: SingleEvent;
         }

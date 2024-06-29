@@ -11,11 +11,11 @@ import { toast } from "../ui/sonner";
 import { cn } from "@/lib/utils";
 
 interface CreateButtonProps extends HtmlHTMLAttributes<HTMLButtonElement> {
-    actor: AppUser; 
+    actor: AppUser;
     user: AppUser;
     variant?: any;
 }
-const CreateEventForUser: React.FC<CreateButtonProps> = ({children, className, actor, user, variant, ...props }) => {
+const CreateEventForUser: React.FC<CreateButtonProps> = ({ children, className, actor, user, variant, ...props }) => {
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 
     const initDialog = () => {
@@ -30,8 +30,7 @@ const CreateEventForUser: React.FC<CreateButtonProps> = ({children, className, a
         setIsDialogOpen(false);
     }
 
-    const handleSuccess = async (response: AxiosResponse) => {
-        const data = response.data;
+    const handleSuccess = async (data: Record<string, any>) => {
         // user.setProperty('eventRef', [data.eventId, ...user.eventRef]);
         const modUser = Object.defineProperty(user, 'eventRef', [data.eventId, ...user.eventRef]);
         const url = Api.server + Api.endpoints.admin.singleUser.replace(':id', modUser.id);
@@ -53,15 +52,15 @@ const CreateEventForUser: React.FC<CreateButtonProps> = ({children, className, a
 
     return (
         <>
-            <Modal title="Create Event" 
-                displayText={ <Button variant={ variant || 'default' } type="button" className={ cn(className) } { ...props }>
-                    { children || 'Create Event' }
-                    <MdEditCalendar size={18} /></Button> 
-                } 
-                content={ <EventForm actor={actor}  onSuccess={handleSuccess} /> } 
-                onSave={ handleSave } 
-                onClose={ handleClose }
-                 />
+            <Modal title="Create Event"
+                displayText={<Button variant={variant || 'default'} type="button" className={cn(className)} {...props}>
+                    {children || 'Create Event'}
+                    <MdEditCalendar size={18} /></Button>
+                }
+                content={<EventForm actor={actor} onSuccess={handleSuccess} />}
+                onSave={handleSave}
+                onClose={handleClose}
+            />
         </>
     )
 }
