@@ -19,7 +19,7 @@ import EventEditFormSummary from "./event-edit-form-summary";
 import { FormDataContext } from "@/hooks/useFormDataContext";
 import { deleteEvent } from "@/hooks/useGetEvent";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import * as NextImage from "next/image";
 import { useCallback } from "react";
 
 
@@ -506,7 +506,7 @@ const EventForm = (
                             <div id='banner-box' className={styles.banner_box}>
                                 <div id='banner-preview' ref={bannerRef} style={(event && event.eventBanner.url) ? { backgroundImage: `url(${event.eventBanner.url})` } : {}}
                                     className={cn(styles.image_picker_facade, styles.banner, styles.img_preview, styles.banner_preview, event ? 'flex' : 'hidden')}>
-                                    {(event && event.eventBanner.url) && <Image src={event.eventBanner.url}
+                                    {(event && event.eventBanner.url) && <NextImage.default src={event.eventBanner.url}
                                         title={event.title}
                                         alt={event.eventBanner.public_id}
                                         width="280" height="200" />}
