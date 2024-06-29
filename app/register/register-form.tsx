@@ -23,75 +23,43 @@ export function RegisterForm() {
     const url = Api.server + Api.endpoints.admin.register;
     const userData = {};
 
-    const handleSubmit = async (ev: React.SyntheticEvent) => {
-        ev.preventDefault();
-        // if (!navigator.onLine) {
-        //     return (<Toaster />)
-        // }
-        const form = ev.target;
-        const validationRules = {
-            'firstname': 'required|min:3|max:45',
-            'lastname': 'required|min:3:Lastname can not be less than 3 characters.|max:45',
-        }
-        let {validated, errors} = validateForm(form, validationRules);
-        
-        if ( !validated ) {
-            // Show the error fields
-            return false;
-        }
-        setIsLoading(true);
-        
-        // const formData = new FormData(form);
-        
-        // formData.forEach((value, key) => {
-        //     console.log(value);
-        //     if (key.search(/name/)) {
-        //         key.replace(/name/, 'Name');
-        //     }
-        //     userData[key] = value;
-        // });
-        // return false;
-        // try {
-            
-        
-            // if (response.ok) {
-            //     response.json().then((data) => {
-            //         localStorage.setItem('user', JSON.stringify(data));
-            //         setIsLoading(false);
-            //         setIsSuccess(true);
-            //     });
-            //     router.push('/');
+    // const handleSubmit = async (ev: React.SyntheticEvent) => {
+    //     ev.preventDefault();
+    //     const form = ev.target;
+    //     const validationRules = {
+    //         'firstname': 'required|min:3|max:45',
+    //         'lastname': 'required|min:3:Lastname can not be less than 3 characters.|max:45',
+    //     }
+    //     let {validated, errors} = validateForm(form, validationRules);
 
-            // } else {
-                // Failure feedback...
-            //     setIsLoading(false);
-            // }
-        // } catch (error) {
-        //     setIsLoading(false);
-        //     console.error('Error logging in:', error);
-            // return (<FormFeedback />);
-        // }
-        axios.post(url, validated)
-        .then(
-            response => {
-                const data = response.data();
-                setCookie('app_user', JSON.stringify(data));
-                setIsLoading(false);
-                setIsSuccess(true);
-                router.push('/');
-            }, 
-            error => {
-                setIsLoading(false);
-            }
-        )
-        .catch( error => {
-            setIsLoading(false);
-        })
-    }
+    //     if ( !validated ) {
+    //         // Show the error fields
+    //         return false;
+    //     }
+    //     setIsLoading(true);
+
+
+    //     axios.post(url, validated)
+    //     .then(
+    //         response => {
+    //             const data = response.data();
+    //             setCookie('app_user', JSON.stringify(data));
+    //             setIsLoading(false);
+    //             setIsSuccess(true);
+    //             router.push('/');
+    //         }, 
+    //         error => {
+    //             setIsLoading(false);
+    //         }
+    //     )
+    //     .catch( error => {
+    //         setIsLoading(false);
+    //     })
+    // }
 
     return (
         <div className={cn('grid gap-6')}>
-            <form onSubmit={handleSubmit}>
+            {/* <form onSubmit={handleSubmit}>
                 <div className='grid gap-4'>
                     <div className='flex flex-col gap-4'>
                         <div className='flex flex-col'>
@@ -186,7 +154,7 @@ export function RegisterForm() {
                     <Button disabled={isLoading}>
                         {isLoading && <><Icons.spinner className='mr-2 h-4 w-4 animate-spin' /> Loading...</>}
                         {isSuccess && <><Icons.userChecked className='mr-2 h-4 w-4 text-white' /> Successful</>}
-                        { ! (isLoading || isSuccess) && <span>Sign Up</span> }
+                        {!(isLoading || isSuccess) && <span>Sign Up</span>}
                     </Button>
                 </div>
             </form>
@@ -201,7 +169,7 @@ export function RegisterForm() {
                 <Link href='/login' className='text-primary underline'>
                     Login
                 </Link>
-            </div>
+            </div> */}
 
             {/*<div className='relative'>
                 <div className='absolute inset-0 flex items-center'>
