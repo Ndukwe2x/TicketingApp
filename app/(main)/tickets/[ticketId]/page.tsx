@@ -31,42 +31,43 @@ export default function ViewTicket({ params }: { params: { ticketId: string } })
         }
         setEvent(data);
     }
-    const fetchTicketData = async (url: string, actor: AppUser) => {
-        setIsLoading(true);
-        const config = {
-            headers: {
-                Authorization: `Bearer ${actor?.token}`,
-            }
-        };
 
-        try {
-            const res = await axios.get(url, config);
-            const result = res.data.data || [];
-            const data: Ticket | null = result.tickets ? result.tickets.shift() : null;
-
-            if (data == null) {
-                throw new AxiosError('Unable to fetch ticket info.', 'Internal Server Error');
-            }
-
-            setTicket(data);
-            let eventUrl = Api.server + Api.endpoints.public.singleEvent.replace(':id', data?.eventRef);
-            fetchTicketEvent(eventUrl, config);
-        } catch (err) {
-            console.error(err);
-            setSuspenseText('Oops! Something went wrong. Unable to fetch ticket or associated event.');
-        } finally {
-            setIsLoading(false)
-        }
-
-    }
 
     React.useEffect(() => {
+        const fetchTicketData = async (url: string, actor: AppUser) => {
+            setIsLoading(true);
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${actor?.token}`,
+                }
+            };
+
+            try {
+                const res = await axios.get(url, config);
+                const result = res.data.data || [];
+                const data: Ticket | null = result.tickets ? result.tickets.shift() : null;
+
+                if (data == null) {
+                    throw new AxiosError('Unable to fetch ticket info.', 'Internal Server Error');
+                }
+
+                setTicket(data);
+                let eventUrl = Api.server + Api.endpoints.public.singleEvent.replace(':id', data?.eventRef);
+                fetchTicketEvent(eventUrl, config);
+            } catch (err) {
+                console.error(err);
+                setSuspenseText('Oops! Something went wrong. Unable to fetch ticket or associated event.');
+            } finally {
+                setIsLoading(false)
+            }
+
+        }
         let url: string = [Api.server, Api.endpoints.admin.searchTickets, '?referenceNo=', ticketId].join('');
 
         if (actor != null) {
             fetchTicketData(url, actor);
         }
-    }, [actor, fetchTicketData, ticketId]);
+    }, [actor, ticketId]);
 
 
     const cardRef = React.useRef<HTMLDivElement>(null);

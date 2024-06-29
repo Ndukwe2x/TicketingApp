@@ -15,7 +15,7 @@ const ToggleView: React.FC<ToggleViewProps> = ({ dataSetId, setExternalViewType 
             setInternalViewType(storedViewType as ViewType);
             setExternalViewType(storedViewType as ViewType);
         }
-    }, [dataSetId]);
+    }, [dataSetId, setExternalViewType]);
 
     const toggleView = (newViewType: ViewType) => {
         setInternalViewType(newViewType);

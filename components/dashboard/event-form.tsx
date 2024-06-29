@@ -10,18 +10,17 @@ import MediaUploader from "../buttons/media-uploader";
 import axios, { AxiosResponse } from "axios";
 import { Checkbox } from "../ui/checkbox";
 import AddTicketCategory from "./add-ticket-category";
-import { capitalCase, pascalCase, trainCase } from "change-case";
-import { cn, convertToDotNotation, defineStaticVariable, formDataToObjects, formatDate, parseFileToDataUri, parseFormFields } from "@/lib/utils";
+import { cn, formatDate, parseFileToDataUri, parseFormFields } from "@/lib/utils";
 import { toast } from "../ui/sonner";
 import DateTimeControls from "./event-form-datetime-control";
 import generateRandomString from "@/lib/random-string-generator";
 import { MdInfo } from "react-icons/md";
 import EventEditFormSummary from "./event-edit-form-summary";
-import { FormDataContext, useFormData } from "@/hooks/useFormDataContext";
-import { Result } from "postcss";
-import { url } from "inspector";
+import { FormDataContext } from "@/hooks/useFormDataContext";
 import { deleteEvent } from "@/hooks/useGetEvent";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { useCallback } from "react";
 
 
 const EventForm = (
@@ -61,7 +60,7 @@ const EventForm = (
     const router = useRouter();
 
 
-    const updatePageStatus = () => {
+    const updatePageStatus = useCallback(() => {
         const inputFields = getInputsFromCurrentPage();
 
         // Check to see if the user has filled all the required fields on a the active page
@@ -79,7 +78,8 @@ const EventForm = (
         } else {
             setIsCurrentPageCompleted(true)
         }
-    };
+    }, []);
+    updatePageStatus();
 
     React.useEffect(() => {
         const updatePages = () => {
@@ -98,7 +98,7 @@ const EventForm = (
 
         return () => {
             observer.disconnect();
-            updatePageStatus();
+            // updatePageStatus();
             // Update the formData state on every call on updatePageStatus
             // This helps us currate all the form data as the user fills the form,
             // and then use to create a summary of the entire user inputs
@@ -116,7 +116,7 @@ const EventForm = (
             //     console.log('Initial Values: ', processedData);
             // }
         };
-    }, [formId, pageBaseClass, updatePageStatus]);
+    }, [formId, pageBaseClass]);
 
 
     const getInputsFromCurrentPage = () => {
@@ -507,8 +507,9 @@ const EventForm = (
                                 <div id='banner-preview' ref={bannerRef} style={(event && event.eventBanner.url) ? { backgroundImage: `url(${event.eventBanner.url})` } : {}}
                                     className={cn(styles.image_picker_facade, styles.banner, styles.img_preview, styles.banner_preview, event ? 'flex' : 'hidden')}>
                                     {(event && event.eventBanner.url) && <Image src={event.eventBanner.url}
+                                        title={event.title}
                                         alt={event.eventBanner.public_id}
-                                        title={event.title} width="280" height="200" />}
+                                        width="280" height="200" />}
                                     <MediaUploader.editButton name="eventBanner" onFileSelection={e => readSelectedFiles(e, previewBanner)}
                                         className={cn((event && event.eventBanner.url) && 'block')} />
                                 </div>

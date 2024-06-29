@@ -14,6 +14,7 @@ import { capitalCase } from "change-case";
 import PasswordGenerator from "../password-generator";
 import { Label } from "../ui/label";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
+import { useCallback } from "react";
 
 
 const UserForm = (
@@ -53,7 +54,7 @@ const UserForm = (
     // );
     const [passwordHidden, togglePasswordHidden] = React.useReducer(state => !state, true);
 
-    const updatePageStatus = (): void => {
+    const updatePageStatus = useCallback((): void => {
         const inputs = getInputsFromCurrentPage();
         let totalUnfilled = 0;
 
@@ -69,7 +70,8 @@ const UserForm = (
         } else {
             setIsCurrentPageCompleted(false)
         }
-    };
+    }, []);
+    updatePageStatus();
 
     React.useEffect(() => {
         const updatePages = () => {
