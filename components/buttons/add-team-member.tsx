@@ -44,7 +44,7 @@ const AddTeamMember = ({ user, displayText, variant }: { user?: AppUser; display
     </Link>;
 
 
-    const handleSuccess = (data: AppUser | NewlyCreatedUserAccountData) => {
+    const handleSuccess = (data: NewlyCreatedUserAccountData) => {
 
         toast('User account created and successfully added as a team for the selected event(s)');
         toggleDialogOpenState();
@@ -75,7 +75,7 @@ const AddTeamMember = ({ user, displayText, variant }: { user?: AppUser; display
 
 const SelectEventToAddTeamMember:
     React.FC<HtmlHTMLAttributes<HTMLDivElement> &
-    { onSuccess?: (data: AppUser | NewlyCreatedUserAccountData) => void }
+    { onSuccess?: (data: NewlyCreatedUserAccountData) => void }
     > = ({ children, className, onSuccess }) => {
 
         const actor = useAuthenticatedUser();
