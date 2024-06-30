@@ -95,7 +95,7 @@ const MainNav: React.FC<NavProps> = ({ children, className, ...props }) => {
             <div className='flex items-center justify-between p-4 lg:px-8 mx-auto'>
                 <div className='flex items-center gap-4'>
                     <Button size={26}
-                        onClick={(ev) => { ToggleSidebar(); setOpen(state => state ? false : true) }}
+                        onClick={() => { ToggleSidebar(); setOpen(state => state ? false : true) }}
                         className={cn('text-primary outline-none bg-transparent shadow-none border-none')} style={{ background: 'none' }}>
                         {!open && <MdOutlineMenu size={26} />}
                         {open && <MdOutlineMenuOpen size={26} />}
@@ -116,7 +116,7 @@ const MainNav: React.FC<NavProps> = ({ children, className, ...props }) => {
                                                 <Button variant='outline' className='rounded-full h-auto border-primary text-primary hover:text-white hover:bg-primary flex gap-2 items-center lg:px-4 md:px-2 md:py-2 px-1 py-1'>
                                                     <MdPersonAdd size={24} /> Add Team Member
                                                 </Button>
-                                            } variant={'default'} className="foo" />
+                                            } />
                                     }
                                     {
                                         actor.canCreateEvent && <CreateEventButton />

@@ -4,25 +4,23 @@ import Link from "next/link";
 import { MdPersonAdd } from "react-icons/md";
 import UserForm from "../dashboard/user-form";
 import { toast } from "../ui/sonner";
-import { useRouter } from "next/navigation";
-import { useGetEventsByIds, useGetEventsByUser } from "@/hooks/useGetEvents";
-import { DataTable, DataTableLoading } from "../ui/data-table";
-import { columns } from "../dashboard/table-columns/checkable-events";
+import { useGetEventsByIds } from "@/hooks/useGetEvents";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 import { Button } from "../ui/button";
 import { cn, formatDate } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
-import { Checkbox } from "../ui/checkbox";
-import { CheckboxProps } from "@radix-ui/react-checkbox";
 import { Input } from "../ui/input";
-import CreateUserButton from "./create-user-button";
 import { Skeleton } from "../ui/skeleton";
+import { ReactNode } from "react";
 
-const AddTeamMember = ({ user, displayText, variant }: { user?: AppUser; displayText?: string | React.ReactNode; variant?: string }) => {
+const AddTeamMember = ({ children, user, displayText }:
+    {
+        children?: ReactNode;
+        user?: AppUser;
+        displayText?: string | React.ReactNode;
+    }) => {
     const actor = useAuthenticatedUser();
     const [dialogOpenState, toggleDialogOpenState] = React.useReducer(state => !state, false);
-    // const router = useRouter();
-    // const event = null;
 
     const handleClose = () => {
         toggleDialogOpenState();
@@ -36,7 +34,7 @@ const AddTeamMember = ({ user, displayText, variant }: { user?: AppUser; display
         ? 'Add New User'
         : 'Add Team Member'
 
-    const btn = displayText || <Link href='#'
+    const btn = displayText || children || <Link href='#'
         className={cn('border border-primary flex flex-row hover:bg-primary',
             'hover:text-primary-foreground items-end gap-1.5 py-1 md:py-2 px-1',
             'md:px-2 lg:px-4 rounded-full text-primary')}>

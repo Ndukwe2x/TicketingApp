@@ -21,11 +21,18 @@ export default function UsersListActionsDropdownMenu({ user }: { user: AppUser }
             <DropdownMenuContent align='end'>
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                 <Link href={'/users/' + user.id} className='flex gap-6 hover:bg-accent items-center justify-between p-1.5 rounded-sm w-full'>Profile <MdPerson size={18} /></Link>
-                <CreateEventForUser variant={null} actor={actor} user={user} className='flex gap-6 text-foreground hover:bg-accent items-center justify-between p-1.5 rounded-sm w-full' />
 
-                <EditUserButton variant={null} actor={actor} userId={user.id} className='flex gap-6 text-foreground hover:bg-accent items-center justify-between p-1.5 rounded-sm w-full' />
+                {actor && actor.canCreateEvent && <CreateEventForUser variant={null} actor={actor} user={user}
+                    className='flex gap-6 text-foreground hover:bg-accent items-center justify-between p-1.5 rounded-sm w-full' />}
+
+
+                {actor && actor.canUpdateUser && <EditUserButton variant={null} actor={actor} userId={user.id}
+                    className='flex gap-6 text-foreground hover:bg-accent items-center justify-between p-1.5 rounded-sm w-full' />}
+
                 <DropdownMenuSeparator />
-                <DeleteUserButton actor={actor} account={user} className='flex gap-6 hover:bg-accent items-center justify-between p-1.5 rounded-sm w-full text-destructive' />
+
+                {actor && actor.canDeleteUser && <DeleteUserButton actor={actor} account={user}
+                    className='flex gap-6 hover:bg-accent items-center justify-between p-1.5 rounded-sm w-full text-destructive' />}
 
             </DropdownMenuContent>
         </DropdownMenu>

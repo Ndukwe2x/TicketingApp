@@ -9,8 +9,9 @@ import EventForm from "../dashboard/event-form";
 interface EditButtonProps extends HtmlHTMLAttributes<HTMLButtonElement> {
     event: SingleEvent;
     actor: AppUser;
+    variant?: any;
 }
-const EditEventButton: React.FC<EditButtonProps> = ({ children, className, event, actor, ...props }) => {
+const EditEventButton: React.FC<EditButtonProps> = ({ children, className, event, actor, variant, ...props }) => {
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 
     const handleClose = () => {
@@ -21,7 +22,7 @@ const EditEventButton: React.FC<EditButtonProps> = ({ children, className, event
         setIsDialogOpen(false);
     }
 
-    const btn = <Button type="button" className={className} {...props}>
+    const btn = <Button variant={variant || 'default'} type="button" className={className} {...props}>
         {children || <>Edit Event <MdEdit size={18} className="ml-2" /></>}
     </Button>;
 

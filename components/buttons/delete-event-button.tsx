@@ -10,8 +10,9 @@ interface ButtonProps extends HtmlHTMLAttributes<HTMLButtonElement> {
     actor: AppUser;
     event: SingleEvent;
     callback?: (deletedEventId: string) => void;
+    variant?: any;
 }
-const DeleteEventButton: React.FC<ButtonProps> = ({ children, className, actor, event, callback, ...props }) => {
+const DeleteEventButton: React.FC<ButtonProps> = ({ children, className, actor, event, callback, variant, ...props }) => {
     const [isSuccessful, setIsSuccessful] = React.useState(false);
 
     const handleDeleteAction = async (ev: MouseEvent) => {
@@ -32,7 +33,7 @@ const DeleteEventButton: React.FC<ButtonProps> = ({ children, className, actor, 
     }
 
     return (
-        <Button onClick={handleDeleteAction} className={className} type="button" {...props}>
+        <Button onClick={handleDeleteAction} className={className} variant={variant || 'destructive'} type="button" {...props}>
             Delete <MdDelete size={18} className="ml-2" />
         </Button>
     )

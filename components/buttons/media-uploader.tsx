@@ -9,63 +9,66 @@ import axios from "axios";
 import signUpload from "../../lib/cloudinary-signature";
 import { snakeCase, trainCase } from "change-case";
 import { cn } from "@/lib/utils";
+import { ReactNode } from "react";
 
 
 interface UploaderProps extends React.HTMLAttributes<HTMLInputElement> {
-    onFileSelection: ( ev: React.ChangeEvent<HTMLInputElement>) => void;
+    onFileSelection: (ev: React.ChangeEvent<HTMLInputElement>) => void;
     isRequired?: boolean;
     allowMultiple?: boolean;
-    name?: string,
+    name?: string;
+    children?: ReactNode;
+    className?: string;
 }
 
 const MediaUploader = {
-    uploadButton: ( { children, className, onFileSelection, isRequired = false, allowMultiple = false, ...props }: UploaderProps ) => {
-        
+    uploadButton: ({ children, className, onFileSelection, isRequired = false, allowMultiple = false, ...props }: UploaderProps) => {
+
         return (
             <Label className={styles.upload_btn + ' image-picker upload-btn h-100 cursor-pointer'}>
-                <div className={cn( styles.media_frame, 'image-picker-facade', className )}>
+                <div className={cn(styles.media_frame, 'image-picker-facade', className)}>
                     <Icons.plus className="text-muted-foreground" height="50" width="50" />
                 </div>
-                <Input type="file" className="input hidden file_uploader" multiple={allowMultiple} 
-                accept="image/jpg, image/jpeg, image/png"
-                required={isRequired} onChange={ (e) => onFileSelection(e) } {...props} />
+                <Input type="file" className="input hidden file_uploader" multiple={allowMultiple}
+                    accept="image/jpg, image/jpeg, image/png"
+                    required={isRequired} onChange={(e) => onFileSelection(e)} {...props} />
             </Label>
         )
     },
-    editButton: ( { children, className, onFileSelection, isRequired = false, allowMultiple = false, ...props }: UploaderProps ) => {
+    editButton: ({ children, className, onFileSelection, isRequired = false, allowMultiple = false, ...props }: UploaderProps) => {
         // const props = { ...rest, className: `${styles.media_frame} ${rest.className} image-picker-facade`};
 
         return (
             <Label className={cn(styles.edit_btn, 'image-picker edit-btn h-100 cursor-pointer', className)}>
-                <div className={ styles.icon_box }>
+                <div className={styles.icon_box}>
                     <Icons.edit />
                 </div>
-                <Input type="file" className="input hidden file_uploader edit-image" multiple={allowMultiple} 
-                required={isRequired} accept="image/jpg, image/jpeg, image/png"
-                onChange={ (e) => onFileSelection(e) } {...props} />
+                <Input type="file" className="input hidden file_uploader edit-image" multiple={allowMultiple}
+                    required={isRequired} accept="image/jpg, image/jpeg, image/png"
+                    onChange={(e) => onFileSelection(e)} {...props} />
             </Label>
         )
     },
     uploadFile: async (file: File, attempts = 0, folder?: string) => {
         const { api, uploadSettings } = APPCONFIG.cloudinaryConfig;
-        let cloudinarySettings: any = {...uploadSettings};
+        let cloudinarySettings: any = { ...uploadSettings };
         const uploader = MediaUploader.uploadFile;
-        
-        if ( folder ) {
+
+        if (folder) {
             cloudinarySettings = {
                 ...cloudinarySettings,
-                folder: folder, 
+                folder: folder,
                 // public_id: snakeCase(folder + '/' + file)
             };
         }
-    
+
         const signables = {
             ...cloudinarySettings,
             // source: cloudName
         };
-        
+
         const { sortedSignableParams, signature } = signUpload(signables, api.secret);
-        
+
         const uploadData = {
             file: file,
             api_key: api.key,
@@ -88,35 +91,35 @@ const MediaUploader = {
                 }, 2000);
             } else {
                 console.error('Error uploading file: ', error);
-                response = {status: false, error: error};
+                response = { status: false, error: error };
             }
         }
 
         return response;
     },
     deleteRecentlyUploadedImages: async (images: ImageInfo[]) => {
-        async function deleteImage ({ publicId }: {publicId: string}) {
+        async function deleteImage({ publicId }: { publicId: string }) {
             const { cloudName, api } = APPCONFIG.cloudinaryConfig;
-          
-            const {sortedSignableParams, signature, timestamp} = signUpload({public_id: publicId}, api.secret);
-          
+
+            const { sortedSignableParams, signature, timestamp } = signUpload({ public_id: publicId }, api.secret);
+
             try {
                 const response = await axios
-                .post(api.destroy, {
-                    api_key: api.key,
-                    public_id: publicId,
-                    ...sortedSignableParams,
-                    signature: signature,
-                    timestamp: timestamp
-                });
-                
-                return {status: true, data: response.data};
+                    .post(api.destroy, {
+                        api_key: api.key,
+                        public_id: publicId,
+                        ...sortedSignableParams,
+                        signature: signature,
+                        timestamp: timestamp
+                    });
+
+                return { status: true, data: response.data };
             } catch (error) {
                 console.error(error);
-                return {status: false, error: error}
+                return { status: false, error: error }
             }
         };
-        
+
         const result = await Promise.all(
             images.map(image => deleteImage({ publicId: image.public_id }))
         );

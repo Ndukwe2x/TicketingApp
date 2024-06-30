@@ -2,26 +2,11 @@
 
 import * as React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
-
-import { Button } from '@/components/ui/button';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { CaretSortIcon, DotsVerticalIcon } from '@radix-ui/react-icons';
+import { CaretSortIcon } from '@radix-ui/react-icons';
 import { humanReadableDateFormat } from '@/lib/utils';
 import { Icons } from '@/components/icons';
 import Avatar from '@/components/profile/avatar';
 import Link from 'next/link';
-import DeleteUserButton from '@/components/buttons/delete-user-button';
-import EditUserButton from '@/components/buttons/edit-user-button';
-import CreateEventForUser from '@/components/buttons/create-event-for-user';
-import { MdPerson } from 'react-icons/md';
-import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
 import UsersListActionsDropdownMenu from '../users-list-actions-dropdown-menu';
 
 

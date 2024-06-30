@@ -1,16 +1,9 @@
 import React from "react";
-import { GridCard, GridCardBody, GridCardFooter, GridCardHeader, GridContent } from "@/components/ui/rix-ui/data-layouts/grid/grid";
+import { GridCard, GridCardBody, GridCardHeader, GridContent } from "@/components/ui/rix-ui/data-layouts/grid/grid";
 import { Text } from "@/components/ui/text";
-import { cn, copyLink, formatCurrency, formatDate, formatNumber } from "@/lib/utils";
+import { formatCurrency, formatDate, formatNumber } from "@/lib/utils";
 import Link from "next/link";
-import { FiEye } from "react-icons/fi";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { DotsVerticalIcon } from "@radix-ui/react-icons";
-import { Button } from "@/components/ui/button";
-import EditEventButton from "@/components/buttons/edit-event-button";
-import DeleteEventButton from "@/components/buttons/delete-event-button";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
-import { MdLink } from "react-icons/md";
 import Image from "next/image";
 import CountTicketsSoldForEvent from "../count-tickets-sold-for-event";
 import EventsListActionsDropdownMenu from "../events-list-actions-dropdown-menu";
@@ -23,10 +16,10 @@ const EventGridTemplate: React.FC<{ data: SingleEvent }> = ({ data }) => {
         <GridContent>
             <GridCard>
                 <GridCardHeader className="flex flex-col justify-end overflow-hidden p-0 relative rounded-t-[10px]">
-                    <Image className="rounded-t-[10px] w-full" objectFit="cover" objectPosition="center" src={event.eventBanner.url || ''} alt={event.title} width={300} height={120} />
+                    <Image className="rounded-t-[10px] w-full" src={event.eventBanner.url || ''} alt={event.title} width={300} height={120} />
                     <div className="absolute blackboard border-b flex gap-5 justify-between pb-4 pt-[10%] px-4 py-2 py-3 w-full">
                         <Text variant='h3'><Link href={`/events/${event._id}`}>{event.title}</Link></Text>
-                        <EventsListActionsDropdownMenu event={event} actor={actor as AppUser} />
+                        <EventsListActionsDropdownMenu event={event} />
                     </div>
                 </GridCardHeader>
                 <GridCardBody>

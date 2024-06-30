@@ -1,5 +1,5 @@
 import { Api } from "@/lib/api";
-import axios, { AxiosError, AxiosResponse } from "axios"
+import axios, { AxiosError, AxiosResponse } from "axios";
 import { useEffect, useState } from "react";
 import { useGetEventsByIds, useGetEventById, useGetEventsByUser, fetchUserEvents } from "./useGetEvents";
 import UserClass from "@/lib/User.class";
@@ -7,7 +7,7 @@ import { orderByDate } from "@/lib/utils";
 
 const useGetUsers = (actor: AppUser): [isLoading: boolean, users: AppUser[] | [], error: any] => {
 
-    const url = Api.server + Api.endpoints.admin.search
+    const url = Api.server + Api.endpoints.admin.search;
     const [users, setUsers] = useState<AppUser[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<any>(null);
@@ -78,7 +78,7 @@ const useGetUserById = (userId: string, actor: AppUser, raw: boolean = false):
         setIsLoading(true);
         try {
             const rawData = await fetchUserById(userId, actor);
-            const processedData = rawData.id ? new UserClass(rawData) : null;
+            const processedData = rawData?.id ? new UserClass(rawData) : null;
 
             if (raw) {
                 setUser(rawData);
