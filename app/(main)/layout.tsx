@@ -40,7 +40,7 @@ export default function MainLayout({
         }
         // Validate the user session every 10 minutes to ensure that they still have a valid token;
         Session.validateSession(actor as AppUser, 10);
-    }, [initialRenderRef.current, actor]);
+    }, [actor]);
 
     return (
         <TitleProvider>

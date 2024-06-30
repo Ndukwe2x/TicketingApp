@@ -16,10 +16,10 @@ const PasswordGenerator: React.FC<GeneratorProps> = ({ handleGeneratedPassword, 
         ...options
     };
 
-    const generateRandomPassword = React.useCallback(() => {
+    const generateRandomPassword = () => {
         const newPass = generator.generate(options);
         handleGeneratedPassword(newPass);
-    }, [options]);
+    };
 
     return (
         <div>

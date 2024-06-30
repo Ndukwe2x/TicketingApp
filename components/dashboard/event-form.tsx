@@ -56,7 +56,7 @@ const EventForm = (
     const formRef = useRef<HTMLFormElement>(null);
     // const isCurrentPageCompleted = useRef<boolean>(false);
     const uploadedImagesRef = useRef<{ banner: ImageInfo, posters: ImageInfo[] } | {}>({});
-    let formDataRef = useRef<Partial<SingleEvent> | {}>({});
+    // let formDataRef = useRef<Partial<SingleEvent> | {}>({});
     const bannerRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
 
@@ -100,7 +100,7 @@ const EventForm = (
                 updatePageStatus();
             })
         })
-    }, [formRef]);
+    }, [formRef, updatePageStatus]);
 
     useEffect(() => {
         const updatePages = () => {

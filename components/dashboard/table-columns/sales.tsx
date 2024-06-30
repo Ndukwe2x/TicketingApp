@@ -8,6 +8,7 @@ import Link from 'next/link';
 import SendTicketToCustomer from '@/components/buttons/ticket/resend-ticket';
 import DeleteTicket from '@/components/buttons/ticket/delete-ticket';
 import { FiEye } from 'react-icons/fi';
+import { title } from 'process';
 
 
 export const columns: ColumnDef<Ticket>[] = [
@@ -86,8 +87,9 @@ export const columns: ColumnDef<Ticket>[] = [
         accessorKey: 'actions',
         cell: ({ row }) => {
             const ticket = row.original;
+
             return (
-                <div className='flex gap-3 items-center justify-between px-2'>
+                <div id={`ticket_${ticket._id}`} className='flex gap-3 items-center justify-between px-2'>
                     <Link href={`/tickets/${ticket.referenceNo}/`}
                         className={cn('border border-primary flex flex-row gap-1.5 hover:bg-primary',
                             'hover:text-primary-foreground md:px-2 md:py-1 px-1.5 py-1 h-9',
@@ -102,7 +104,9 @@ export const columns: ColumnDef<Ticket>[] = [
                         <span className='sr' aria-description='Send ticket to customer'>Send</span>
                     </SendTicketToCustomer>
                     <DeleteTicket ticketId={ticket._id}
-                        onSuccess={data => removeTicketRow(data, 'tr')}
+                        onPending={() => handlePendingDeleteState(`#ticket_${ticket._id}`)}
+                        onSuccess={data => handleDeleteSuccessStat(data, `#ticket_${ticket._id}`)}
+                        onFailure={error => handleDeleteFailure(error, `#ticket_${ticket._id}`)}
                         variant={null}
                         className={cn('border border-destructive flex flex-row gap-1.5 bg-destructive',
                             'hover:bg-accent-destructive text-white items-center md:px-2 md:py-1 px-1.5 py-1 ',
@@ -115,8 +119,30 @@ export const columns: ColumnDef<Ticket>[] = [
     }
 ];
 
-const removeTicketRow = (data, rowSelector) => {
-
+const handlePendingDeleteState = (rowFinder: string) => {
+    const row = document.querySelector(rowFinder)?.closest('tr') as HTMLTableRowElement;
+    if (!row) {
+        return;
+    }
+    row.style.background = '#ff000047';
+    row.ariaDisabled = 'true';
 }
 
+const handleDeleteSuccessStat = (data: any, rowFinder: string) => {
+    const row = document.querySelector(rowFinder)?.closest('tr');
+    if (!row) {
+        return;
+    }
+
+    row?.remove();
+}
+
+const handleDeleteFailure = (error: any, rowFinder: string) => {
+    const row = document.querySelector(rowFinder)?.closest('tr') as HTMLTableRowElement;
+    if (!row) {
+        return;
+    }
+    row.style.background = '';
+    row.ariaDisabled = 'false';
+}
 

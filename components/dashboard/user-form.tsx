@@ -1,6 +1,6 @@
 "use client";
 
-import React, { FormEvent, useEffect, useRef, useState } from "react";
+import React, { FormEvent, useEffect, useReducer, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
@@ -45,10 +45,7 @@ const UserForm = (
     const [pageCount, setPageCount] = useState(1);
     const [selectedAccountType, setSelectedAccountType] = useState((account ? account.accountType : null));
     const [selectedRole, setSelectedRole] = useState((account ? account.role : null));
-    // const [randomPassword, setRandomPassword] = useState(
-    //     generateRandomString(10, 'alphanumeric', true)
-    // );
-    const [passwordHidden, togglePasswordHidden] = React.useReducer<boolean>(state => !state, true);
+    const [passwordHidden, togglePasswordHidden] = useReducer(state => !state, true);
     const formRef = useRef<HTMLFormElement | null>(null);
 
     const updatePageStatus = useCallback((): void => {
@@ -60,7 +57,8 @@ const UserForm = (
         let totalUnfilled = 0;
 
         inputs?.forEach(item => {
-            let itemHasValue = item.value || false;
+            const input = item as HTMLInputElement;
+            let itemHasValue = input.value || false;
             if (!itemHasValue) {
                 totalUnfilled += 1;
             }
@@ -86,14 +84,14 @@ const UserForm = (
 
         updatePages();
 
-        const observer = new MutationObserver(updatePages);
-        const config = { childList: true, subtree: true };
-        const targetNode = document.getElementById('user-form');
+        // const observer = new MutationObserver(updatePages);
+        // const config = { childList: true, subtree: true };
+        // const targetNode = document.getElementById('user-form');
 
-        observer.observe(targetNode, config);
+        // observer.observe(targetNode, config);
 
         return () => {
-            observer.disconnect();
+            // observer.disconnect();
         };
     }, []);
 
@@ -103,7 +101,8 @@ const UserForm = (
         if (!isCurrentPageCompleted) {
             return;
         }
-        if (ev.target.type == 'submit') {
+        const target = ev.target as HTMLButtonElement;
+        if (target?.type == 'submit') {
             document.getElementById('user-form')?.dispatchEvent(
                 new Event('submit')
             );
@@ -253,7 +252,7 @@ const UserForm = (
                 // }
             })
         })
-    }, [formRef]);
+    }, [formRef, updatePageStatus]);
 
     return (
         <>
