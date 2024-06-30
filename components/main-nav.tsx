@@ -126,8 +126,10 @@ const MainNav: React.FC<NavProps> = ({ children, className, ...props }) => {
                             </>
                         ) : (
                             <>
-                                <Skeleton className="h-10 rounded-full" style={{ width: "10.8rem" }} />
-                                <Skeleton className="h-10 rounded-full" style={{ width: "10.8rem" }} />
+                                <Skeleton className="lg:hidden h-10 rounded-full" style={{ width: "2.5rem", height: "2.5rem" }} />
+                                <Skeleton className="hidden lg:inline-block h-10 rounded-full" style={{ width: "10.8rem" }} />
+
+                                <Skeleton className="hidden lg:inline-block h-10 rounded-full" style={{ width: "10.8rem" }} />
                                 <Skeleton className="rounded-full" style={{ width: "2.5rem", height: "2.5rem" }} />
                             </>
                         )

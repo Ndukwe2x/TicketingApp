@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import MyEvents from '@/components/dashboard/my-events';
 import ToggleView from '@/components/buttons/viewtype-toggle';
@@ -8,6 +8,11 @@ import ToggleView from '@/components/buttons/viewtype-toggle';
 
 export default function Events() {
     const [layout, setLayout] = useState<ViewType>('list');
+
+    useEffect(() => {
+        const storedLayout = localStorage.getItem(`viewType_events`) || 'list';
+        setLayout(storedLayout as ViewType);
+    }, []);
 
     return (
         // (actor) &&

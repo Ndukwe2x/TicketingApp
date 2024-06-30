@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { FormEvent, useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
@@ -16,6 +16,7 @@ import { Label } from "../ui/label";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import { useCallback } from "react";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
+import generator from "generate-password";
 
 
 const UserForm = (
@@ -48,6 +49,7 @@ const UserForm = (
     //     generateRandomString(10, 'alphanumeric', true)
     // );
     const [passwordHidden, togglePasswordHidden] = React.useReducer<boolean>(state => !state, true);
+    const formRef = useRef<HTMLFormElement | null>(null);
 
     const updatePageStatus = useCallback((): void => {
         const getInputsFromCurrentPage = () => {
@@ -70,7 +72,7 @@ const UserForm = (
             setIsCurrentPageCompleted(false)
         }
     }, [currentPageSelector]);
-    updatePageStatus();
+    // updatePageStatus();
 
     React.useEffect(() => {
         const updatePages = () => {
@@ -187,7 +189,7 @@ const UserForm = (
         container.style.display = 'flex';
     };
 
-    const handleSubmit = (ev: SubmitEvent) => {
+    const handleSubmit = (ev: FormEvent) => {
         if (!ev.defaultPrevented) {
             ev.preventDefault();
         }
@@ -226,13 +228,38 @@ const UserForm = (
             });
     }
 
-    const passRef = React.useRef(null);
-    const rePassRef = React.useRef(null);
+    // generator.generate(options);
+    const passwordOptions = {
+        length: 12,
+        numbers: true,
+        symbols: true,
+        uppercase: true,
+        lowercase: true
+    };
+
+    const password = generator.generate(passwordOptions);
+    const [pass, setPass] = useState(password);
+    const [rePass, setRePass] = useState(password);
+
+    useEffect(() => {
+        if (formRef.current === null) {
+            return;
+        }
+        const elements = Array.from(formRef.current.elements);
+        elements.forEach((element, index) => {
+            element.addEventListener('change', (ev) => {
+                updatePageStatus();
+                // if (element.getAttribute('type') !== 'password') {
+                // }
+            })
+        })
+    }, [formRef]);
 
     return (
         <>
             <form
                 id="user-form"
+                ref={formRef}
                 action={action || Api.server + Api.endpoints.admin.register}
                 method={isNew ? 'post' : 'patch'}
                 onSubmit={handleSubmit}>
@@ -311,8 +338,8 @@ const UserForm = (
                                     <Label htmlFor='password'>Password:</Label>
                                     <div className="relative">
                                         <Input id='password' name="password" type={passwordHidden ? 'password' : 'text'}
-                                            onChange={updatePageStatus} ref={passRef}
-                                            className="text-lg responsive-text-2" placeholder='Password:' required aria-required='true' />
+                                            className="text-lg responsive-text-2" placeholder='Password:'
+                                            required aria-required='true' value={pass} onChange={(ev) => { setPass(ev.target.value); updatePageStatus() }} />
                                         <Button onClick={() => togglePasswordHidden()} variant={null}
                                             className="absolute top-0 right-0" type="button">
                                             {passwordHidden ? (<FaEye />) : (<FaEyeSlash />)}
@@ -323,17 +350,21 @@ const UserForm = (
                                     <Label htmlFor='re-password'>Re-Password:</Label>
                                     <div className="relative">
                                         <Input id='re-password' name="re_password" type={passwordHidden ? 'password' : 'text'}
-                                            onChange={updatePageStatus} ref={rePassRef}
                                             className="text-lg responsive-text-2"
                                             placeholder='Re-Password:'
-                                            required aria-required='true' />
+                                            required aria-required='true' value={rePass} onChange={(ev) => { setRePass(ev.target.value); updatePageStatus() }} />
                                         <Button onClick={() => togglePasswordHidden()} variant={null}
                                             className="absolute top-0 right-0" type="button">
                                             {passwordHidden ? (<FaEye />) : (<FaEyeSlash />)}
                                         </Button>
                                     </div>
                                 </div>
-                                <PasswordGenerator onClick={updatePageStatus} outputRef={[passRef, rePassRef]} options={{ length: 16 }} />
+                                <PasswordGenerator
+                                    handleGeneratedPassword={(randPass) => {
+                                        setPass(randPass);
+                                        setRePass(randPass)
+                                    }}
+                                    options={{ length: 16 }} />
                             </>
                         }
                     </div>

@@ -91,8 +91,8 @@ export const columns: ColumnDef<SingleEvent>[] = [
                             return (
                                 <div key={index} className='category-group'>
                                     <Text variant='p' className='font-bold'>{cat.name}</Text>
-                                    <div variant='p'>N{cat.price}</div>
-                                    <div variant='p'>{cat.qty}</div>
+                                    <Text variant='p'>N{cat.price}</Text>
+                                    <Text variant='p'>{cat.qty}</Text>
                                 </div>
                             )
                         })

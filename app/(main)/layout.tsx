@@ -7,7 +7,7 @@ import { APPCONFIG } from '@/lib/app-config';
 import { Text } from '@/components/ui/text';
 import { AppLogo } from '@/components/app-logo';
 import { FaFacebook, FaInstagram, FaXTwitter } from 'react-icons/fa6';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Session } from '@/lib/session';
 import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
@@ -16,6 +16,8 @@ import NoNetwork from '@/components/no-network';
 import TitleProvider from './title-provider';
 import { useTitle } from '@/hooks/useTitleContext';
 import PageHeader from '@/components/dashboard/page-header';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Icons } from '@/components/icons';
 
 export default function MainLayout({
     children,
@@ -27,6 +29,7 @@ export default function MainLayout({
 
     const actor = useAuthenticatedUser();
     const [client, setClient] = useState<any>(null);
+    const initialRenderRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (navigator) {
@@ -37,24 +40,35 @@ export default function MainLayout({
         }
         // Validate the user session every 10 minutes to ensure that they still have a valid token;
         Session.validateSession(actor as AppUser, 10);
-    }, [actor, setClient]);
+    }, [initialRenderRef.current, actor]);
 
     return (
         <TitleProvider>
-            <div className={cn('relative min-h-screen flex flex-col justify-between')}>
+            <div ref={initialRenderRef} className={cn('relative min-h-screen flex flex-col justify-between')}>
                 <MainNav id="app-header" />
                 <div className='bg-secondary flex flex-1 flex-col md:py-16 py-8 w-full'>
                     <div className='flex relative '>
                         <DashboardNav />
                         <main id="main" className='flex-1 overflow-y-auto lg:px-10 lg:py-10'>
-                            {client && client.onLine ? (
-                                <React.Fragment>
-                                    <PageHeader />
-                                    {children}
-                                </React.Fragment>
-                            ) : (
-                                <div className='text-center w-full py-9'><NoNetwork /></div>
-                            )}
+                            {
+                                initialRenderRef.current !== null ? (
+                                    client && !client.onLine ? (
+                                        <div className='text-center w-full py-9'><NoNetwork /></div>
+                                    ) : (
+                                        <React.Fragment>
+                                            <PageHeader />
+                                            {children}
+                                        </React.Fragment>
+                                    )
+                                ) : (
+                                    // <div style={{ zIndex: '1020' }} className='bg-primary bottom-0 fixed flex flex-col items-center justify-center left-0 right-0 text-2xl text-white top-0'>
+                                    <div className='flex flex-col items-center justify-center text-2xl text-muted-foreground pt-[10%]'>
+                                        <Icons.spinner className='h-10 w-10 animate-spin' />
+                                        <span>Loading...</span>
+                                    </div>
+                                )
+                            }
+
                         </main>
                     </div>
                 </div>

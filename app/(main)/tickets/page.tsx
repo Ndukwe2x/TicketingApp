@@ -11,9 +11,15 @@ import { useTitle } from '@/hooks/useTitleContext';
 import ToggleView from '@/components/buttons/viewtype-toggle';
 
 export default function Tickets() {
+    const actor = useAuthenticatedUser();
     const [fallback, setFallback] = React.useState<React.JSX.Element | string>(<DataTableLoading />);
     const [layout, setLayout] = React.useState<ViewType>('list');
-    const actor = useAuthenticatedUser();
+
+
+    React.useEffect(() => {
+        const storedLayout = localStorage.getItem(`viewType_tickets`) || 'list';
+        setLayout(storedLayout as ViewType);
+    }, [actor]);
 
     return (
         (actor) &&

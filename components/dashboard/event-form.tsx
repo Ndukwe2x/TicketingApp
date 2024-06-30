@@ -1,4 +1,4 @@
-import React, { FormEvent, FormEventHandler, useRef, useState } from "react";
+import React, { FormEvent, FormEventHandler, useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
@@ -20,7 +20,7 @@ import { FormDataContext } from "@/hooks/useFormDataContext";
 import { deleteEvent } from "@/hooks/useGetEvent";
 import { useRouter } from "next/navigation";
 import * as NextImage from "next/image";
-import { useCallback } from "react";
+// import { useCallback } from "react";s
 
 
 const EventForm = (
@@ -50,22 +50,25 @@ const EventForm = (
         : Api.server + Api.endpoints.admin.event.replace(':id', event?._id as string);
     const [filesToUpload, addFilesToUpload] = React.useState<{ banner: File | null, posters: File[] }>({ banner: null, posters: [] });
     const [formData, setFormData] = React.useState<Record<string, any> | SingleEvent>(event || {});
-    const uploadedImagesRef = useRef<{ banner: ImageInfo, posters: ImageInfo[] } | {}>({});
-
-    let formDataRef = useRef<Partial<SingleEvent> | {}>({});
-    const formRef = useRef<HTMLFormElement>(null);
-    const bannerRef = useRef<HTMLDivElement>(null);
-    const [isLoading, setIsLoading] = useState(false);
     const [isSuccessful, setIsSuccessful] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const formRef = useRef<HTMLFormElement>(null);
+    // const isCurrentPageCompleted = useRef<boolean>(false);
+    const uploadedImagesRef = useRef<{ banner: ImageInfo, posters: ImageInfo[] } | {}>({});
+    let formDataRef = useRef<Partial<SingleEvent> | {}>({});
+    const bannerRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
 
 
 
-    const updatePageStatus = useCallback(() => {
-        const getInputsFromCurrentPage = () => {
-            const fieldList: string = 'input:not([type="file"]), textarea, select';
-            return (formRef.current?.querySelector(currentPageSelector)?.querySelectorAll(fieldList) as unknown) as HTMLFormControlsCollection;
-        }
+
+    const getInputsFromCurrentPage = () => {
+        const fieldList: string = 'input:not([type="file"]), textarea, select';
+        return (formRef.current?.querySelector(currentPageSelector)?.querySelectorAll(fieldList) as unknown) as HTMLFormControlsCollection;
+    };
+
+    const updatePageStatus = () => {
         const inputFields = getInputsFromCurrentPage();
 
         // Check to see if the user has filled all the required fields on a the active page
@@ -80,13 +83,26 @@ const EventForm = (
 
         if (totalUnfilled > 0) {
             setIsCurrentPageCompleted(false)
+            // isCurrentPageCompleted.current = false;
         } else {
             setIsCurrentPageCompleted(true)
+            // isCurrentPageCompleted.current = true;
         }
-    }, [currentPageSelector]);
-    updatePageStatus();
+    };
 
-    React.useEffect(() => {
+    useEffect(() => {
+        if (formRef.current === null) {
+            return;
+        }
+        const elements = Array.from(formRef.current.elements);
+        elements.forEach(element => {
+            element.addEventListener('change', (ev) => {
+                updatePageStatus();
+            })
+        })
+    }, [formRef]);
+
+    useEffect(() => {
         const updatePages = () => {
             const pageElements = document.querySelectorAll(`.${pageBaseClass}`);
             setPages(Array.from(pageElements));
@@ -95,14 +111,14 @@ const EventForm = (
 
         updatePages();
 
-        const observer = new MutationObserver(updatePages);
-        const config = { childList: true, subtree: true };
-        const targetNode = document.getElementById(formId) as Node;
+        // const observer = new MutationObserver(updatePages);
+        // const config = { childList: true, subtree: true };
+        // // const targetNode = document.getElementById(formId) as Node;
 
-        observer.observe(targetNode, config);
+        // observer.observe(formRef.current as Node, config);
 
         return () => {
-            observer.disconnect();
+            // observer.disconnect();
             // updatePageStatus();
             // Update the formData state on every call on updatePageStatus
             // This helps us currate all the form data as the user fills the form,
@@ -121,7 +137,7 @@ const EventForm = (
             //     console.log('Initial Values: ', processedData);
             // }
         };
-    }, [formId, pageBaseClass]);
+    }, [pageBaseClass]);
 
 
 

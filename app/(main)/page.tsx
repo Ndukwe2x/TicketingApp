@@ -11,15 +11,20 @@ import ToggleView from '@/components/buttons/viewtype-toggle';
 
 export default function Dashboard() {
     const actor = useAuthenticatedUser();
+    const [owner, setOwner] = React.useState<AppUser | null>(null);
     const [eventsLayout, setEventsLayout] = React.useState<ViewType>('list');
     const [ticketsLayout, setTicketsLayout] = React.useState<ViewType>('list');
-    const [owner, setOwner] = React.useState<AppUser | null>(null);
+
 
     React.useEffect(() => {
         if (actor != null && actor?.isUser) {
             setOwner(actor);
         }
-    }, [actor])
+        const storedEventsLayout = localStorage.getItem(`viewType_events`) || 'list';
+        const storedTicketsLayout = localStorage.getItem(`viewType_tickets`) || 'list';
+        setEventsLayout(storedEventsLayout as ViewType);
+        setTicketsLayout(storedTicketsLayout as ViewType);
+    }, [actor]);
 
     return (
         <div className='flex flex-col gap-5'>

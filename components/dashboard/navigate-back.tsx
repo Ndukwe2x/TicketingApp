@@ -1,14 +1,24 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { FaChevronLeft } from "react-icons/fa6";
 import { useRouter, usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-const NavigateBack: React.FC<React.HtmlHTMLAttributes<HTMLDivElement>> = ({children, className, ...props}) => {
+const NavigateBack: React.FC<React.HtmlHTMLAttributes<HTMLDivElement>> = ({ children, className, ...props }) => {
     const router = useRouter();
     const route = usePathname();
+    const [refererUrl, setRefererUrl] = useState<string>('');
+
+    useEffect(() => {
+        if (document.referrer) {
+            setRefererUrl(document.referrer);
+        }
+        return () => { };
+    }, []);
+
     const backward = () => {
-        if (route == '/') return;
+        const refererPath = refererUrl.split('?').shift();
+        if (route === '/' || refererPath === '/login') return;
         router.back();
     }
 

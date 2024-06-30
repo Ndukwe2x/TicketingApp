@@ -1,21 +1,17 @@
-// ToggleViewComponent.tsx
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/button';
 import { MdGridView, MdViewList } from "react-icons/md";
 
 
 const ToggleView: React.FC<ToggleViewProps> = ({ dataSetId, setExternalViewType }) => {
-    const [viewType, setInternalViewType] = useState<ViewType>('grid');
-    setExternalViewType(viewType);
+    const [viewType, setInternalViewType] = useState<ViewType>('list');
 
     useEffect(() => {
         const storedViewType = localStorage.getItem(`viewType_${dataSetId}`);
         if (storedViewType) {
             setInternalViewType(storedViewType as ViewType);
-            setExternalViewType(storedViewType as ViewType);
         }
-    }, [dataSetId, setExternalViewType]);
+    }, [dataSetId]);
 
     const toggleView = (newViewType: ViewType) => {
         setInternalViewType(newViewType);

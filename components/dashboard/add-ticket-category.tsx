@@ -1,6 +1,6 @@
 "use client";
 
-import React, { FormEvent, FormEventHandler, MouseEvent, useEffect, useState } from "react";
+import React, { FormEvent, FormEventHandler, MouseEvent, useEffect, useRef, useState } from "react";
 import { Accordion, AccordionItem } from "../ui/rix-ui/accordion/accordion";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
@@ -10,7 +10,7 @@ import { cn, formatCurrency } from "@/lib/utils";
 import { Text } from "../ui/text";
 import { useFormData } from "@/hooks/useFormDataContext";
 
-const CallbackContext = React.createContext<any>(null);
+// const CallbackContext = React.createContext<any>(null);
 const RenderCategoryForm = (
     onNameChange: (ev: FormEvent<HTMLInputElement>) => void,
     onPriceChange: (ev: FormEvent<HTMLInputElement>) => void,
@@ -20,7 +20,7 @@ const RenderCategoryForm = (
 
     const { formData, setFormData } = useFormData() as FormDataContextType;
     const [groupData, setGroupData] = useState({});
-
+    const currentFormData = useRef<Record<string, any>>({ ...formData });
     const handleInput: FormEventHandler<HTMLInputElement> = (ev) => {
         const { name, value } = ev.target as HTMLInputElement;
         const fieldRole = name.split('[').pop();
@@ -33,9 +33,8 @@ const RenderCategoryForm = (
 
     useEffect(() => {
         if (Object.values(groupData).length) {
-            let currentFormData: Partial<SingleEvent> = { ...formData };
-            if (!currentFormData.ticketCategories || typeof currentFormData.ticketCategories === 'string') {
-                currentFormData.ticketCategories = [];
+            if (!currentFormData.current.ticketCategories || typeof currentFormData.current.ticketCategories === 'string') {
+                currentFormData.current.ticketCategories = [];
             }
             const index: number = typeof key === 'string' ? parseInt(key, 10) : key;
 
@@ -45,7 +44,7 @@ const RenderCategoryForm = (
                 return { ...prevData, ticketCategories: ticketCategories }
             });
         }
-    }, [groupData, formData, setFormData, key]);
+    }, [groupData, currentFormData, setFormData, key]);
 
     return (
         <div className='flex flex-col gap-4 p-4'>
@@ -86,7 +85,7 @@ const TicketCategoryGroup: React.FC<CategoryGroupProps> = ({ children, className
     const priceRef = React.useRef<HTMLSpanElement>(null);
 
     /******* Show the Category name and price while the user types ********/
-    const onNameChange = React.useCallback((ev: FormEvent<HTMLInputElement>) => {
+    const onNameChange = (ev: FormEvent<HTMLInputElement>) => {
         if (!nameRef || !nameRef.current) {
             return;
         }
@@ -98,9 +97,9 @@ const TicketCategoryGroup: React.FC<CategoryGroupProps> = ({ children, className
             v = 'Category Name';
         }
         nameRef.current.innerText = v;
-    }, []);
+    };
 
-    const onPriceChange = React.useCallback((ev: FormEvent<HTMLInputElement>) => {
+    const onPriceChange = (ev: FormEvent<HTMLInputElement>) => {
         if (!priceRef || !priceRef.current) {
             return;
         }
@@ -112,7 +111,7 @@ const TicketCategoryGroup: React.FC<CategoryGroupProps> = ({ children, className
             v = 'Price';
         }
         priceRef.current.innerText = v;
-    }, []);
+    };
 
 
     /******** Enables deletion of category group if need be ********/
