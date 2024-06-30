@@ -7,7 +7,7 @@ import { useGetTicketSales } from "@/hooks/useGetEvents";
 import NoNetwork from "../no-network";
 import { DataTable, DataTableLoading } from "../ui/data-table";
 import { DataGrid } from "../ui/data-grid";
-import * as dataTableColumns from "./table-columns/sales";
+import { columns } from "./table-columns/sales";
 import InternalErrorPage from "@/app/internal-error";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 import TicketGridTemplate from "./grid-data-templates/ticket";
@@ -54,14 +54,14 @@ const MyTickets: React.FC<HtmlHTMLAttributes<HTMLDivElement> & { layout: string;
                     ? (
                         <DataTable
                             className="vertical-stripe"
-                            columns={dataTableColumns.columns}
+                            columns={columns}
                             data={tickets}
                             fallback={<DataTableLoading />}
                             isFilteringEnabled={true}
                             filterFields={filterParams}>
                             <colgroup>
                                 {
-                                    dataTableColumns.columns.map((column, index) => <col key={index} />)
+                                    columns.map((column, index) => <col key={index} />)
                                 }
                             </colgroup>
                         </DataTable>

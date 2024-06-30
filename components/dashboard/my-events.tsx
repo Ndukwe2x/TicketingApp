@@ -4,7 +4,7 @@ import React, { HtmlHTMLAttributes, useState } from "react";
 import { DataTable, DataTableLoading } from "../ui/data-table";
 import { useGetEvents, useGetEventsByIds, useGetEventsByUser } from "@/hooks/useGetEvents";
 import NoNetwork from "../no-network";
-import * as dataTableColumns from "./table-columns/events";
+import { columns } from "./table-columns/events";
 import { DataGrid } from "../ui/data-grid";
 import InternalErrorPage from "@/app/internal-error";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
@@ -56,13 +56,13 @@ const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & {
         (events.length > 0) ? (
             layout === 'list'
                 ? (
-                    <DataTable className="vertical-stripe" columns={dataTableColumns.columns} data={events}
+                    <DataTable className="vertical-stripe" columns={columns} data={events}
                         fallback={<DataTableLoading />}
                         isFilteringEnabled={true}
                         filterFields={filterParams}>
                         <colgroup>
                             {
-                                dataTableColumns.columns.map((column, index) => <col id={column.id} key={index} />)
+                                columns.map((column, index) => <col id={column.id} key={index} />)
                             }
                         </colgroup>
                     </DataTable>

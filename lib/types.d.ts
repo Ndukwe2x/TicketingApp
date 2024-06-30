@@ -108,6 +108,25 @@ type Ticket = {
     referenceNo: number;
     __v: 0;
     event_title?: string;
+    event?: SingleEvent | null;
+}
+interface TicketProps {
+    _id: string;
+    eventRef: string;
+    name: string;
+    email: string;
+    phone: string;
+    dateOfPurchase: string; //"2024-03-01T10:43:30.521Z",
+    ticketCategory: string;
+    amountPaid: number;
+    numberOfTickets: number;
+    referenceNo: number;
+    __v: 0;
+    event_title?: string;
+}
+
+interface TicketColumnDefProps extends TicketProps {
+    event: SingleEvent | null;
 }
 
 type DashboardSummaryItem = {
