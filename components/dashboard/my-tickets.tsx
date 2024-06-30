@@ -52,7 +52,10 @@ const MyTickets: React.FC<HtmlHTMLAttributes<HTMLDivElement> & { layout: string;
             ? (
                 layout === 'list'
                     ? (
-                        <DataTable className="vertical-stripe" columns={dataTableColumns.columns} data={tickets}
+                        <DataTable
+                            className="vertical-stripe"
+                            columns={dataTableColumns.columns}
+                            data={tickets}
                             fallback={<DataTableLoading />}
                             isFilteringEnabled={true}
                             filterFields={filterParams}>

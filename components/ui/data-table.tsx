@@ -29,23 +29,26 @@ import { Skeleton } from './skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select';
 import * as ChangeCase from "change-case";
 import '../../app/globals.css';
+import { ReactNode } from 'react';
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
-    fallback: string;
+    fallback: string | ReactNode;
     isFilteringEnabled?: boolean;
     filterFields?: string[];
+    children?: ReactNode;
+    className?: string;
 }
 
-export function DataTable <TData, TValue> ({ children, columns, data, fallback, isFilteringEnabled = false, filterFields = [], ...props }: DataTableProps<TData, TValue>) {
-    
+export function DataTable<TData, TValue>({ children, columns, data, fallback, isFilteringEnabled = false, filterFields = [], ...props }: DataTableProps<TData, TValue>) {
+
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = React.useState({});
     const [filterField, setFilterField] = React.useState('');
-    const {className} = props;
+    const { className } = props;
 
     const table = useReactTable({
         data,
@@ -74,20 +77,20 @@ export function DataTable <TData, TValue> ({ children, columns, data, fallback, 
     return (
         <div className='w-full'>
             {
-                isFilteringEnabled && 
+                isFilteringEnabled &&
                 <div className='grid gap-3 sm:gap-5 md:grid-cols-3 pb-4 sm:grid-cols-2 sm:items-end lg:grid-cols-[2fr_3fr_4fr]'>
                     {
                         filterFields &&
                         <div className="filter-field w">
                             <span>Filter by:</span>
-                            <Select name="field" onValueChange={ (value) => setFilterField(value) }>
+                            <Select name="field" onValueChange={(value) => setFilterField(value)}>
                                 <SelectTrigger>
                                     <SelectValue placeholder='Filter field' />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {
-                                        filterFields.map((field, index) => <SelectItem key={index} 
-                                        value={field}>{ ChangeCase.capitalCase(ChangeCase.camelCase(field)) }</SelectItem>)
+                                        filterFields.map((field, index) => <SelectItem key={index}
+                                            value={field}>{ChangeCase.capitalCase(ChangeCase.camelCase(field))}</SelectItem>)
                                     }
                                 </SelectContent>
                             </Select>
@@ -105,8 +108,8 @@ export function DataTable <TData, TValue> ({ children, columns, data, fallback, 
                 </div>
             }
             <div className='overflow-auto'>
-                <Table className={ 'min-w-[50rem] data-table ' + className }>
-                    { children }
+                <Table className={'min-w-[50rem] data-table ' + className}>
+                    {children}
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id} className='bg-gray-400/40'>
@@ -116,9 +119,9 @@ export function DataTable <TData, TValue> ({ children, columns, data, fallback, 
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(
-                                                      header.column.columnDef.header,
-                                                      header.getContext()
-                                                  )}
+                                                    header.column.columnDef.header,
+                                                    header.getContext()
+                                                )}
                                         </TableHead>
                                     );
                                 })}
@@ -145,7 +148,7 @@ export function DataTable <TData, TValue> ({ children, columns, data, fallback, 
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={columns.length} className='h-24 md:text-center'>
-                                    { fallback }
+                                    {fallback}
                                 </TableCell>
                             </TableRow>
                         )}
@@ -181,17 +184,17 @@ export function DataTable <TData, TValue> ({ children, columns, data, fallback, 
     );
 }
 
-export function DataTableLoading({showHeader, columnCount}: {showHeader?: boolean, columnCount?: number}) {
+export function DataTableLoading({ showHeader, columnCount }: { showHeader?: boolean, columnCount?: number }) {
     let columns = [];
     if (showHeader && columnCount) {
         for (let i = 0; i < columnCount; i++) {
-            columns.push(i);      
+            columns.push(i);
         }
     }
     return (
         <div>
             {
-                showHeader && columnCount && 
+                showHeader && columnCount &&
                 <div className='flex gap-4'>
                     {columns.map((i) => (
                         <Skeleton key={i} className='w-full h-6' />
