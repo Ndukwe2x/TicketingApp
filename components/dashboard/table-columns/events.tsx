@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { CaretSortIcon } from '@radix-ui/react-icons';
-import { formatDate } from '@/lib/utils';
+import { formatCurrency, formatDate, formatNumber } from '@/lib/utils';
 import { Text } from '@/components/ui/text';
 import CountTicketsSoldForEvent from '../count-tickets-sold-for-event';
 import EventsListActionsDropdownMenu from '../events-list-actions-dropdown-menu';
@@ -85,19 +85,19 @@ export const columns: ColumnDef<SingleEvent>[] = [
         header: () => <div style={{ width: '16rem' }}>Ticket Categories</div>,
         cell: ({ row }) => {
             return (
-                <div className='gap-1.5 grid grid-cols-3 ticket-categories'>
-                    {
-                        row.original.ticketCategories.map((cat, index) => {
-                            return (
-                                <div key={index} className='category-group'>
-                                    <Text variant='p' className='font-bold'>{cat.name}</Text>
-                                    <Text variant='p'>N{cat.price}</Text>
-                                    <Text variant='p'>{cat.qty}</Text>
-                                </div>
-                            )
-                        })
-                    }
-                </div>
+                // <div className='gap-1.5 grid grid-cols-3 ticket-categories'>
+                // </div>
+                // {
+                row.original.ticketCategories.map((cat, index) => {
+                    return (
+                        <div key={index} className='flex items-center justify-between gap-2 category-group'>
+                            <span className='font-bold'>{cat.name}</span>
+                            <span className='ml-auto'>({formatNumber(cat.qty)})</span>
+                            <span>{formatCurrency(cat.price)}</span>
+                        </div>
+                    )
+                })
+                // }
             )
         },
     },

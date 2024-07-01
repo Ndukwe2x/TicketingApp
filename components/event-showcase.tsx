@@ -1,4 +1,3 @@
-import { dummyEvent } from '@/lib/data';
 import React from 'react';
 import { Text } from './ui/text';
 import { formatCurrency, formatDate } from '@/lib/utils';
@@ -8,6 +7,7 @@ import { IoLocationSharp } from 'react-icons/io5';
 import Link from 'next/link';
 
 export default function EventShowcase() {
+    const event = {} as SingleEvent;
     return (
         <div className='absolute top-0 left-0 w-full h-[80dvh] bg-[url("/showcase.jpg")] bg-[50%_80%] bg-cover'>
             <div className='absolute top-0 left-0 w-full h-full bg-black/60' />
@@ -35,12 +35,11 @@ export default function EventShowcase() {
                     </Text>
                 </div>
 
-                <Link href={`/events/1`}>
+                {/* <Link href={`/events/1`}>
                     <PriceTag price={event.ticketCategories[1].price} />
-                </Link>
+                </Link> */}
             </div>
         </div>
     );
 }
 
-const event = dummyEvent;
