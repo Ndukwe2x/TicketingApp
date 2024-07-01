@@ -10,11 +10,11 @@ export const columns: ColumnDef<SingleEvent>[] = [
     {
         accessorKey: '_id',
         header: () => <div><Checkbox id='check-all' value='checkall' /></div>,
-        cell: ({ row }) => <div><Checkbox name='event' id={ row.getValue('_id') } value={ row.getValue('_id') } /></div>,
+        cell: ({ row }) => <div><Checkbox name='event' id={row.getValue('_id')} value={row.getValue('_id')} /></div>,
     },
     {
         accessorKey: 'title',
-        header: () => <div style={{width: '18rem'}}>Title</div>,
+        header: () => <div style={{ width: '18rem' }}>Title</div>,
         cell: ({ row }) => <a href={`${location.origin}/events/${row.original._id}`} className='capitalize'>{row.getValue('title')}</a>,
     },
     // {
@@ -35,7 +35,7 @@ export const columns: ColumnDef<SingleEvent>[] = [
     //         );
     //     },
     // },
-    
+
     {
         accessorKey: 'state',
         header: () => <div className='whitespace-nowrap'>State</div>,
@@ -48,7 +48,7 @@ export const columns: ColumnDef<SingleEvent>[] = [
     },
     {
         accessorKey: 'address',
-        header: () => <div style={ { width: '12rem' } }>Address</div>,
+        header: () => <div style={{ width: '12rem' }}>Address</div>,
         cell: ({ row }) => <div>{row.getValue('address')}</div>,
     },
     {
@@ -58,7 +58,7 @@ export const columns: ColumnDef<SingleEvent>[] = [
                 <div
                     className='flex gap-2 items-center cursor-pointer'
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                    style={ { width: '12rem' } }
+                    style={{ width: '12rem' }}
                 >
                     Date/Time
                     <CaretSortIcon className='ml-2 h-4 w-4' />

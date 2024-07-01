@@ -44,14 +44,14 @@ const ActionButtons: React.FC<HtmlHTMLAttributes<HTMLElement> & { user: AppUser 
                             className="w-full text-accent-foreground hover:text-primary hover:bg-accent justify-between items-center" />
                     }
                     {
-                        actor && actor.canDeleteUser && <DeleteUserButton variant='link' actor={actor} account={user}
+                        actor && actor.canDeleteUser && <DeleteUserButton variant='link' actor={actor} account={user as AppUser}
                             className="w-full text-accent-foreground hover:text-primary hover:bg-accent justify-between items-center" />
                     }
                     {
                         actor && actor.isSuperUser && <AddTeamMember displayText={displayText} user={actor} />
                     }
                     {
-                        actor && actor.canCreateEvent && <CreateEventForUser variant='link' user={user} actor={actor}
+                        actor && actor.canCreateEvent && <CreateEventForUser variant='link' user={user as AppUser} actor={actor}
                             className="gap-2 w-full text-accent-foreground hover:text-primary hover:bg-accent justify-between items-center" />
                     }
                 </DropdownMenuContent>

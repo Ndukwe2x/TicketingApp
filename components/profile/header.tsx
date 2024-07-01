@@ -32,7 +32,7 @@ const ProfileHeader: React.FC<React.HTMLAttributes<HTMLDivElement> & CompProps> 
                         actor && actor.canUpdateUser && <EditUserButton variant="outline" userId={userId} actor={actor} />
                     }
                     {
-                        actor && actor.canDeleteUser && <DeleteUserButton variant='destructive' actor={actor} account={user} callback={handleAfterDelete} />
+                        actor && actor.canDeleteUser && <DeleteUserButton variant='destructive' actor={actor} account={user as AppUser} callback={handleAfterDelete} />
                     }
                 </div>
                 <div className="md:hidden">
@@ -44,7 +44,7 @@ const ProfileHeader: React.FC<React.HTMLAttributes<HTMLDivElement> & CompProps> 
                     actor && actor.isSuperUser && actor.id == user.id && <AddTeamMember user={actor} />
                 }
                 {
-                    actor && actor.canCreateEvent && <CreateEventForUser user={user} actor={actor} className="gap-2" />
+                    actor && actor.canCreateEvent && <CreateEventForUser user={user as AppUser} actor={actor} className="gap-2" />
                 }
             </div>
         </>
