@@ -5,7 +5,7 @@ import { MdArrowDownward, MdArrowDropDown, MdArrowDropUp, MdArrowUpward, MdExpan
 import { Providers } from "@/app/providers";
 
 
-interface RixUiAccordionProps extends React.HtmlHTMLAttributes<HTMLDivElement> {
+interface RixUiAccordionProps extends React.HtmlHTMLAttributes<HTMLDivElement | HTMLButtonElement> {
 
 };
 
@@ -24,7 +24,7 @@ const AccordionTrigger: React.FC<RixUiAccordionProps> = ({ children, className, 
     const [open, toggleOpen] = React.useContext(PanelContext) as [boolean, React.DispatchWithoutAction]
 
     return (
-        <button type="button" onClick={(ev) => { toggleOpen() }} {...props} className={cn('rix-ui_accordion-trigger w-full', className)}>
+        <button type="button" onClick={() => { toggleOpen() }} {...props} className={cn('rix-ui_accordion-trigger w-full', className)}>
             {children} {open ? <MdExpandLess /> : <MdExpandMore />}
         </button>
     )
@@ -57,7 +57,7 @@ const AccordionItem: React.FC<RixUiAccordionProps &
 
         return (
             <PanelContext.Provider value={[open, toggleOpen]}>
-                <div itemID={itemId} className={cn('rix-ui_accordion-item', className, open ? 'active' : '')} {...props}>
+                <div id={itemId as string} className={cn('rix-ui_accordion-item', className, open ? 'active' : '')} {...props}>
                     <AccordionHeader className={cn('')} addon={addon}>
                         {header}
                     </AccordionHeader>
