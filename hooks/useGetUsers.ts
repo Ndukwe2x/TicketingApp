@@ -27,7 +27,7 @@ const useGetUsers = (actor: AppUser): [isLoading: boolean, users: AppUser[] | []
 
                 if (data.length) {
                     const orderedUsers = orderByDate(data, 'createdAt');
-                    const decoratedUsers = orderedUsers.map((user: any) => new UserClass(user));
+                    const decoratedUsers = orderedUsers.map((user: any) => (new UserClass(user) as unknown) as AppUser);
 
                     setUsers(decoratedUsers);
                 }

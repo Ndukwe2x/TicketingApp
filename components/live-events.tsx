@@ -4,14 +4,16 @@ import React from 'react';
 import { Text } from '@/components/ui/text';
 import { EventCard, LoadingEventCard } from './event-card';
 import { useGetEvents } from '@/hooks/useGetEvents';
+import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
 
 export function LiveEvents() {
-    const { liveEvents: events, isLoading } = useGetEvents();
+    const actor = useAuthenticatedUser();
+    const [isLoading, events, error] = useGetEvents(actor as AppUser);
 
     let body = (
         <>
             {events?.map((event) => (
-                <EventCard key={event.id} event={event} />
+                <EventCard key={event._id} event={event} />
             ))}
         </>
     );

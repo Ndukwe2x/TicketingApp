@@ -75,12 +75,13 @@ export const fetchUserEvents = async (userId: string, actor: AppUser): Promise<S
  * @param surpressError `boolean` Whether or not to throw exceptions if error occurs
  * @returns `SingleEvent | null`
  */
-export const useGetEventById = (refid: string, actor: AppUser, surpressError?: boolean): [boolean, SingleEvent | null, AxiosError | Error | null] => {
+export const useGetEventById = (refid: string, actor: AppUser, surpressError?: boolean):
+    [isLoading: boolean, event: SingleEvent | null, error: any] => {
     let url = Api.server + Api.endpoints.public.singleEvent;
     url = url.replace(':id', refid);
     surpressError = surpressError || false;
     const [event, setEvent] = useState<SingleEvent | null>(null);
-    const [error, setError] = useState<AxiosError | null>(null);
+    const [error, setError] = useState<any>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
     useEffect(() => {
@@ -194,12 +195,17 @@ export const useGetEventsByUser = (theUser: AppUser, actor: AppUser): [
         (async () => {
             try {
                 const fetchedEvents = await fetchUserEvents(theUser.id, actor);
-                setEvents(fetchedEvents);
+                if (fetchedEvents instanceof Array) {
+                    if ([...fetchedEvents].shift()?._id) {
+                        setEvents(fetchedEvents);
+                    }
+                }
             } catch (err) {
                 console.error(err);
                 setError(err);
             }
         })();
+
 
         return function cleanup() {
 

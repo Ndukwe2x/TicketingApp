@@ -1,4 +1,3 @@
-import NotFoundPage from '@/app/(main)/dashboard/[...not-found]/page';
 import { Api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';

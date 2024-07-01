@@ -51,7 +51,7 @@ const getElementSiblings = (element: Element): Element[] => {
 //     const matches = name.match(/\[(\w+)\]/g);
 //     if (matches) {
 //         key = matches.map(m => m.replace(/\[|\]/g, '')).join('.');
-  
+
 //         readable = matches
 //           .map(m => m.replace(/\[|\]/g, ''))
 //           .map((s, i, arr) => (i === arr.length - 1 ? `name of category ${s}` : `category ${s}`))
@@ -59,14 +59,14 @@ const getElementSiblings = (element: Element): Element[] => {
 //     } else {
 //         key = name;
 //     }
-  
+
 //     return { key, readable };
 // }
 
 function formDataToObjects(formData: IterableIterator<[string, FormDataEntryValue]>): { name: string; value: string }[] {
     const result: { name: string; value: string }[] = [];
 
-    for ( const [key, value] of formData ) {
+    for (const [key, value] of formData) {
         result.push({ name: key, value: value.toString() });
     }
 
@@ -136,37 +136,37 @@ function formDataToObjects(formData: IterableIterator<[string, FormDataEntryValu
 //     return result;
 // }
 function parseFormFields(formFields: { name: string; value: string }[], inputObject?: Record<string, any>
-  ): Record<string, any> {
-    const outputObject: Record<string, any> = {...inputObject};
+): Record<string, any> {
+    const outputObject: Record<string, any> = { ...inputObject };
 
     for (const field of formFields) {
-      const keys = field.name.split(/\[|\]/).filter(Boolean);
-      let currentObject = outputObject;
-  
-      for (let i = 0; i < keys.length; i++) {
-        const key = keys[i];
-        if (!currentObject[key]) {
-          currentObject[key] = /^\d+$/.test(keys[i + 1]) ? [] : {};
+        const keys = field.name.split(/\[|\]/).filter(Boolean);
+        let currentObject = outputObject;
+
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
+            if (!currentObject[key]) {
+                currentObject[key] = /^\d+$/.test(keys[i + 1]) ? [] : {};
+            }
+            if (i === keys.length - 1) {
+                currentObject[key] = field.value;
+            } else {
+                currentObject = currentObject[key];
+            }
         }
-        if (i === keys.length - 1) {
-          currentObject[key] = field.value;
-        } else {
-          currentObject = currentObject[key];
-        }
-      }
     }
-  
+
     return outputObject;
-}  
+}
 
 function convertToDotNotation(path: string): string {
     return path.replace(/\[(\w+)\]/g, '.$1');
 }
-  
 
-const orderByDate = (data: {key: string; value: string}[], prop = 'createdAt', dir = 'asc'): Record<string, string>[] => {
+
+const orderByDate = (data: Record<string, any>[], prop = 'createdAt', dir = 'asc'): Record<string, string>[] => {
     const ordered: Record<string, string>[] = [...data].toSorted((a, b) => {
-        return dir === 'desc' 
+        return dir === 'desc'
             ? (new Date(a[prop])).valueOf() - (new Date(b[prop])).valueOf()
             : (new Date(b[prop])).valueOf() - (new Date(a[prop])).valueOf()
     });
@@ -206,21 +206,21 @@ const calculateTimeDifference = (timestamp1: string, timestamp2: string): {
  */
 declare global {
     interface Array<T> {
-      chunk(size: number): T[][];
+        chunk(size: number): T[][];
     }
 }
-  
+
 Array.prototype.chunk = function (size: number): any[][] {
     const result: any[][] = [];
     for (let i = 0; i < this.length; i += size) {
-      result.push(this.slice(i, i + size));
+        result.push(this.slice(i, i + size));
     }
     return result;
 };
 
-function copyLink (link: string) {
+function copyLink(link: string) {
     navigator.clipboard.writeText(link);
-    toast('Link copied!', {position: 'top-center'});
+    toast('Link copied!', { position: 'top-center' });
 }
 
 function parseFileToDataUri(file: File): Promise<string> {

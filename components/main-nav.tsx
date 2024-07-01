@@ -56,7 +56,7 @@ interface NavProps extends React.HtmlHTMLAttributes<HTMLElement> {
 
 const MainNav: React.FC<NavProps> = ({ children, className, ...props }) => {
     const [hasScrolled, setHasScrolled] = React.useState(false);
-    const [deviceWidth, setDeviceWidth] = React.useState(undefined);
+    const [deviceWidth, setDeviceWidth] = React.useState<any>(null);
     const [open, setOpen] = React.useState(false);
     const actor = useAuthenticatedUser();
 
@@ -84,7 +84,7 @@ const MainNav: React.FC<NavProps> = ({ children, className, ...props }) => {
             document.removeEventListener('scroll', setScrollHandler);
             window.removeEventListener('resize', handleResize);
         };
-    }, [deviceWidth]);
+    }, []);
 
 
     return (
@@ -94,7 +94,7 @@ const MainNav: React.FC<NavProps> = ({ children, className, ...props }) => {
         )}>
             <div className='flex items-center justify-between p-4 lg:px-8 mx-auto'>
                 <div className='flex items-center gap-4'>
-                    <Button size={26}
+                    <Button size={'sm'}
                         onClick={() => { ToggleSidebar(); setOpen(state => state ? false : true) }}
                         className={cn('text-primary outline-none bg-transparent shadow-none border-none')} style={{ background: 'none' }}>
                         {!open && <MdOutlineMenu size={26} />}
@@ -151,7 +151,7 @@ function MobileNav() {
                     </MenubarTrigger>
                     <MenubarContent>
                         {components.map((component) => (
-                            <MenubarItem key={component.href} href={component.href}>{component.title}</MenubarItem>
+                            <MenubarItem key={component.href}>{component.title}</MenubarItem>
                         ))}
                     </MenubarContent>
                 </MenubarMenu>
@@ -173,7 +173,7 @@ function DesktopNav() {
                         return (
                             <NavigationMenuItem key={component.href}>
                                 <NavigationMenuLink
-                                    href={component.href} passHref
+                                    href={component.href}
                                     className={cn(
                                         'px-4 py-2 text-sm font-medium transition-colors text-muted-foreground hover:text-primary',
                                         isActive && 'text-primary'

@@ -15,7 +15,7 @@ export default function EventShowcase() {
                 <div>
                     <Text className='text-sm text-white flex items-center gap-2 mb-1'>
                         <MdEvent />
-                        {formatDate(event.eventDate, 'dddd, MMMM DD')}
+                        {formatDate(new Date(event.eventDate), 'dddd, MMMM DD')}
                     </Text>
                     <Text variant='h1'>{event.title}</Text>
                 </div>

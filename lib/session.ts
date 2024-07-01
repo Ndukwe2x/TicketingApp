@@ -5,7 +5,7 @@ import { CookieValueTypes, OptionsType } from "cookies-next/lib/types";
 import { APPCONFIG, cookieOptions } from "./app-config";
 import axios from "axios";
 import { Api } from "./api";
-import React from "react";
+import React, { MouseEvent } from "react";
 import { calculateTimeDifference } from "./utils";
 
 export class Session {

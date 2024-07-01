@@ -3,7 +3,9 @@ import { Input } from "./ui/input"
 import { cn } from "@/lib/utils"
 
 export interface DivProps
-  extends React.HtmlHTMLAttributes<HTMLDivElement> { }
+  extends React.HtmlHTMLAttributes<HTMLDivElement> {
+  subject: string;
+}
 
 export const FilterTools = React.forwardRef<HTMLDivElement, DivProps>(
   ({ className, subject, ...props }, ref) => {

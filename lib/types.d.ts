@@ -163,6 +163,7 @@ type UserInfo = {
     avatar: string;
     createdAt: Date | string;
     token: string;
+    role?: string;
 }
 
 type AuthInfo = {
@@ -226,7 +227,7 @@ interface CloudinaryUploadResponseData {
 }
 
 interface AppUser {
-    rawData: Record<string, any> | UserInfo;
+    rawData: Readonly<Record<string, any> | UserInfo>;
     id: string;
     firstname: string;
     lastname: string;

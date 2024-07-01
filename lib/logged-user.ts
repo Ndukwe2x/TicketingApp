@@ -15,25 +15,25 @@ const userInfo = (): AppUser | null => {
 
     const authUser = cookieInfo === undefined ? undefined : JSON.parse(cookieInfo);
 
-    if ( authUser ) {
-    //     userInfo.isSuper =  userInfo.user.userRole === 'Super';
-    //     userInfo.isRegular =  userInfo.user.userRole === 'Regular';
-    //     userInfo.isBasic =  userInfo.user.userRole === 'Basic';
-    //     userInfo.isOwner =  userInfo.user.userStatus === 'owner';
-    //     userInfo.isSuperOwner =  userInfo.isOwner && userInfo.isSuper;
-    //     userInfo.isRegularOwner =  userInfo.isOwner && userInfo.isRegular;
-    //     userInfo.isBasicOwner =  userInfo.isOwner && userInfo.isBasic;
-    //     userInfo.isUser =  userInfo.user.userStatus === 'user';
-    //     userInfo.isSuperUser =  userInfo.isUser && userInfo.isSuper;
-    //     userInfo.isRegularUser =  userInfo.isUser && userInfo.isRegular;
-    //     userInfo.isBasicUser =  userInfo.isUser && userInfo.isBasic;
-    //     userInfo.canCreateUser =  userInfo.isSuperOwner || userInfo.isSuperUser;
-    //     userInfo.canUpdateUser =  userInfo.isSuperOwner || userInfo.isRegularOwner || userInfo.isSuperUser
-    //     userInfo.canDeleteUser =  userInfo.isSuperOwner || userInfo.isRegularOwner || userInfo.isSuperUser;
-    //     userInfo.canCreateEvent =  userInfo.isSuperOwner || userInfo.isSuperUser;
-    //     userInfo.canUpdateEvent =  userInfo.isSuperOwner || userInfo.isRegularOwner || userInfo.isSuperUser;
-    //     userInfo.canDeleteEvent =  userInfo.isSuperOwner;
-    //     userInfo.canDeleteTicket =  userInfo.isSuperOwner;
+    if (authUser) {
+        //     userInfo.isSuper =  userInfo.user.userRole === 'Super';
+        //     userInfo.isRegular =  userInfo.user.userRole === 'Regular';
+        //     userInfo.isBasic =  userInfo.user.userRole === 'Basic';
+        //     userInfo.isOwner =  userInfo.user.userStatus === 'owner';
+        //     userInfo.isSuperOwner =  userInfo.isOwner && userInfo.isSuper;
+        //     userInfo.isRegularOwner =  userInfo.isOwner && userInfo.isRegular;
+        //     userInfo.isBasicOwner =  userInfo.isOwner && userInfo.isBasic;
+        //     userInfo.isUser =  userInfo.user.userStatus === 'user';
+        //     userInfo.isSuperUser =  userInfo.isUser && userInfo.isSuper;
+        //     userInfo.isRegularUser =  userInfo.isUser && userInfo.isRegular;
+        //     userInfo.isBasicUser =  userInfo.isUser && userInfo.isBasic;
+        //     userInfo.canCreateUser =  userInfo.isSuperOwner || userInfo.isSuperUser;
+        //     userInfo.canUpdateUser =  userInfo.isSuperOwner || userInfo.isRegularOwner || userInfo.isSuperUser
+        //     userInfo.canDeleteUser =  userInfo.isSuperOwner || userInfo.isRegularOwner || userInfo.isSuperUser;
+        //     userInfo.canCreateEvent =  userInfo.isSuperOwner || userInfo.isSuperUser;
+        //     userInfo.canUpdateEvent =  userInfo.isSuperOwner || userInfo.isRegularOwner || userInfo.isSuperUser;
+        //     userInfo.canDeleteEvent =  userInfo.isSuperOwner;
+        //     userInfo.canDeleteTicket =  userInfo.isSuperOwner;
         // user.firstname = authUser.user.firstName;
         // user.lastname = authUser.user.lastName;
         // user.email = authUser.user.userEmail;
@@ -42,7 +42,7 @@ const userInfo = (): AppUser | null => {
         // user.token = authUser.token;
 
 
-        user = new UserClass(authUser);
+        user = (new UserClass(authUser) as unknown) as AppUser;
     }
 
     return user;

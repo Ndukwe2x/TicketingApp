@@ -1,19 +1,19 @@
 type UserType = UserInfo & AuthInfo;
 
 export default class UserClass implements AppUser {
-    protected rawData: Record<string, any> | UserInfo;
-    id: string;
-    firstname: string;
-    lastname: string;
-    fullName: string;
-    email: string;
-    phone: string;
-    accountType: string;
-    eventRef: string[];
-    role: string;
-    avatar: string;
-    token: string | null;
-    createdAt: string;
+    rawData: Readonly<Record<string, any> | UserInfo>;
+    id: string = '';
+    firstname: string = '';
+    lastname: string = '';
+    fullName: string = '';
+    email: string = '';
+    phone: string = '';
+    accountType: string = '';
+    eventRef: string[] = [];
+    role: string = '';
+    avatar: string = '';
+    token: string | null = '';
+    createdAt: string = '';
     isSuper: boolean;
     isRegular: boolean;
     isBasic: boolean;

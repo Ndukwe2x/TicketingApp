@@ -8,8 +8,9 @@ import {
 } from "../ui/dropdown-menu";
 import Link from "next/link";
 import { MdMoreVert } from "react-icons/md";
+import { Row } from "@tanstack/react-table";
 
-const TicketActionsDropdownMenu = ({ row }) => {
+const TicketActionsDropdownMenu = ({ row }: {row: Row<Ticket>}) => {
     // const [isDialogOpen, setIsDialogOpen] = React.useState(false);
     // const [modalTitle, setModalTitle] = React.useState('');
     // const [modalDesc, setModalDesc] = React.useState('');
