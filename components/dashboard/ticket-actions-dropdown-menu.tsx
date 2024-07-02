@@ -1,49 +1,46 @@
 import React, { ReactNode } from "react";
-import { Row } from "@tanstack/react-table";
-import { Icons } from "../icons";
-import CommonDropdownMenu from "./dropdown-menu";
 import {
-    printTicket,
-    sendTicketToCustomer,
-    deleteTicket,
-    suspendTicket
-} from "@/hooks/ticket-actions";
-import Modal from "../ui/modal";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "../ui/dropdown-menu";
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuTrigger
+} from "../ui/dropdown-menu";
 import Link from "next/link";
 import { MdMoreVert } from "react-icons/md";
+import { Row } from "@tanstack/react-table";
 
-const TicketActionsDropdownMenu = ({ row }) => {
-    const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-    const [modalTitle, setModalTitle] = React.useState('');
-    const [modalDesc, setModalDesc] = React.useState('');
-    const [modalContent, setModalContent] = React.useState('');
+const TicketActionsDropdownMenu = ({ row }: {row: Row<Ticket>}) => {
+    // const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+    // const [modalTitle, setModalTitle] = React.useState('');
+    // const [modalDesc, setModalDesc] = React.useState('');
+    // const [modalContent, setModalContent] = React.useState('');
     
-    const handleSaveAction = () => {
+    // const handleSaveAction = () => {
         
-        setIsDialogOpen(false);
-    }
+    //     setIsDialogOpen(false);
+    // }
 
-    const handleCloseAction = () => {
+    // const handleCloseAction = () => {
 
-        setIsDialogOpen(false);
-    }
+    //     setIsDialogOpen(false);
+    // }
 
-    type ContentHook = (id: string) => ReactNode;
+    // type ContentHook = (id: string) => ReactNode;
 
-    const initDialog = (evt: Event, contentHook: ContentHook, ticketId: string, title: string, desc?: string) => {
-        evt.preventDefault();
+    // const initDialog = (evt: Event, contentHook: ContentHook, ticketId: string, title: string, desc?: string) => {
+    //     evt.preventDefault();
 
-        setModalTitle(title);
-        if (desc) {
-            setModalDesc(desc);
-        }
+    //     setModalTitle(title);
+    //     if (desc) {
+    //         setModalDesc(desc);
+    //     }
 
-        setModalContent(
-            contentHook(ticketId)
-        );
-        setIsDialogOpen(true);
-    }
+    //     setModalContent(
+    //         contentHook(ticketId)
+    //     );
+    //     setIsDialogOpen(true);
+    // }
 
     return (
         <DropdownMenuGroup>

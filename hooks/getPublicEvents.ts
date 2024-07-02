@@ -1,25 +1,24 @@
 import React from "react";
 import { Api, HttpRequest } from "../lib/api";
-import { dummyEvents } from '@/lib/data';
 
 export const getPublicEvents = () => {
     const url = Api.server + Api.endpoints.admin.events;
-    const [result, setResult] = React.useState({});
-    const [events, setEvents] = React.useState(dummyEvents);
-    
+    // const [result, setResult] = React.useState({});
+    const [events, setEvents] = React.useState<SingleEvent[]>([]);
+
     async () => (await HttpRequest(url)).json().then((res) => {
-        setResult(res);
-        if (result.length && typeof result.data.events !== 'undefined') {
-            setEvents(result.data.events)
+        const data = res.data || {};
+        if (data.events) {
+            setEvents(data.events)
         }
     });
 
     const getEvent = (id: string) => {
-        return events.find((event: {id: string}) => event.id === id);
+        return events.find((event, index) => event._id === id);
     };
 
     const getFeaturedEvents = () => {
-        return events.filter((event: {featured: boolean}) => event.featured);
+        return events.filter(event => event.featured);
     };
 
     return {

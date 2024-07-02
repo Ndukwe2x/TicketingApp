@@ -1,28 +1,30 @@
 import React, { ReactNode } from "react";
-import { Row } from "@tanstack/react-table";
-import { Icons } from "../icons";
-import CommonDropdownMenu from "./dropdown-menu";
-import {
-    printTicket,
-    sendTicketToCustomer,
-    deleteTicket,
-    suspendTicket
-} from "@/hooks/ticket-actions";
-import Modal from "../ui/modal";
+// import { Row } from "@tanstack/react-table";
+// import { Icons } from "../icons";
+// import CommonDropdownMenu from "./dropdown-menu";
+// import {
+//     printTicket,
+//     sendTicketToCustomer,
+//     deleteTicket,
+//     suspendTicket
+// } from "@/hooks/ticket-actions";
+// import Modal from "../ui/modal";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
-import Link from "next/link";
+// import Link from "next/link";
 import { MdClose, MdLink, MdMoreVert } from "react-icons/md";
 import DeleteEventButton from "../buttons/delete-event-button";
 import EditEventButton from "../buttons/edit-event-button";
 import { Button } from "../ui/button";
 import { copyLink } from "@/lib/utils";
+import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 
-const EventsListActionsDropdownMenu = ({ event, actor, onSuccess }: {event: SingleEvent; actor: AppUser; onSuccess?: <T, S>(response: T, action: S) => void}) => {
+const EventsListActionsDropdownMenu = ({ event, onSuccess }: {event: SingleEvent; onSuccess?: <T, S>(response: T, action: S) => void}) => {
     const [isOpen, setIsOpen] = React.useState(false);
-    
+    const actor = useAuthenticatedUser();
     
 
     return (
+        actor &&
         <DropdownMenu onOpenChange={setIsOpen} open={isOpen}>
             <DropdownMenuTrigger asChild>
                 <Button variant='ghost' className='h-8 w-8 p-0'>

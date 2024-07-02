@@ -21,7 +21,7 @@ const TicketResendForm: React.FC<HtmlHTMLAttributes<HTMLButtonElement> & { ticke
                     Authorization: `Bearer ${actor?.token}`,
                 }
             });
-            if ( response.status == 200 ) {
+            if (response.status == 200) {
                 toast(`Ticket info has been sent to the customer's registered ${contactMethod}.`);
             }
         } catch (error) {
@@ -34,12 +34,12 @@ const TicketResendForm: React.FC<HtmlHTMLAttributes<HTMLButtonElement> & { ticke
     }
     const sendTicketToCustomer: React.FormEventHandler<HTMLFormElement> = (ev: FormEvent) => {
         ev.preventDefault();
-        
+
         const formData = new FormData(ev.target as HTMLFormElement);
         const postData = Object.fromEntries(formData.entries());
         let contactMethod: string;
 
-        switch ( postData.messageType ) {
+        switch (postData.messageType) {
             case 'email':
                 contactMethod = 'email';
                 break;
@@ -50,14 +50,14 @@ const TicketResendForm: React.FC<HtmlHTMLAttributes<HTMLButtonElement> & { ticke
                 contactMethod = 'email and phone';
                 break;
         }
-        
+
         requestTicketResend(url, postData, contactMethod);
-        
+
         // html2pdf().from(cardRef.current).toPdf()
         // .output('datauristring')
         // .then((pdfAsString: string) => {
         //     const encodedFile = encodeURIComponent(pdfAsString);
-            
+
         //     axios.post(url, formData, reqConf)
         //     .then(res => {
         //         if (res.data) {
@@ -71,32 +71,34 @@ const TicketResendForm: React.FC<HtmlHTMLAttributes<HTMLButtonElement> & { ticke
     };
 
     return (
-        <form onSubmit={ sendTicketToCustomer }>
-            <MessageTypeSelector messageTypes={ {email: 'Email only', sms: 'SMS only', both: 'Both Email & SMS'} } />
+        <form onSubmit={sendTicketToCustomer}>
+            <MessageTypeSelector messageTypes={{ email: 'Email only', sms: 'SMS only', both: 'Both Email & SMS' }} />
             <br />
             <div className="text-right p-3 border-t">
-                <Button type="submit" className="w-full">Send <MdSend size={ 22 } className="ml-2" /></Button>
+                <Button type="submit" className="w-full">Send <MdSend size={22} className="ml-2" /></Button>
             </div>
         </form>
     )
 }
 
 
-const MessageTypeSelector = ({ messageTypes }: { messageTypes: {email: string, sms: string, both: string} }) => {
+const MessageTypeSelector = ({ messageTypes }: { messageTypes: { email: string, sms: string, both: string } }) => {
     const [selectedMessageType, setSelectedMessageType] = useState<string>('');
 
     return (
         <div className="p-4">
             {
                 Object.entries(messageTypes).map(
-                    ([messageType, description], index) => <Label htmlFor={`message-type-${messageType}`} className="flex gap-2 mb-3">
-                        <Input id={ `message-type-${messageType}` } 
-                            type="radio" key={ index } name="messageType" 
-                            value={ messageType }
-                            className="py-0 w-auto h-auto"
-                            defaultChecked={ messageType === 'email' }
-                             /> { description }
-                    </Label>
+                    ([messageType, description], index) => (
+                        <Label key={index} htmlFor={`message-type-${messageType}`} className="flex gap-2 mb-3">
+                            <Input id={`message-type-${messageType}`}
+                                type="radio" name="messageType"
+                                value={messageType}
+                                className="py-0 w-auto h-auto"
+                                defaultChecked={messageType === 'email'}
+                            /> {description}
+                        </Label>
+                    )
                 )
             }
         </div>

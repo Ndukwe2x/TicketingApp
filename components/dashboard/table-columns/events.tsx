@@ -1,30 +1,16 @@
 'use client';
 import * as React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
-
-import { Button } from '@/components/ui/button';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { CaretSortIcon, DotsVerticalIcon } from '@radix-ui/react-icons';
-import { copyLink, formatDate } from '@/lib/utils';
+import { CaretSortIcon } from '@radix-ui/react-icons';
+import { formatCurrency, formatDate, formatNumber } from '@/lib/utils';
 import { Text } from '@/components/ui/text';
-import DeleteEventButton from '@/components/buttons/delete-event-button';
-import EditEventButton from '@/components/buttons/edit-event-button';
-import { MdLink } from 'react-icons/md';
 import CountTicketsSoldForEvent from '../count-tickets-sold-for-event';
-import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
 import EventsListActionsDropdownMenu from '../events-list-actions-dropdown-menu';
 
 export const columns: ColumnDef<SingleEvent>[] = [
     {
         accessorKey: 'title',
-        header: () => <div style={{width: '18rem'}}>Title</div>,
+        header: () => <div style={{ width: '18rem' }}>Title</div>,
         cell: ({ row }) => <a href={`${location.origin}/events/${row.original._id}`} className='capitalize'>{row.getValue('title')}</a>,
     },
     // {
@@ -75,7 +61,7 @@ export const columns: ColumnDef<SingleEvent>[] = [
     },
     {
         accessorKey: 'address',
-        header: () => <div style={ { width: '12rem' } }>Address</div>,
+        header: () => <div style={{ width: '12rem' }}>Address</div>,
         cell: ({ row }) => <div>{row.getValue('address')}</div>,
     },
     {
@@ -85,7 +71,7 @@ export const columns: ColumnDef<SingleEvent>[] = [
                 <div
                     className='flex gap-2 items-center cursor-pointer'
                     onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                    style={ { width: '12rem' } }
+                    style={{ width: '12rem' }}
                 >
                     Date/Time
                     <CaretSortIcon className='ml-2 h-4 w-4' />
@@ -96,22 +82,22 @@ export const columns: ColumnDef<SingleEvent>[] = [
     },
     {
         accessorKey: 'ticketCategories',
-        header: () => <div style={ { width: '16rem' } }>Ticket Categories</div>,
+        header: () => <div style={{ width: '16rem' }}>Ticket Categories</div>,
         cell: ({ row }) => {
             return (
-                <div className='gap-1.5 grid grid-cols-3 ticket-categories'>
-                    {
-                        row.original.ticketCategories.map((cat, index) => {
-                            return (
-                                <div key={ index } className='category-group'>
-                                    <Text variant='p' className='font-bold'>{ cat.name }</Text>
-                                    <div variant='p'>N{ cat.price }</div>
-                                    <div variant='p'>{ cat.qty }</div>
-                                </div>
-                            )
-                        })
-                    }
-                </div>
+                // <div className='gap-1.5 grid grid-cols-3 ticket-categories'>
+                // </div>
+                // {
+                row.original.ticketCategories.map((cat, index) => {
+                    return (
+                        <div key={index} className='flex items-center justify-between gap-2 category-group'>
+                            <span className='font-bold'>{cat.name}</span>
+                            <span className='ml-auto'>({formatNumber(cat.qty)})</span>
+                            <span>{formatCurrency(cat.price)}</span>
+                        </div>
+                    )
+                })
+                // }
             )
         },
     },
@@ -119,8 +105,8 @@ export const columns: ColumnDef<SingleEvent>[] = [
         accessorKey: 'ticketsSold',
         header: 'Tickets Sold',
         cell: ({ row }) => {
-            const modifiedEvent: SingleEvent & {ticketsSold: Ticket[] | []} = { ...row.original, ticketsSold: [] };
-            return (<div><CountTicketsSoldForEvent event={ modifiedEvent } /></div>)
+            const modifiedEvent: SingleEvent & { ticketsSold: Ticket[] | [] } = { ...row.original, ticketsSold: [] };
+            return (<div><CountTicketsSoldForEvent event={modifiedEvent} /></div>)
         },
     },
     {
@@ -128,10 +114,9 @@ export const columns: ColumnDef<SingleEvent>[] = [
         enableHiding: false,
         cell: ({ row }) => {
             const event = row.original;
-            const actor = useAuthenticatedUser();
 
             return (
-                <EventsListActionsDropdownMenu event={event} actor={actor as AppUser} onSuccess={handleSuccess} />
+                <EventsListActionsDropdownMenu event={event} onSuccess={handleSuccess} />
             );
         },
     },

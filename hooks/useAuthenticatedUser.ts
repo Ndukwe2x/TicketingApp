@@ -14,11 +14,12 @@ const useAuthenticatedUser = (callback?: <T = AppUser | null>(user: T) => void):
     useEffect(() => {
         const cookieInfo: string | CookiesNext.CookieValueTypes = Session.getUser();
         const authUser = cookieInfo === undefined ? cookieInfo : JSON.parse(cookieInfo);
-        if ( callback ) {
+        if (callback) {
             callback(authUser ? new UserClass(authUser) : null);
         }
-        if ( authUser ) {
-            setUser(new UserClass(authUser));
+        if (authUser) {
+            const classified = <AppUser>(new UserClass(authUser) as unknown);
+            setUser(classified);
         }
     }, []);
 

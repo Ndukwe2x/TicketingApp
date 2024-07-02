@@ -2,7 +2,6 @@
 
 import React, { useCallback, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { AuthFreeRoutes } from '@/lib/auth-free-routes';
 import NotFoundPage from '@/app/not-found';
 import { useGetUserById, useGetUserProperties } from '@/hooks/useGetUsers';
 import NoNetwork from '@/components/no-network';
@@ -11,6 +10,8 @@ import ProfileCard from '@/components/profile/profile-card';
 import InternalErrorPage from '@/app/internal-error';
 import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
 import { cn } from '@/lib/utils';
+import { useTitle } from "@/hooks/useTitleContext";
+import { useState } from "react";
 
 
 export default function ProfileLayout({
@@ -21,50 +22,58 @@ export default function ProfileLayout({
     params: { userId: string };
 }>) {
     const actor = useAuthenticatedUser();
-    const route = usePathname();
+    const { setIsTitleEnabled } = useTitle();
 
-    useCallback(() => {
-        if ( !actor && !AuthFreeRoutes.includes(route) ) {
-            location.assign('/login?redir=' + route);
-            return;
-        } else if (actor && ['/login', '/register'].includes(route)) {
-            location.assign('/');
-            return;
-        }
-    }, [actor]);
+    setIsTitleEnabled(false);
 
     const { userId } = params;
-    const [isLoading, user, error] = useGetUserById(userId, actor);
+    const [isLoading, user, error] = useGetUserById(userId, actor as AppUser);
+    const [fallback, setFallback] = useState(<div className="text-center">Loading, please wait...</div>)
 
-    if ( !isLoading ) {
-        if ( error !== null && error.code ) {
-            if ( error?.code === 'ERR_NETWORK' ) {
-                return <NoNetwork />
-            }
-            if ( error.response && error.response.status == 404 ) {
-                const res = error.response.data;
-                return <NotFoundPage text='Sorry, we could not find any user by the given id. You must have followed a broken link.' />
-            }
-        } else if ( user === null ) {
-            console.error(error);
-            return <InternalErrorPage />
+
+
+    useEffect(() => {
+        if (!isLoading) {
+            return;
         }
-    }
-    
+        if (error !== null) {
+            if (error.code) {
+                switch (error.code) {
+                    case 'ERR_NETWORK':
+                        setFallback(<NoNetwork />)
+                        break;
+                    default:
+                        break;
+                }
+            }
+            if (error.response && error.response.status == 404) {
+                // const res = error.response.data;
+                setFallback(<NotFoundPage text='Sorry, we could not find any user by the given id. You must have followed a broken link.' />);
+            }
+        } else if (user === null) {
+            console.error(error);
+            setFallback(<InternalErrorPage />);
+        }
+
+        return () => {
+
+        }
+    }, [isLoading, user, error]);
+
     return (
         user &&
         <div id='user-profile' className={cn('relative flex flex-col')}>
             <header id='profile-header' className='flex flex-col header w-full'>
                 <div className='flex flex-col gap-3 relative px-4 lg:px-8'>
-                    <ProfileHeader userId={ userId} />
+                    <ProfileHeader userId={userId} />
                 </div>
             </header>
             <main id='profile-body' className='px-4 lg:px-8'>
                 <aside className='sidebar'>
-                    { user != null && <ProfileCard user={ user } /> }
+                    {user != null && <ProfileCard user={user} />}
                 </aside>
                 <main className='major'>
-                    { children }
+                    {children}
                 </main>
             </main>
         </div>

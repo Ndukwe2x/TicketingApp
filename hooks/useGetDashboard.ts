@@ -1,39 +1,15 @@
-import { dummySummary } from '@/lib/data';
+
 import { Api, HttpRequest } from "../lib/api";
 import { useQuery } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
 import useAuthenticatedUser from './useAuthenticatedUser';
 
-export const useGetDashboardSummary = () => {
-    const eventQuery = useQuery({
-        queryKey: ['dashboard', 'summary'],
-        queryFn: getDashboardSummary,
-    });
-
-    const { data, ...rest } = eventQuery;
-
-    return {
-        ...rest,
-        summary: data,
-    };
-};
-
-export const getDashboardSummary = async () => {
-    let events, tickets;
-    await new Promise((resolve) => {
-        setTimeout(() => {
-            resolve(true);
-        }, 2000);
-    });
-
-    return dummySummary;
-};
 
 export const getDashboardEvents = async (): Promise<DashboardEvent[]> => {
 
     const url = Api.server + Api.endpoints.admin.events;
     const events = (await HttpRequest(url)).json();
-    
+
     return events;
 };
 
@@ -45,7 +21,7 @@ export const getDashboardSales = async (): Promise<Ticket[]> => {
     const url = user?.isOwner
         ? Api.server + Api.endpoints.admin.tickets
         : Api.server + Api.endpoints.public.tickets;
-    
+
     let result = [];
     try {
         const response = await axios.get(url, {

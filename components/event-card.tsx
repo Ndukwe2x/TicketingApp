@@ -9,15 +9,15 @@ import { PriceTag } from '@/components/price-tag';
 import { formatDate } from '@/lib/utils';
 import { MdEvent } from 'react-icons/md';
 
-export function EventCard({ event }: { event: AppEvent }) {
-    const href = `/events/${event.id}`;
+export function EventCard({ event }: { event: SingleEvent }) {
+    const href = `/events/${event._id}`;
 
     return (
         <Card className='h-80'>
             <CardHeader className='relative h-1/2 overflow-hidden'>
                 <Link href={href}>
                     <Image
-                        src={event.image}
+                        src={event.eventBanner.url}
                         alt={event.title}
                         fill
                         objectFit='cover'
@@ -38,20 +38,21 @@ export function EventCard({ event }: { event: AppEvent }) {
             <CardContent className='p-3 h-1/2 flex flex-col justify-between'>
                 <Text asLabel className='text-xs flex items-center gap-2'>
                     <MdEvent />
-                    {formatDate(event.date, 'dddd, MMMM DD')}
+                    {formatDate(new Date(event.eventDate), 'dddd, MMMM DD')}
                 </Text>
                 <Link href={href}>
                     <Text variant='h4' className='line-clamp-2'>
                         {event.title}
                     </Text>
                 </Link>
-                <Text asLabel className='line-clamp-2'>
-                    {event.summary}
-                </Text>
 
-                <Link href={href} className='w-fit'>
-                    <PriceTag price={event.price} />
-                </Link>
+                {
+                    event.ticketCategories.map((category, index) => (
+                        <Link key={index} href={href} className='w-fit'>
+                            <PriceTag price={category.price} />
+                        </Link>
+                    ))
+                }
             </CardContent>
         </Card>
     );

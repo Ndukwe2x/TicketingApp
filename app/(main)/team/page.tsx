@@ -1,31 +1,35 @@
 "use client";
 
 import React, { Suspense } from 'react';
-import { Text } from '@/components/ui/text';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardTitle } from '@/components/ui/card';
 import { DataTable, DataTableLoading } from '@/components/ui/data-table';
 import { columns } from '@/components/dashboard/table-columns/users';
-import { orderByDate } from '@/lib/utils';
-import { Heading } from '@/components/ui/headers';
 import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
-import { useGetTeamMembers } from '@/hooks/useGetUsers';
-// import LoadingDashboardUsers from './loading';
+import { useGetUserTeams } from '@/hooks/useGetUsers';
 
 export default function Users() {
     const actor = useAuthenticatedUser();
-    const [isLoading, teamMembers, error] = useGetTeamMembers(actor, actor);
+    const [isLoading, teams, error] = useGetUserTeams(actor, actor);
 
     return (
-        <div className='flex flex-col gap-5'>
-        <Heading variant='h1' className='page-title'>My Team</Heading>
-            <Card>
-                <CardContent className='pt-5'>
-                    <DataTable 
-                    columns={columns} 
-                    data={teamMembers} 
-                    fallback='No users at the moment...' />
-                </CardContent>
-            </Card>
-        </div>
+        teams ? (
+            <div className='flex flex-col gap-5'>
+                {
+                    Array.from(teams).map((team, index) => (
+                        <Card key={index}>
+                            <CardContent className='pt-5'>
+                                <CardTitle className='mb-3'>Team <span className='text-primary'>{team.eventTitle}</span></CardTitle>
+                                <DataTable
+                                    columns={columns}
+                                    data={team.teamMembers}
+                                    fallback='Fetching team members...' />
+                            </CardContent>
+                        </Card>
+                    ))
+                }
+            </div>
+        ) : (
+            <div className='text-center'>{"No team member. Click on 'Add Team Member' to add a new Team member"}</div>
+        )
     );
 }
