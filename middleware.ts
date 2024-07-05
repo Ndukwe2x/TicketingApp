@@ -12,7 +12,7 @@ export default function middleware(req: NextRequest) {
     }
 
     const routeParts: string[] = pathname.length
-        ? url.pathname.slice(1, url.pathname.length).split('/')
+        ? pathname.split('/')
         : [];
 
     if (routeParts.length < 1 && !sessionUser?.value) {
@@ -39,13 +39,13 @@ export default function middleware(req: NextRequest) {
             url.search = '?redir=' + req.nextUrl.pathname;
             return NextResponse.redirect(url);
         }
-    } else if (url.pathname.startsWith('/login')) {
+    } else if (entryRoute.startsWith('/login')) {
         url.pathname = '/';
         return NextResponse.redirect(url);
     }
 
     const appUser = new UserClass(userInfo as UserInfo);
-    if (url.pathname.startsWith('/users') && !appUser.isOwner) {
+    if (entryRoute.startsWith('/users') && !appUser.isOwner) {
         url.pathname = url.pathname.replace('/users', '/team');
         return NextResponse.redirect(url);
     }
