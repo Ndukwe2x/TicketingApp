@@ -25,31 +25,33 @@ export default function middleware(req: NextRequest) {
     if (entryRoute && !entryRoute.startsWith('/')) {
         entryRoute = '/' + entryRoute;
     }
-    if (entryRoute && !sessionUser?.value && !AuthFreeRoutes.includes(entryRoute)) {
-        url.pathname = '/login/';
-        url.search = '?redir=' + req.nextUrl.pathname;
-        return NextResponse.redirect(url);
-    }
-
-    let userInfo = <UserInfo>(sessionUser?.value ? JSON.parse(sessionUser?.value) : {});
-
-    if (!userInfo.id) {
-        if (!AuthFreeRoutes.includes(entryRoute)) {
-            url.pathname = '/login';
+    if (entryRoute) {
+        if (!sessionUser?.value && !AuthFreeRoutes.includes(entryRoute)) {
+            url.pathname = '/login/';
             url.search = '?redir=' + req.nextUrl.pathname;
             return NextResponse.redirect(url);
-        }
-    } else if (entryRoute.startsWith('/login')) {
-        url.pathname = '/';
-        return NextResponse.redirect(url);
-    }
 
-    const appUser = new UserClass(userInfo as UserInfo);
-    if (entryRoute.startsWith('/users') && !appUser.isOwner) {
-        url.pathname = url.pathname.replace('/users', '/team');
-        return NextResponse.redirect(url);
+        }
+
+        let userInfo = <UserInfo>(sessionUser?.value ? JSON.parse(sessionUser?.value) : {});
+
+        if (!userInfo.id) {
+            if (!AuthFreeRoutes.includes(entryRoute)) {
+                url.pathname = '/login';
+                url.search = '?redir=' + req.nextUrl.pathname;
+                return NextResponse.redirect(url);
+            }
+        } else if (entryRoute.startsWith('/login')) {
+            url.pathname = '/';
+            return NextResponse.redirect(url);
+        }
+
+        const appUser = new UserClass(userInfo as UserInfo);
+        if (entryRoute.startsWith('/users') && !appUser.isOwner) {
+            url.pathname = url.pathname.replace('/users', '/team');
+            return NextResponse.redirect(url);
+        }
     }
 
     return NextResponse.next();
-
 }
