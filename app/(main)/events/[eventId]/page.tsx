@@ -57,7 +57,7 @@ export default function ViewEvent({ params }: { params: { eventId: string } }) {
                 </div>
             </React.Fragment>
         ));
-    }, [teamLoading, organizingTeam, teamError, setPageTitle, setWidget]);
+    }, [teamLoading, organizingTeam, teamError, setPageTitle, setWidget, actor, event]);
 
 
 

@@ -79,7 +79,7 @@ export default function ProfileLayout({
                 </React.Fragment>
             ));
         }
-    }, [actor, setPageTitle])
+    }, [actor, setPageTitle, setWidget])
 
     return (
         <div id='user-profile' className={cn('relative flex flex-col')}>

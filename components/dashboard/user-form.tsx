@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Api } from "@/lib/api";
 import { Text } from "../ui/text";
 import { Icons } from "../icons";
-import styles from '../styles/styles.module.css';
+// import styles from '../styles/styles.module.css';
 import axios from "axios";
 import { APPCONFIG } from "@/lib/app-config";
 import { capitalCase } from "change-case";
