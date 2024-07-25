@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useSearchParams } from 'next/navigation';
 import { Api } from '@/lib/api';
-import axios from 'axios';
+import axios, { isAxiosError } from 'axios';
 import { Session } from '@/lib/session';
 import { getAuthenticatedUserFullData } from '@/hooks/useGetUsers';
 import { toast } from '@/components/ui/sonner';
@@ -24,6 +24,11 @@ export function LoginForm() {
 
     const handleSubmit = async (event: React.SyntheticEvent) => {
         event.preventDefault();
+
+        if (navigator && !navigator.onLine) {
+            toast('It appears your connection was lost. Check your internet connectivity.');
+            return;
+        }
         setIsLoading(true);
 
         try {
@@ -48,15 +53,27 @@ export function LoginForm() {
                     location.assign('/');
                 }
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             setIsLoading(false);
             console.error('Error logging in:', error);
-            if (error.code) {
-                if (["ECONNABORTED", "ERR_NETWORK"].includes(error.code)) {
-                    toast('Unable to login. It appears your connection was lost. Check your internet connectivity.');
+            if (isAxiosError(error)) {
+                if (!error.status) {
+                    toast('Oops! Something went wrong. Please try again.');
                     return;
                 }
+                switch (error.status) {
+                    case 404:
+                        toast('Unknown username or password');
+                        break;
+                    case 500:
+                        toast('Sorry, but your request could not be completed at the moment.');
+                        break;
+                    default:
+                        toast('Oops! The server encountered an unknown error.');
+                        break;
+                }
             }
+
             toast('Error logging in! Please try again.');
         }
     }

@@ -63,7 +63,10 @@ const MainNav: React.FC<NavProps> = ({ children, className, ...props }) => {
     React.useEffect(() => {
         const handleResize = () => {
             const dWidth = window.innerWidth;
-            if (dWidth >= 1200 || document.querySelector('#dashboard-navigation.expanded') != null) {
+            if (dWidth >= 1024 || (
+                document.querySelector('#dashboard-navigation.expanded') != null &&
+                window.getComputedStyle(document.querySelector('#dashboard-navigation.expanded') as Element).display !== 'none'
+            )) {
                 setOpen(true);
             } else {
                 setOpen(false);
@@ -96,7 +99,7 @@ const MainNav: React.FC<NavProps> = ({ children, className, ...props }) => {
                 <div className='flex items-center gap-4'>
                     <Button size={'sm'}
                         onClick={() => { ToggleSidebar(); setOpen(state => state ? false : true) }}
-                        className={cn('text-primary outline-none bg-transparent shadow-none border-none')} style={{ background: 'none' }}>
+                        className={cn('text-primary outline-none bg-transparent shadow-none border-none px-0')} style={{ background: 'none' }}>
                         {!open && <MdOutlineMenu size={26} />}
                         {open && <MdOutlineMenuOpen size={26} />}
                     </Button>
@@ -106,24 +109,27 @@ const MainNav: React.FC<NavProps> = ({ children, className, ...props }) => {
                 </div>
                 <div className='flex flex-row items-center gap-3'>
                     {
-                        (actor !== null && (actor.canCreateUser || actor.canCreateEvent)) ? (
-                            <>
-                                <div className='hidden lg:flex items-center gap-3'>
-                                    {
-                                        actor.isOwner && actor.canCreateUser
-                                            ? <CreateUserButton />
-                                            : <AddTeamMember user={actor} displayText={
-                                                <Button variant='outline' className='rounded-full h-auto border-primary text-primary hover:text-white hover:bg-primary flex gap-2 items-center lg:px-4 md:px-2 md:py-2 px-1 py-1'>
-                                                    <MdPersonAdd size={24} /> Add Team Member
-                                                </Button>
-                                            } />
-                                    }
-                                    {
-                                        actor.canCreateEvent && <CreateEventButton />
-                                    }
-                                </div>
-                                <div className='lg:hidden'><DataCreatorButton /></div>
-                            </>
+                        (actor !== null) ? (
+                            (actor.canCreateUser || actor.canCreateEvent) && (
+                                <>
+                                    <div className='hidden lg:flex items-center gap-3'>
+                                        {
+                                            actor.isOwner && actor.canCreateUser
+                                                ? <CreateUserButton />
+                                                : <AddTeamMember user={actor} displayText={
+                                                    <Button variant='outline' className='rounded-full h-auto border-primary text-primary hover:text-white hover:bg-primary flex gap-2 items-center lg:px-4 md:px-2 md:py-2 px-1 py-1'>
+                                                        <MdPersonAdd size={24} /> Add Team Member
+                                                    </Button>
+                                                } />
+                                        }
+                                        {
+                                            actor.canCreateEvent && <CreateEventButton />
+                                        }
+                                    </div>
+                                    <div className='lg:hidden'><DataCreatorButton /></div>
+                                </>
+                            )
+
                         ) : (
                             <>
                                 <Skeleton className="lg:hidden h-10 rounded-full" style={{ width: "2.5rem", height: "2.5rem" }} />

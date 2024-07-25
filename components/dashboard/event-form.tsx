@@ -14,7 +14,7 @@ import { cn, formatDate, parseFileToDataUri, parseFormFields } from "@/lib/utils
 import { toast } from "../ui/sonner";
 import DateTimeControls from "./event-form-datetime-control";
 import generateRandomString from "@/lib/random-string-generator";
-import { MdInfo } from "react-icons/md";
+import { MdClose, MdDeleteOutline, MdInfo } from "react-icons/md";
 import EventEditFormSummary from "./event-edit-form-summary";
 import { FormDataContext } from "@/hooks/useFormDataContext";
 import { deleteEvent } from "@/hooks/useGetEvent";
@@ -22,6 +22,20 @@ import { useRouter } from "next/navigation";
 import * as NextImage from "next/image";
 // import { useCallback } from "react";s
 
+interface TempImagesProps {
+    eventBanner?: Partial<ImageInfo>;
+    posters?: Partial<ImageInfo>[];
+};
+
+interface SelectedUploadFilesProps {
+    banner?: File,
+    posters?: File[]
+}
+
+interface UploadResponseDataProps {
+    banner?: Partial<CloudinaryUploadResponseData>;
+    posters?: Partial<CloudinaryUploadResponseData>[];
+}
 
 const EventForm = (
     { actor, onSuccess, onFailure, event }:
@@ -48,8 +62,9 @@ const EventForm = (
     const formAction = isNew
         ? Api.server + Api.endpoints.admin.events
         : Api.server + Api.endpoints.admin.event.replace(':id', event?._id as string);
-    const [filesToUpload, addFilesToUpload] = React.useState<{ banner: File | null, posters: File[] }>({ banner: null, posters: [] });
+    const [filesToUpload, addFilesToUpload] = React.useState<SelectedUploadFilesProps>({});
     const [formData, setFormData] = React.useState<Record<string, any> | SingleEvent>(event || {});
+    const [tempImages, setTempImages] = React.useState<Partial<TempImagesProps>>({});
     const [isSuccessful, setIsSuccessful] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -95,11 +110,16 @@ const EventForm = (
             return;
         }
         const elements = Array.from(formRef.current.elements);
-        elements.forEach(element => {
+        elements.forEach((element) => {
             element.addEventListener('change', (ev) => {
                 updatePageStatus();
             })
-        })
+        });
+        updatePageStatus();
+
+        return () => {
+
+        }
     }, [formRef, updatePageStatus]);
 
     useEffect(() => {
@@ -253,7 +273,7 @@ const EventForm = (
                     banner: file
                 }));
 
-                setFormData(formData => ({ ...formData, eventBanner: { url: dataUri } }));
+                setTempImages(tempImages => ({ ...tempImages, eventBanner: { url: dataUri } }));
             })
             .catch((error) => {
                 const msg = 'Unable to preview image';
@@ -300,13 +320,13 @@ const EventForm = (
                 addFilesToUpload(files => {
                     return {
                         ...files,
-                        posters: [...files.posters, file]
+                        posters: [...(files.posters || []), file]
                     }
                 });
 
-                setFormData(formData => ({
-                    ...formData,
-                    posters: [...formData.posters || [], { url: dataUri }]
+                setTempImages(tempImages => ({
+                    ...tempImages,
+                    posters: [...(tempImages.posters || []), { url: dataUri }]
                 }))
             })
             .catch(error => {
@@ -343,6 +363,17 @@ const EventForm = (
         createSuspense(`#${groupId}`, false);
     }
 
+    const removePoster = (target: HTMLButtonElement, poster: ImageInfo) => {
+        const posters = formData.posters as ImageInfo[];
+
+        if (!posters.length) {
+            return;
+        }
+        const newPosters = posters.filter(p => p.public_id !== poster.public_id);
+        setFormData(formData => ({ ...formData, posters: newPosters }));
+        target.closest('.poster-group')?.remove();
+    }
+
     const createSuspense = (containerId: string | HTMLElement, hideUploadBtn: boolean = true): void => {
         const container: HTMLElement =
             typeof containerId === 'string'
@@ -374,30 +405,38 @@ const EventForm = (
         container.style.display = 'flex';
     };
 
-    const uploadImages = async (): Promise<Record<string, any>> => {
-        if (filesToUpload.banner === null) {
-            throw new Error('No banner selected');
-        }
+    const uploadImages = async () => {
+        // if (filesToUpload.banner) {
+        //     throw new Error('No banner selected');
+        // }
         // let currentFormData = {...formDataRef.current};
-        const results = {
-            banner: {},
-            posters: []
-        }
+        const results: UploadResponseDataProps = {};
 
         try {
-            const bannerRes = await MediaUploader.uploadFile(filesToUpload.banner, 0, eventTitle);
-            if (bannerRes.error) {
-                throw bannerRes.error;
-            }
-            results.banner = bannerRes;
-
-            for (const file of filesToUpload.posters) {
-                const posterRes = await MediaUploader.uploadFile(file, 0, eventTitle);
-                if (posterRes.error) {
-                    throw posterRes.error;
+            if (filesToUpload.banner) {
+                const bannerRes = await MediaUploader.uploadFile(filesToUpload.banner, 0, eventTitle);
+                if (bannerRes.error) {
+                    throw bannerRes.error;
                 }
-                results.posters.push((posterRes as unknown) as never);
+                // if (!results.banner) {
+                //     results.banner = {};
+                // }
+                results.banner = bannerRes;
             }
+
+            if (filesToUpload.posters?.length) {
+                for (const file of filesToUpload.posters) {
+                    const posterRes = await MediaUploader.uploadFile(file, 0, eventTitle);
+                    if (posterRes.error) {
+                        throw posterRes.error;
+                    }
+                    if (!results.posters) {
+                        results.posters = [];
+                    }
+                    results.posters.push((posterRes as unknown) as never);
+                }
+            }
+
             return results;
         } catch (error) {
             throw error;
@@ -412,20 +451,41 @@ const EventForm = (
 
         setIsLoading(true);
         try {
-            const uploadResponse = await uploadImages();
-            if (!Object.values(uploadResponse.banner).length) {
-                throw new Error('Image upload failed');
-            }
-            const { banner, posters } = uploadResponse;
+            let data = formData;
 
-            const data = {
-                ...formData,
-                ...{
-                    eventBanner: { url: banner.secure_url as string, public_id: banner.public_id as string },
-                    posters: [...posters.map((poster: CloudinaryUploadResponseData) => ({ url: poster.secure_url as string, public_id: poster.public_id as string }))],
+            if (filesToUpload.banner || filesToUpload.posters) {
+                const uploadResponse = await uploadImages();
+                if (isNew && !uploadResponse.banner) {
+                    throw new Error('Image upload failed');
                 }
-            };
-            setFormData(data);
+                const { banner = null, posters = [] }: UploadResponseDataProps = uploadResponse;
+
+                if (banner?.public_id) {
+                    data = {
+                        ...data,
+                        ...{
+                            eventBanner: { url: banner.secure_url as string, public_id: banner.public_id as string }
+                        }
+                    };
+                }
+                if (posters)
+                    data = {
+                        ...data,
+                        ...{
+                            posters: [
+                                ...data.posters,
+                                ...posters.map(
+                                    poster => ({
+                                        url: poster.secure_url as string,
+                                        public_id: poster.public_id as string
+                                    })
+                                )
+                            ],
+                        }
+                    };
+                setFormData(data);
+            }
+
 
             try {
                 const requestHandler = isNew ? axios.post : axios.patch;
@@ -436,25 +496,26 @@ const EventForm = (
                 });
 
                 if (eventResponse.status === 200 || eventResponse.status === 201) {
+                    if (!isNew) {
+                        // Delete the previous banner
+                        MediaUploader.deleteRecentlyUploadedImages([event?.eventBanner as ImageInfo]);
+                    }
                     if (!onSuccess) {
                         const msg = <span>Event {isNew ? 'created' : 'updated'}. {actor.isSuperOwner && 'Attach a user to this event'}</span>
                         toast(msg);
                         return router.push(`/events/${eventResponse.data.eventId}`);
                     }
-                    if (!onSuccess(eventResponse.data)) {
-                        deleteEvent(eventResponse.data.eventId, actor);
-                        throw new Error("Event creation abortted. Couldn't assign event to user");
-                    }
+                    onSuccess(eventResponse.data);
                 }
             } catch (error) {
-                const { eventBanner, posters = [] } = formData as SingleEvent;
+                const { eventBanner, posters = [] } = data as SingleEvent;
 
                 MediaUploader.deleteRecentlyUploadedImages([eventBanner, ...posters]);
-                toast('Unable to create event. An internal server error has occured.');
+                toast('Unable to create event. An unexpected error has occured.');
                 console.error(error);
             }
         } catch (error) {
-            toast('Unable to create event. One of the selected images could not be uploaded');
+            toast('Unable to create event. One or more of the selected image(s) could not be uploaded');
             console.error(error);
             return;
         }
@@ -462,8 +523,8 @@ const EventForm = (
     }
 
     const createSummary = React.useCallback(() => {
-        return <EventEditFormSummary data={formData as SingleEvent} />
-    }, [formData])
+        return <EventEditFormSummary data={{ ...formData, ...tempImages } as SingleEvent} />
+    }, [formData, tempImages])
 
     return (
         <FormDataContext.Provider value={{ formData, setFormData }}>
@@ -542,6 +603,29 @@ const EventForm = (
                         <Text variant='h4'>Event posters:</Text>
                         <div className='flex flex-col gap-2'>
                             <div id="posters" className="poster-groups gap-3 grid grid-cols-3">
+                                {
+                                    (event && event.posters.length) ? (
+                                        event.posters.map((poster, index) => (
+                                            <React.Fragment key={index}>
+                                                <div className="poster-group relative">
+                                                    <div className={cn(styles.media_frame, styles.poster, styles.img_preview)} style={{ backgroundImage: `url(${poster.url})` }}>
+                                                        <NextImage.default src={poster.url}
+                                                            title={poster.public_id}
+                                                            alt={poster.public_id}
+                                                            width="120" height="180" />
+                                                    </div>
+                                                    {<input type="hidden" name={`posters[${index}][url]`} defaultValue={poster.url} />}
+                                                    {<input type="hidden" name={`posters[${index}][public_id]`} defaultValue={poster.public_id || ''} />}
+                                                    <Button onClick={(e) => removePoster(e.target as HTMLButtonElement, poster)} type="button" role="button" variant={null} className="rounded-full absolute right-2 top-2 px-1.5 py-1 bg-black/60 text-white">
+                                                        <MdClose size={24} />
+                                                    </Button>
+                                                </div>
+                                            </React.Fragment>
+                                        ))
+                                    ) : (
+                                        null
+                                    )
+                                }
                                 <MediaUploader.uploadButton name="posters" onFileSelection={e => readSelectedFiles(e, previewPosters)}
                                     className={styles.poster} />
                             </div>
@@ -590,7 +674,7 @@ const EventForm = (
 
 export default EventForm;
 
-const readSelectedFiles = (ev: React.ChangeEvent<HTMLInputElement>, processor: Callback) => {
+const readSelectedFiles = (ev: React.ChangeEvent<HTMLInputElement>, processFile: Callback) => {
     const files = ev.target.files // Get the selected file
 
     if (!files?.length) {
@@ -600,6 +684,6 @@ const readSelectedFiles = (ev: React.ChangeEvent<HTMLInputElement>, processor: C
 
     for (let i = 0; i < files.length; i++) {
         const file: File = files[i];
-        processor(file);
+        processFile(file);
     }
 }

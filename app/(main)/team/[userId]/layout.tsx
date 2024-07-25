@@ -10,7 +10,7 @@ import ProfileCard from '@/components/profile/profile-card';
 import InternalErrorPage from '@/app/internal-error';
 import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
 import { cn } from '@/lib/utils';
-import { useTitle } from "@/hooks/useTitleContext";
+import { usePageHeader } from "@/hooks/usePageHeaderContext";
 import { useState } from "react";
 
 
@@ -22,9 +22,7 @@ export default function ProfileLayout({
     params: { userId: string };
 }>) {
     const actor = useAuthenticatedUser();
-    const { setIsTitleEnabled } = useTitle();
-
-    setIsTitleEnabled(false);
+    const { setPageTitle } = usePageHeader();
 
     const { userId } = params;
     const [isLoading, user, error] = useGetUserById(userId, actor as AppUser);
@@ -59,6 +57,10 @@ export default function ProfileLayout({
 
         }
     }, [isLoading, user, error]);
+
+    useEffect(() => {
+        setPageTitle(null);
+    }, [setPageTitle])
 
     return (
         user &&

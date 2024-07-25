@@ -123,9 +123,7 @@ const MediaUploader = {
         const result = await Promise.all(
             images.map(image => deleteImage({ publicId: image.public_id }))
         );
-        // if ( !result ) {
-        //     return false;
-        // }
+
         return result;
     }
 }

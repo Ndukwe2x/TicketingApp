@@ -7,7 +7,7 @@ import { Text } from '@/components/ui/text';
 import MyTickets from '@/components/dashboard/my-tickets';
 import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
 import { Heading } from '@/components/ui/headers';
-import { useTitle } from '@/hooks/useTitleContext';
+import { useTitle } from '@/hooks/usePageHeaderContext';
 import ToggleView from '@/components/buttons/viewtype-toggle';
 
 export default function Tickets() {
@@ -36,7 +36,7 @@ export default function Tickets() {
                     <MyTickets
                         layout={layout}
                         isFilteringEnabled={true}
-                        filterParams={['event_title', 'name', 'email', 'phone', 'ticketCategory', 'eventRef']}>
+                        filterParams={['eventTitle', 'name', 'email', 'phone', 'ticketCategory', 'eventRef']}>
 
                     </MyTickets>
                 </CardContent>

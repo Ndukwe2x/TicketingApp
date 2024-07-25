@@ -47,6 +47,7 @@ const UserForm = (
     const [selectedRole, setSelectedRole] = useState((account ? account.role : null));
     const [passwordHidden, togglePasswordHidden] = useReducer(state => !state, true);
     const formRef = useRef<HTMLFormElement | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     const updatePageStatus = useCallback((): void => {
         const getInputsFromCurrentPage = () => {
@@ -156,43 +157,44 @@ const UserForm = (
         });
     }
 
-    const createSuspense = (containerId: string | HTMLElement, hideUploadBtn: boolean = true): void => {
-        const container: HTMLElement | null =
-            typeof containerId === 'string'
-                ? document.querySelector(containerId)
-                : containerId;
+    // const createSuspense = (containerId: string | HTMLElement, hideUploadBtn: boolean = true): void => {
+    //     const container: HTMLElement | null =
+    //         typeof containerId === 'string'
+    //             ? document.querySelector(containerId)
+    //             : containerId;
 
-        if (!container) {
-            console.error('Target container not found.');
-            return;
-        }
+    //     if (!container) {
+    //         console.error('Target container not found.');
+    //         return;
+    //     }
 
-        const loading = document.createElement('div');
-        const spinner = document.createElement('span');
-        const hint = document.createElement('span');
+    //     const loading = document.createElement('div');
+    //     const spinner = document.createElement('span');
+    //     const hint = document.createElement('span');
 
-        spinner.classList.add(styles.spinner);
-        hint.innerText = 'Loading, please wait...';
-        hint.classList.add(styles.hint);
-        loading.classList.add('suspense', styles.content_loading);
-        loading.appendChild(spinner);
-        loading.appendChild(hint);
-        container.appendChild(loading);
+    //     spinner.classList.add(styles.spinner);
+    //     hint.innerText = 'Loading, please wait...';
+    //     hint.classList.add(styles.hint);
+    //     loading.classList.add('suspense', styles.content_loading);
+    //     loading.appendChild(spinner);
+    //     loading.appendChild(hint);
+    //     container.appendChild(loading);
 
-        const uploadBtn = container.parentElement?.getElementsByClassName('upload-btn')[0];
-        if (uploadBtn && hideUploadBtn) {
-            // container.parentElement?.removeChild(uploadBtn);
-            uploadBtn.remove();
-        }
+    //     const uploadBtn = container.parentElement?.getElementsByClassName('upload-btn')[0];
+    //     if (uploadBtn && hideUploadBtn) {
+    //         // container.parentElement?.removeChild(uploadBtn);
+    //         uploadBtn.remove();
+    //     }
 
-        container.style.display = 'flex';
-    };
+    //     container.style.display = 'flex';
+    // };
 
     const handleSubmit = (ev: FormEvent) => {
         if (!ev.defaultPrevented) {
             ev.preventDefault();
         }
 
+        setIsLoading(true);
         const form = ev.target as HTMLFormElement;
         const formData = new FormData(form);
         let finalData = (Object.fromEntries(formData.entries()) as unknown) as UserInfo;
@@ -207,11 +209,7 @@ const UserForm = (
         })
             .then(
                 response => {
-                    // const { userId } = typeof response.data === 'string'
-                    //     ? JSON.parse(response.data)
-                    //     : response.data;
-
-                    if (typeof onSuccess === 'function') {
+                    if (onSuccess) {
                         onSuccess(response.data);
                     } else {
                         console.log('Account created successfully');
@@ -219,12 +217,15 @@ const UserForm = (
                 }
             )
             .catch(error => {
-                if (typeof onFailure === 'function') {
+                if (onFailure) {
                     onFailure(error);
                 } else {
                     console.error(error);
                 }
-            });
+            })
+            .finally(() => {
+                setIsLoading(false);
+            })
     }
 
     // generator.generate(options);
@@ -370,7 +371,14 @@ const UserForm = (
 
                     <div className="flex flex-row justify-content-between pt-5">
                         {/* { !isFirstPage && <Button type="button" onClick={ backToPreviousPage } className="max-w-max"><Icons.backward /> Back</Button> } */}
-                        {isLastPage && <Button type='submit' disabled={!isCurrentPageCompleted} className="max-w-max ml-auto">Submit <Icons.forward /></Button>}
+                        {/* {isLastPage && <Button type='submit' disabled={!isCurrentPageCompleted} className="max-w-max ml-auto">Submit <Icons.forward /></Button>} */}
+                        {isLastPage && <Button type='submit' disabled={!isCurrentPageCompleted} className="max-w-max ml-auto">
+                            {
+                                isLoading ?
+                                    <><Icons.spinner className='mr-2 h-4 w-4 animate-spin' /> Loading...</>
+                                    : <>Submit <Icons.forward /></>
+                            }
+                        </Button>}
                         {/* { !isLastPage && <Button type='button' disabled={ !isCurrentPageCompleted } onClick={ gotoNextPage } className="max-w-max ml-auto">Next <Icons.forward /></Button> } */}
                     </div>
                 </div>

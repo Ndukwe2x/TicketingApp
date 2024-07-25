@@ -23,7 +23,7 @@ const EditEventButton: React.FC<EditButtonProps> = ({ children, className, event
     }
 
     const btn = <Button variant={variant || 'default'} type="button" className={className} {...props}>
-        {children || <>Edit Event <MdEdit size={18} className="ml-2" /></>}
+        {children || <>Edit<MdEdit size={18} className="ml-2" /></>}
     </Button>;
 
 

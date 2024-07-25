@@ -54,7 +54,7 @@ export default function Dashboard() {
                     <MyTickets
                         layout={ticketsLayout}
                         isFilteringEnabled={true}
-                        filterParams={['event_title', 'name', 'email', 'phone', 'ticketCategory', 'eventRef']}
+                        filterParams={['eventTitle', 'name', 'email', 'phone', 'ticketCategory', 'eventRef']}
                     >
                     </MyTickets>
                 </CardContent>

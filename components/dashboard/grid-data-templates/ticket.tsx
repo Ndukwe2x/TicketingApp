@@ -7,17 +7,17 @@ import Link from "next/link";
 import React from "react";
 import { FiEye } from "react-icons/fi";
 
-const TicketGridTemplate: React.FC<{data: Ticket}> = ({data}) => {
+const TicketGridTemplate: React.FC<{ data: Ticket }> = ({ data }) => {
 
-    const ticket: Ticket = {...data};
+    const ticket: Ticket = { ...data };
 
     return (
         <GridContent>
             <GridCard>
                 <GridCardHeader>
                     <div className="flex flex-col gap-5 py-2 border-b">
-                        <Text variant='h3'>{ ticket.event_title }</Text>
-                        <Text>Ticket for: { ticket.ticketCategory }</Text>
+                        <Text variant='h3'>{ticket.eventTitle}</Text>
+                        <Text>Ticket for: {ticket.ticketCategory}</Text>
                     </div>
                     {/* <div className="flex gap-5 py-2 border-b">
                         <Text className="font-semibold text-muted-foreground">Ticket Category:</Text>
@@ -26,47 +26,47 @@ const TicketGridTemplate: React.FC<{data: Ticket}> = ({data}) => {
                 <GridCardBody>
                     <div className="flex gap-5 py-2 border-b">
                         <Text className="font-semibold text-muted-foreground">Customer:</Text>
-                        <Text>{ ticket.name }</Text>
+                        <Text>{ticket.name}</Text>
                     </div>
                     <div>
                         <Text className="font-semibold text-muted-foreground">Contact Info:</Text>
                         <div>
-                            <Text><span className="font-semibold text-foreground w-1/4 inline-block">Email:</span> { ticket.email }</Text>
-                            <Text><span className="font-semibold text-foreground w-1/4 inline-block">Phone:</span> { ticket.phone }</Text>
+                            <Text><span className="font-semibold text-foreground w-1/4 inline-block">Email:</span> {ticket.email}</Text>
+                            <Text><span className="font-semibold text-foreground w-1/4 inline-block">Phone:</span> {ticket.phone}</Text>
                         </div>
                     </div>
                     <div className="flex gap-5 py-2 border-b">
                         <Text className="font-semibold text-muted-foreground w-1/3">Quantity:</Text>
-                        <Text>{ ticket.numberOfTickets }</Text>
+                        <Text>{ticket.numberOfTickets}</Text>
                     </div>
                     <div className="flex gap-5 py-2 border-b">
                         <Text className="font-semibold text-muted-foreground w-1/3">Ticket Reference:</Text>
-                        <Text>{ ticket.referenceNo }</Text>
+                        <Text>{ticket.referenceNo}</Text>
                     </div>
                 </GridCardBody>
                 <GridCardFooter>
                     <div className='flex gap-3 items-center justify-between px-2'>
-                        <Link href={`/tickets/${ticket.referenceNo}/`} 
-                            className={ cn('border border-primary flex flex-row gap-1.5 hover:bg-primary',
-                            'hover:text-primary-foreground md:px-2 md:py-1 px-1.5 py-1 h-9',
-                            'rounded-md text-primary whitespace-nowrap shadow items-center') }>
+                        <Link href={`/tickets/${ticket.referenceNo}/`}
+                            className={cn('border border-primary flex flex-row gap-1.5 hover:bg-primary',
+                                'hover:text-primary-foreground md:px-2 md:py-1 px-1.5 py-1 h-9',
+                                'rounded-md text-primary whitespace-nowrap shadow items-center')}>
                             <span className='sr' aria-description="View">View</span>
-                            <FiEye size={ 20 } />
+                            <FiEye size={20} />
                         </Link>
-                        <SendTicketToCustomer ticketId={ ticket._id } variant={ null } 
+                        <SendTicketToCustomer ticketId={ticket._id} variant={null}
                             className={cn('border flex flex-row gap-1.5 bg-white hover:bg-secondary',
-                            'hover:text-secondary-foreground items-center md:px-2 md:py-1 px-1.5 py-1 ',
-                            'rounded-md text-foreground whitespace-nowrap')}>
-                                <span className="sr" aria-description="Send To customer">Send</span>
-                            </SendTicketToCustomer>
-                        <DeleteTicket ticketId={ ticket._id } 
-                            onSuccess={ data => removeTicketColumn(data, `#ticket_${ticket._id}`) } 
-                            variant={ null } 
-                            className={cn('border border-destructive flex flex-row gap-1.5 bg-destructive', 
-                            'hover:bg-accent-destructive text-white items-center md:px-2 md:py-1 px-1.5 py-1 ',
-                            'rounded-md text-white whitespace-nowrap')}>
-                                <span className="sr" aria-description="Delete Ticket">Delete</span>
-                            </DeleteTicket>
+                                'hover:text-secondary-foreground items-center md:px-2 md:py-1 px-1.5 py-1 ',
+                                'rounded-md text-foreground whitespace-nowrap')}>
+                            <span className="sr" aria-description="Send To customer">Send</span>
+                        </SendTicketToCustomer>
+                        <DeleteTicket ticketId={ticket._id}
+                            onSuccess={data => removeTicketColumn(data, `#ticket_${ticket._id}`)}
+                            variant={null}
+                            className={cn('border border-destructive flex flex-row gap-1.5 bg-destructive',
+                                'hover:bg-accent-destructive text-white items-center md:px-2 md:py-1 px-1.5 py-1 ',
+                                'rounded-md text-white whitespace-nowrap')}>
+                            <span className="sr" aria-description="Delete Ticket">Delete</span>
+                        </DeleteTicket>
                     </div>
                 </GridCardFooter>
             </GridCard>

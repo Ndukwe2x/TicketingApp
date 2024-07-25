@@ -1,9 +1,42 @@
 import { Api } from "@/lib/api";
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import { useEffect, useState } from "react";
 import { useGetEventsByIds, useGetEventById, useGetEventsByUser, fetchUserEvents } from "./useGetEvents";
 import UserClass from "@/lib/User.class";
 import { orderByDate } from "@/lib/utils";
+
+const fetchUsersByEventId = async (eventId: string, actor: AppUser): Promise<UserInfo[] | []> => {
+    const url = Api.server + Api.endpoints.admin.search + '?eventRef=' + eventId;
+    const res = await axios.get(url, {
+        headers: {
+            Authorization: `Bearer ${actor?.token}`
+        }
+    });
+    const data = res.data.data || {};
+    return data.accounts || [];
+}
+
+/**
+ * Disconnects a user from an event to which they are a team member
+ * 
+ * @param user { UserInfo } The user to dissociate from the event
+ * @param eventId {string} The id of the event 
+ * @param actor {AppUser} The current logged in user
+ * @returns Promise<boolean> True if the response is ok and false otherwise
+ * @throws AxiosError
+ */
+const dissociateUserFromEvent = async (user: UserInfo, eventId: string, actor: AppUser): Promise<boolean> => {
+    const modifiedUser = { ...user, eventRef: [...user.eventRef].filter(ref => ref !== eventId) }
+    const url = Api.server + Api.endpoints.admin.singleUser.replace(':id', user.id);
+    const config: AxiosRequestConfig = {
+        headers: {
+            Authorization: `Bearer ${actor.token}`
+        }
+    }
+    const response = await axios.patch(url, modifiedUser, config);
+
+    return response.status === 200;
+}
 
 const useGetUsers = (actor: AppUser): [isLoading: boolean, users: AppUser[] | [], error: any] => {
 
@@ -215,21 +248,25 @@ const useGetUserTeams = (user: AppUser | null, actor: AppUser | null, ignoreErro
             setIsLoading(false);
             return;
         }
-        const eventIds = userEvents.map((event: SingleEvent) => event._id);
+        const eventIds: string[] = userEvents.map((event: SingleEvent) => event._id);
 
-        const fetchUsersByEventId = async (eventId: string) => {
-            const url = Api.server + Api.endpoints.admin.search + '?eventRef=' + eventId;
-            const res = await axios.get(url, {
-                headers: {
-                    Authorization: `Bearer ${actor?.token}`
-                }
-            });
-            const data = res.data.data || {};
-            return { [eventId]: data.accounts || [] };
-        }
+        // const fetchUsersByEventId = async (eventId: string) => {
+        //     const url = Api.server + Api.endpoints.admin.search + '?eventRef=' + eventId;
+        //     const res = await axios.get(url, {
+        //         headers: {
+        //             Authorization: `Bearer ${actor?.token}`
+        //         }
+        //     });
+        //     const data = res.data.data || {};
+        //     return { [eventId]: data.accounts || [] };
+        // }
 
         try {
-            const batchResponse = await Promise.all(eventIds.map(fetchUsersByEventId));
+            const batchResponse = await Promise.all(eventIds.map(
+                async id => {
+                    return { [id]: await fetchUsersByEventId(id, actor as AppUser) };
+                }
+            ));
             batchResponse.forEach((data) => {
                 for (const [key, value] of Object.entries(data)) {
                     setTeams(state => ([...state, {
@@ -314,7 +351,9 @@ const useGetTeamMembers = (user: AppUser | null, actor: AppUser | null):
 // }
 
 export {
+    dissociateUserFromEvent,
     fetchUserById,
+    fetchUsersByEventId,
     useGetUsers,
     useGetUserById,
     useGetUsersByEvent,

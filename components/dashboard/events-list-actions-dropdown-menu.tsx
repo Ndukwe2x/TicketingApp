@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { HTMLAttributes, ReactNode } from "react";
 // import { Row } from "@tanstack/react-table";
 // import { Icons } from "../icons";
 // import CommonDropdownMenu from "./dropdown-menu";
@@ -18,48 +18,59 @@ import { Button } from "../ui/button";
 import { copyLink } from "@/lib/utils";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 
-const EventsListActionsDropdownMenu = ({ event, onSuccess }: {event: SingleEvent; onSuccess?: <T, S>(response: T, action: S) => void}) => {
+interface EventsListActionsMenuProps extends HTMLAttributes<HTMLDivElement> {
+    event: SingleEvent;
+    onBeforeAction?(action: string): boolean;
+    onActionSuccess(data: any, action: string): void;
+    onActionFailure?(action: string, error?: Error | unknown): void;
+}
+const EventsListActionsDropdownMenu = ({ event, onBeforeAction, onActionSuccess, onActionFailure, ...props }: EventsListActionsMenuProps) => {
     const [isOpen, setIsOpen] = React.useState(false);
     const actor = useAuthenticatedUser();
-    
 
     return (
         actor &&
-        <DropdownMenu onOpenChange={setIsOpen} open={isOpen}>
-            <DropdownMenuTrigger asChild>
-                <Button variant='ghost' className='h-8 w-8 p-0'>
-                    <span className='sr-only'>Open menu</span>
-                    <MdMoreVert className='h-4 w-4' />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align='end'>
-                <DropdownMenuLabel>
-                    <div className="flex justify-between items-center">
-                        <span>Actions</span>
-                        <Button variant={null} className="px-1 py-1 h-auto hover:bg-secondary" title="Cancel" onClick={() => setIsOpen(false)}><MdClose /></Button>
-                    </div>
-                </DropdownMenuLabel>
-                <Button variant={null} onClick={ () => copyLink(`${window.location.origin}/events/${event._id}`) }
-                    className='hover:bg-accent px-2 text-foreground flex justify-between items-center gap-5'>
-                    <span>Copy Event Link</span><MdLink />
-                </Button>
-                { actor?.canUpdateEvent && 
-                    <EditEventButton 
-                        event={ event } 
-                        actor={ actor }
-                        variant={null} 
-                        className='flex justify-between items-center w-full hover:bg-accent px-2 text-foreground gap-5' /> }
-                <DropdownMenuSeparator />
-                { actor?.canDeleteEvent && <DeleteEventButton 
-                    event={ event }
-                    actor={ actor }
-                    variant={null}
-                    callback={onSuccess ? (eventId) => {onSuccess(eventId, 'delete')} : undefined }
-                    className='text-destructive flex justify-between items-center w-full hover:bg-accent px-2 gap-5' /> }
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <div {...props}>
+                <DropdownMenu onOpenChange={setIsOpen} open={isOpen}>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant='ghost' className='h-8 w-8 p-0'>
+                            <span className='sr-only'>Open menu</span>
+                            <MdMoreVert className='h-4 w-4' />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align='end'>
+                        <DropdownMenuLabel>
+                            <div className="flex justify-between items-center">
+                                <span>Actions</span>
+                                <Button variant={null} className="px-1 py-1 h-auto hover:bg-secondary" title="Cancel" onClick={() => setIsOpen(false)}><MdClose /></Button>
+                            </div>
+                        </DropdownMenuLabel>
+                        <Button variant={null} onClick={() => copyLink(`${window.location.origin}/events/${event._id}`)}
+                            className='hover:bg-accent px-2 text-foreground flex justify-between items-center gap-5'>
+                            <span>Copy Event Link</span><MdLink />
+                        </Button>
+                        {actor?.canUpdateEvent &&
+                            <EditEventButton
+                                event={event}
+                                actor={actor}
+                                variant={null}
+                                className='flex justify-between items-center w-full bg-white shadow-none hover:bg-accent px-2 text-foreground gap-5' />}
+                        <DropdownMenuSeparator />
+                        {actor?.canDeleteEvent && <DeleteEventButton
+                            event={event}
+                            actor={actor}
+                            variant={null}
+                            onInit={ () => (onBeforeAction && onBeforeAction('delete')) as boolean }
+                            onAfterDelete={eventId => { onActionSuccess && onActionSuccess(eventId, 'delete'); setIsOpen(false) }}
+                            onFailure={() => onActionFailure && onActionFailure('delete')}
+                            className='bg-white shadow-none text-destructive flex justify-between items-center w-full hover:bg-accent px-2 gap-5' />}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+        </div>
     )
 }
+
+
 
 export default EventsListActionsDropdownMenu;
         // <div>

@@ -32,6 +32,7 @@ export default class UserClass implements AppUser {
     canUpdateEvent: boolean;
     canDeleteEvent: boolean;
     canDeleteTicket: boolean;
+    canViewTeamMembers: boolean;
 
     constructor(userInfo: UserInfo) {
         this.rawData = userInfo;
@@ -57,6 +58,7 @@ export default class UserClass implements AppUser {
         this.canUpdateEvent = this.isSuperOwner || this.isRegularOwner || this.isSuperUser;
         this.canDeleteEvent = this.isSuperOwner;
         this.canDeleteTicket = this.isSuperOwner;
+        this.canViewTeamMembers = this.isOwner || this.isSuperUser || this.isRegularUser;
 
         this.setProperty('fullName', this.firstname + ' ' + this.lastname);
     }

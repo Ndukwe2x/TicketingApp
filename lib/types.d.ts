@@ -10,6 +10,8 @@
 //     featured: boolean;
 // };
 
+import { ReactNode } from "react";
+
 type DashboardEvent = {
     objectId: string;
     title: string;
@@ -107,9 +109,10 @@ type Ticket = {
     numberOfTickets: number;
     referenceNo: number;
     __v: 0;
-    event_title?: string;
+    eventTitle?: string;
     event?: SingleEvent | null;
 }
+
 interface TicketProps {
     _id: string;
     eventRef: string;
@@ -122,7 +125,7 @@ interface TicketProps {
     numberOfTickets: number;
     referenceNo: number;
     __v: 0;
-    event_title?: string;
+    eventTitle?: string;
 }
 
 interface TicketColumnDefProps extends TicketProps {
@@ -258,6 +261,7 @@ interface AppUser {
     canUpdateEvent: boolean;
     canDeleteEvent: boolean;
     canDeleteTicket: boolean;
+    canViewTeamMembers: boolean;
     setProperty: (property: string, value: any) => void;
     getRawData: () => Record<string, any> | UserInfo
 }
@@ -308,11 +312,13 @@ type GridComponentOptions<TData> = {
     state: {},
 }
 
-interface TitleContextType {
-    title: string | null;
-    setTitle: (title: string) => void;
-    isTitleEnabled: boolean;
-    setIsTitleEnabled: (option: boolean) => void;
+interface PageHeaderContextType {
+    pageTitle: string | null;
+    setPageTitle: (title: string) => void;
+    isPageTitleEnabled: boolean;
+    setIsPageTitleEnabled: (option: boolean) => void;
+    widget: ReactNode;
+    setWidget: (widget: ReactNode) => void;
 }
 
 interface FormDataContextType {

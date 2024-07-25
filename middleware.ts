@@ -31,8 +31,8 @@ export default function middleware(req: NextRequest) {
         if (!sessionUser?.value && !AuthFreeRoutes.includes(entryRoute)) {
             url.pathname = '/login/';
             url.search = '?redir=' + req.nextUrl.pathname;
-            return NextResponse.redirect(url);
 
+            return NextResponse.redirect(url);
         }
 
         let userInfo = <UserInfo>(sessionUser?.value ? JSON.parse(sessionUser?.value) : {});
@@ -49,9 +49,16 @@ export default function middleware(req: NextRequest) {
         }
 
         const appUser = new UserClass(userInfo as UserInfo);
-        if (entryRoute.startsWith('/users') && !appUser.isOwner) {
-            url.pathname = url.pathname.replace('/users', '/team');
-            return NextResponse.redirect(url);
+        if (entryRoute.startsWith('/users') || entryRoute.startsWith('/team')) {
+            if (entryRoute.startsWith('/users')) {
+                if (!appUser.isOwner) {
+                    return NextResponse.error();
+                }
+            } else if (entryRoute.startsWith('/team')) {
+                if (!appUser.isUser || !appUser.canViewTeamMembers) {
+                    return NextResponse.error();
+                }
+            }
         }
     }
 
