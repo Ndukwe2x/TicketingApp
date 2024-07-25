@@ -3,16 +3,12 @@
 import React, { HtmlHTMLAttributes, useState } from "react";
 import { DataTable, DataTableLoading } from "../ui/data-table";
 import { useGetEvents, useGetEventsByIds, useGetEventsByUser } from "@/hooks/useGetEvents";
-import NoNetwork from "../no-network";
 import { columns } from "./table-columns/events";
 import { DataGrid } from "../ui/data-grid";
-import InternalErrorPage from "@/app/internal-error";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 import EventGridTemplate from "./grid-data-templates/event";
 import { orderByDate } from "@/lib/utils";
 import { APPCONFIG } from "@/lib/app-config";
-import { isAxiosError } from "axios";
-import ServiceUnavailable from "@/app/service-unavailable";
 import RenderPrettyError from "../render-pretty-error";
 
 const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & {

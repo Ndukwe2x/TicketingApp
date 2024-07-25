@@ -43,7 +43,7 @@ export default function PageHeader({ children, className, ...props }: PageHeader
             titleRef.current = typeof pageTitle === 'string' ? (pageTitle?.toLocaleLowerCase() as string) : pageTitle;
             // setIsPageTitleEnabled(true);
         }
-    }, [path, titleRef, , pageTitle, setIsPageTitleEnabled]);
+    }, [path, titleRef, , pageTitle, setIsPageTitleEnabled, setWidget]);
 
     return (
         <div className={cn('flex items-center mb-4 gap-3', className)} {...props}>

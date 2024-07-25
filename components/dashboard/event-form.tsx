@@ -120,7 +120,7 @@ const EventForm = (
         return () => {
 
         }
-    }, [formRef, updatePageStatus]);
+    }, [formRef]);
 
     useEffect(() => {
         const updatePages = () => {
