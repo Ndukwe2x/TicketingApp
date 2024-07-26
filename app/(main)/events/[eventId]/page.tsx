@@ -48,10 +48,10 @@ export default function ViewEvent({ params }: { params: { eventId: string } }) {
                             'justify-center lg:px-4 md:px-2 px-2 py-2 rounded-md shadow-sm text-primary',
                             'text-sm transition-colors whitespace-nowrap')
                     }> All Events</Link>
-                    <EditEventButton event={event} actor={actor as AppUser} variant='outline' className='px-2 md:px-3 lg:px-4'>
+                    <EditEventButton event={event as SingleEvent} actor={actor as AppUser} variant='outline' className='px-2 md:px-3 lg:px-4'>
                         <span className='hidden md:inline-flex mr-2'>Edit</span><MdEdit size={18} />
                     </EditEventButton>
-                    <DeleteEventButton actor={actor as AppUser} event={event} className='px-2 md:px-3 lg:px-4'>
+                    <DeleteEventButton actor={actor as AppUser} event={event as SingleEvent} className='px-2 md:px-3 lg:px-4'>
                         <span className='hidden md:inline-flex mr-2'>Delete</span><MdDelete size={18} />
                     </DeleteEventButton>
                 </div>
