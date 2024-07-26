@@ -1,7 +1,7 @@
 import InternalErrorPage from "@/app/internal-error";
 import ServiceUnavailable from "@/app/service-unavailable";
 import { isAxiosError } from "axios";
-import NotFoundPage from "@/app/(main)/[...not-found]/page";
+import NotFoundPage from "@/app/[...not-found]/page";
 import Error from "@/app/(main)/error";
 
 export default function RenderPrettyError({ error }: { error: unknown }) {

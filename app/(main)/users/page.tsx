@@ -8,7 +8,7 @@ import { Heading } from '@/components/ui/headers';
 import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
 import { useGetUsers } from '@/hooks/useGetUsers';
 import { useRouter } from 'next/navigation';
-import NotFoundPage from '../[...not-found]/page';
+import NotFoundPage from '../../[...not-found]/page';
 import InternalErrorPage from '@/app/internal-error';
 
 const Users = () => {

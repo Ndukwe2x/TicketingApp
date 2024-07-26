@@ -52,11 +52,11 @@ export default function middleware(req: NextRequest) {
         if (entryRoute.startsWith('/users') || entryRoute.startsWith('/team')) {
             if (entryRoute.startsWith('/users')) {
                 if (!appUser.isOwner) {
-                    return NextResponse.error();
+                    return NextResponse.rewrite(new URL('/restricted', req.url));
                 }
             } else if (entryRoute.startsWith('/team')) {
                 if (!appUser.isUser || !appUser.canViewTeamMembers) {
-                    return NextResponse.error();
+                    return NextResponse.rewrite(new URL('/restricted', req.url));
                 }
             }
         }

@@ -103,11 +103,14 @@ export const fetchEventTickets = async (eventId: string, actor: AppUser): Promis
             Authorization: `Bearer ${actor.token}`
         }
     }
-    const preflightRes = await axios.options(url, options);
-    if (preflightRes.status !== 200) {
-        return [];
-    }
+    // const preflightRes = await axios.options(url, options);
+    // if (preflightRes.status !== 200) {
+    //     return [];
+    // }
     const res = await axios.get(url, options);
+    // if (res.status !== 200) {
+    //     return [];
+    // }
     const data = res.data.data || {};
     let tickets: Tickets | [] = data.tickets || [];
 
@@ -130,11 +133,14 @@ export const fetchUserTickets = async (actor: AppUser): Promise<Tickets | []> =>
             Authorization: `Bearer ${actor.token}`
         }
     }
-    const preflightRes = await axios.options(url, options);
-    if (preflightRes.status !== 200) {
-        return [];
-    }
+    // const preflightRes = await axios.options(url, options);
+    // if (preflightRes.status !== 200) {
+    //     return [];
+    // }
     const res = await axios.get(url, options);
+    // if (res.status !== 200) {
+    //     return [];
+    // }
     const data = res.data.data || {};
     let tickets: Tickets | [] = data.tickets || [];
 
