@@ -6,7 +6,7 @@ interface PageHeaderProviderProps extends React.HTMLAttributes<HTMLElement> { }
 
 export default function PageHeaderProvider({ children }: PageHeaderProviderProps) {
     const titleRef = useRef<string | null>(null);
-    const [pageTitle, setPageTitle] = useState<string | null>(null);
+    const [pageTitle, setPageTitle] = useState<string | null | undefined>(undefined);
     const [isPageTitleEnabled, setIsPageTitleEnabled] = useState(true);
     const [widget, setWidget] = useState<ReactNode | null>(null);
 

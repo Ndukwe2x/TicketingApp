@@ -2,7 +2,7 @@ import React, { Dispatch, ReactNode, SetStateAction, useContext } from "react";
 
 export const PageHeaderContext = React.createContext<PageHeaderContextType>({
     pageTitle: null,
-    setPageTitle: (title: string) => { },
+    setPageTitle: (title: string | null | undefined) => { },
     isPageTitleEnabled: true,
     setIsPageTitleEnabled: (option: boolean) => { },
     widget: null,

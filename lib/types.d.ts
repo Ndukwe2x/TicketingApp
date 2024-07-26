@@ -319,7 +319,7 @@ type GridComponentOptions<TData> = {
 }
 
 interface PageHeaderContextType {
-    pageTitle: string | null;
+    pageTitle: string | null | undefined;
     setPageTitle: (title: string | null) => void;
     isPageTitleEnabled: boolean;
     setIsPageTitleEnabled: (option: boolean) => void;

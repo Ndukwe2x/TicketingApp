@@ -1,6 +1,6 @@
 'use client';
 
-import * as React from 'react';
+import React, { useState } from 'react';
 
 import { cn } from '@/lib/utils';
 import { Icons } from '@/components/icons';
@@ -21,6 +21,7 @@ export function LoginForm() {
     const [pass, setPass] = React.useState<string>('');
     const url = Api.server + Api.endpoints.admin.login;
     const searchParams = useSearchParams();
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const handleSubmit = async (event: React.SyntheticEvent) => {
         event.preventDefault();
@@ -57,24 +58,24 @@ export function LoginForm() {
             setIsLoading(false);
             console.error('Error logging in:', error);
             if (isAxiosError(error)) {
-                if (!error.status) {
-                    toast('Oops! Something went wrong. Please try again.');
+                if (!error.response) {
+                    setErrorMessage('Oops! Something went wrong. Please try again.');
                     return;
                 }
-                switch (error.status) {
+                switch (error.response.status) {
                     case 404:
-                        toast('Unknown username or password');
-                        break;
+                        setErrorMessage('Unknown username or password');
+                        return;
                     case 500:
-                        toast('Sorry, but your request could not be completed at the moment.');
-                        break;
+                        setErrorMessage('Sorry, but your request could not be completed at the moment.');
+                        return;
                     default:
-                        toast('Oops! The server encountered an unknown error.');
-                        break;
+                        setErrorMessage('Oops! The server encountered an unknown error.');
+                        return;
                 }
             }
 
-            toast('Error logging in! Please try again.');
+            setErrorMessage('Error logging in! Please try again.');
         }
     }
 
@@ -84,6 +85,20 @@ export function LoginForm() {
                 {
                     searchParams.get('session_expired') &&
                     <div style={{ color: '#df0000', textAlign: 'center', fontSize: '90%' }}>Your session has expired. Please sign back in to continue.</div>
+                }
+                {
+                    errorMessage &&
+                    <div style={{
+                        color: 'rgb(236 14 14)',
+                        textAlign: 'center',
+                        fontSize: '90%',
+                        border: 'solid 1px currentColor',
+                        padding: '0.75rem',
+                        borderRadius: '5px',
+                        backgroundColor: '#d4000017'
+                    }}>
+                        {errorMessage}
+                    </div>
                 }
                 <form onSubmit={handleSubmit}>
                     <div className='grid gap-4'>
