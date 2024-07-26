@@ -3,23 +3,17 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuGroup,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
     DropdownMenuTrigger
 } from "../ui/dropdown-menu";
 import Link from "next/link";
-import { Session } from "@/lib/session";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 import EditUserButton from "../buttons/edit-user-button";
 import DeleteUserButton from "../buttons/delete-user-button";
 import CreateEventForUser from "../buttons/create-event-for-user";
 import AddTeamMember from "../buttons/add-team-member";
-import { Button } from "../ui/button";
-import { ChevronDownIcon, DotsVerticalIcon } from "@radix-ui/react-icons";
 import React, { HtmlHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
-import { IoChevronDownCircleOutline, IoChevronDownOutline } from "react-icons/io5";
+import { IoChevronDownOutline } from "react-icons/io5";
 
 const ActionButtons: React.FC<HtmlHTMLAttributes<HTMLElement> & { user: AppUser | UserInfo }> = ({ children, className, user, ...props }) => {
     const actor = useAuthenticatedUser();
