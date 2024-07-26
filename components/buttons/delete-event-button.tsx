@@ -7,6 +7,7 @@ import { MdDelete } from "react-icons/md";
 import { deleteEvent, deleteEventTickets } from "@/hooks/useGetEvent";
 import { dissociateUserFromEvent, fetchUsersByEventId } from "@/hooks/useGetUsers";
 import { Icons } from "../icons";
+import { useRouter } from "next/navigation";
 
 interface ButtonProps extends HtmlHTMLAttributes<HTMLButtonElement> {
     actor: AppUser;
@@ -29,6 +30,7 @@ const DeleteEventButton: React.FC<ButtonProps> = ({
 }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccessful, setIsSuccessful] = useState(false);
+    const route = useRouter();
 
     const handleDeleteAction = async (ev: MouseEvent) => {
         const confirmed = confirm(`Are you sure you want to delete ${event.title}?`);
@@ -95,9 +97,13 @@ const DeleteEventButton: React.FC<ButtonProps> = ({
             return;
         }
         toast(<span className="text-green-800">Event deleted.</span>);
-        onAfterDelete && onAfterDelete(event._id);
         setIsLoading(false);
         setIsSuccessful(true);
+        if (onAfterDelete) {
+            onAfterDelete(event._id);
+        } else {
+            route.push('/events');
+        }
     }
 
     return (

@@ -473,7 +473,7 @@ const EventForm = (
                         ...data,
                         ...{
                             posters: [
-                                ...data.posters,
+                                ...data.posters || [],
                                 ...posters.map(
                                     poster => ({
                                         url: poster.secure_url as string,

@@ -22,6 +22,7 @@ import EditEventButton from '@/components/buttons/edit-event-button';
 import AddTeamMember from '@/components/buttons/add-team-member';
 import Link from 'next/link';
 import { MdDelete, MdEdit } from 'react-icons/md';
+import RenderPrettyError from '@/components/render-pretty-error';
 
 export default function ViewEvent({ params }: { params: { eventId: string } }) {
     const actor = useAuthenticatedUser();
@@ -37,29 +38,33 @@ export default function ViewEvent({ params }: { params: { eventId: string } }) {
         }
         // setIsPageTitleEnabled && setIsPageTitleEnabled(false);
         setPageTitle(null);
-        setWidget((
-            <React.Fragment>
-                <div className='flex items-end gap-3 ml-auto'>
-                    {/* <AttachUserToEvent event={event} /> */}
-                    <Link href={'/events'} className={
-                        cn('border border-primary disabled:opacity-50 disabled:pointer-events-none',
-                            'flex focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring',
-                            'font-medium gap-2 h-9 hover:bg-primary hover:text-white items-center',
-                            'justify-center lg:px-4 md:px-2 px-2 py-2 rounded-md shadow-sm text-primary',
-                            'text-sm transition-colors whitespace-nowrap')
-                    }> All Events</Link>
-                    <EditEventButton event={event as SingleEvent} actor={actor as AppUser} variant='outline' className='px-2 md:px-3 lg:px-4'>
-                        <span className='hidden md:inline-flex mr-2'>Edit</span><MdEdit size={18} />
-                    </EditEventButton>
-                    <DeleteEventButton actor={actor as AppUser} event={event as SingleEvent} className='px-2 md:px-3 lg:px-4'>
-                        <span className='hidden md:inline-flex mr-2'>Delete</span><MdDelete size={18} />
-                    </DeleteEventButton>
-                </div>
-            </React.Fragment>
-        ));
-    }, [teamLoading, organizingTeam, teamError, setPageTitle, setWidget, actor, event]);
+        if (!eventLoading && !eventError) {
+            setWidget((
+                <React.Fragment>
+                    <div className='flex items-end gap-3 ml-auto'>
+                        {/* <AttachUserToEvent event={event} /> */}
+                        <Link href={'/events'} className={
+                            cn('border border-primary disabled:opacity-50 disabled:pointer-events-none',
+                                'flex focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring',
+                                'font-medium gap-2 h-9 hover:bg-primary hover:text-white items-center',
+                                'justify-center lg:px-4 md:px-2 px-2 py-2 rounded-md shadow-sm text-primary',
+                                'text-sm transition-colors whitespace-nowrap')
+                        }> All Events</Link>
+                        <EditEventButton event={event as SingleEvent} actor={actor as AppUser} variant='outline' className='px-2 md:px-3 lg:px-4'>
+                            <span className='hidden md:inline-flex mr-2'>Edit</span><MdEdit size={18} />
+                        </EditEventButton>
+                        <DeleteEventButton actor={actor as AppUser} event={event as SingleEvent} className='px-2 md:px-3 lg:px-4'>
+                            <span className='hidden md:inline-flex mr-2'>Delete</span><MdDelete size={18} />
+                        </DeleteEventButton>
+                    </div>
+                </React.Fragment>
+            ));
+        }
+    }, [teamLoading, organizingTeam, teamError, setPageTitle, setWidget, actor, eventError, event]);
 
-
+    if (eventError) {
+        return <RenderPrettyError error={eventError} />
+    }
 
     return (
         event
