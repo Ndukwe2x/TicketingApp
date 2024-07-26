@@ -120,7 +120,7 @@ const EventForm = (
         return () => {
 
         }
-    }, [formRef]);
+    }, [formRef, updatePageStatus]);
 
     useEffect(() => {
         const updatePages = () => {
@@ -458,7 +458,7 @@ const EventForm = (
                 if (isNew && !uploadResponse.banner) {
                     throw new Error('Image upload failed');
                 }
-                const { banner = null, posters = [] }: UploadResponseDataProps = uploadResponse;
+                const { banner = {}, posters = [] }: UploadResponseDataProps = uploadResponse;
 
                 if (banner?.public_id) {
                     data = {
