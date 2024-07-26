@@ -1,8 +1,7 @@
 import { Api } from '@/lib/api';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-import { dissociateUserFromEvent, fetchUsersByEventId } from './useGetUsers';
-import { fetchEventTickets, useGetTicketSales } from './useGetEvents';
+import axios, { AxiosRequestConfig } from 'axios';
+import { fetchEventTickets } from './useGetEvents';
 
 export const useGetEventById = (id: string, user: AuthInfo) => {
     const eventQuery = useQuery({ queryKey: ['events', id], queryFn: () => getEventById(id, user) });
@@ -66,8 +65,8 @@ export const deleteEvent = async (eventId: string, actor: AppUser, alsoDeleteTic
 }
 
 export const deleteEventTickets = async (eventId: string, actor: AppUser) => {
-    const deleteTicket = async (ticketId: string) => {
-        const url = Api.server + Api.endpoints.admin.singleTicket.replace(':id', ticketId);
+    const deleteTicket = async (ticketId: string | number) => {
+        const url = Api.server + Api.endpoints.admin.singleTicket.replace(':id', ticketId.toString());
         const config: AxiosRequestConfig = {
             headers: {
                 Authorization: `Bearer ${actor.token}`

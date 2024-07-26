@@ -1,7 +1,6 @@
 import NavigateBack from "@/components/dashboard/navigate-back";
 import { Heading } from "@/components/ui/headers";
 import { usePageHeader } from "@/hooks/usePageHeaderContext";
-import { PageHeaderContextType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { capitalCase } from "change-case";
 import { usePathname } from "next/navigation";
@@ -17,9 +16,6 @@ export default function PageHeader({ children, className, ...props }: PageHeader
     const [title, setTitle] = useState<string | null>(null);
 
     useEffect(() => {
-        // if (!title || !titleRef || !path) {
-        //     return;
-        // }
         const route = path.slice(path.length > 1 ? 1 : path.length - 1);
         const routeArr = route.split('/');
         let page = routeArr[0] || 'dashboard';

@@ -10,7 +10,6 @@
 //     featured: boolean;
 // };
 
-import { ReactNode } from "react";
 
 type DashboardEvent = {
     objectId: string;
@@ -38,6 +37,15 @@ type ImageInfo = {
     _id?: string;
 }
 
+type TicketCategory = {
+    name: string;
+    price: number;
+    qty: number;
+    discount: number;
+};
+
+type TicketCategories = TicketCategory[];
+
 type SingleEvent = {
     featured: boolean;
     _id: string;
@@ -46,7 +54,7 @@ type SingleEvent = {
     address: string;
     city: string;
     state: string;
-    ticketCategories: TicketCategory[];
+    ticketCategories: TicketCategories;
     ticketClosingDate: string;
     eventBanner: ImageInfo;
     posters: ImageInfo[];
@@ -54,14 +62,9 @@ type SingleEvent = {
     __v?: number;
 }
 
-type TicketCategory = {
-    name: string;
-    price: number;
-    qty: number;
-    discount: number;
-};
+type MultipleEvents = SingleEvent[];
 
-type Tickets = Ticket[];
+
 // {
 //     objectId: string;
 //     eventRef: string;
@@ -113,6 +116,8 @@ type Ticket = {
     event?: SingleEvent | null;
 }
 
+type Tickets = Ticket[];
+
 interface TicketProps {
     _id: string;
     eventRef: string;
@@ -151,7 +156,6 @@ type FetchApiOptions = {
     redirect: string;
     referrerPolicy: string;
 }
-
 
 type UserInfo = {
     id: string;
@@ -266,6 +270,8 @@ interface AppUser {
     getRawData: () => Record<string, any> | UserInfo
 }
 
+type AppUsers = AppUser[];
+
 type GridColumnDef<TData> = {
     id: string | number;
     accessorKey: string;
@@ -317,8 +323,8 @@ interface PageHeaderContextType {
     setPageTitle: (title: string) => void;
     isPageTitleEnabled: boolean;
     setIsPageTitleEnabled: (option: boolean) => void;
-    widget: ReactNode;
-    setWidget: (widget: ReactNode) => void;
+    widget: React.ReactNode;
+    setWidget: (widget: React.ReactNode) => void;
 }
 
 interface FormDataContextType {
@@ -334,3 +340,4 @@ interface ToggleViewProps {
     dataSetId: string;
     setExternalViewType: React.Dispatch<React.SetStateAction<ViewType>>;
 }
+

@@ -200,9 +200,9 @@ const getAuthenticatedUserFullData = async (email: string, token: string): Promi
 }
 
 const useGetUserProperties = (userId: string, actor: AuthInfo):
-    [user: AppUser | null, events: SingleEvent[], isLoading: boolean, error: any] => {
+    [user: AppUser | null, events: MultipleEvents, isLoading: boolean, error: any] => {
     const [user, setUser] = useState<AppUser | null>(null);
-    const [events, setEvents] = useState<SingleEvent[]>([]);
+    const [events, setEvents] = useState<MultipleEvents>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<any>(null);
     const usersSrc = Api.server + Api.endpoints.admin.singleUser.replace(':id', userId);
