@@ -1,35 +1,28 @@
 "use client";
 
 import React, { HtmlHTMLAttributes, useEffect, useState } from "react";
-import { Api } from "@/lib/api";
-import axios, { AxiosError } from "axios";
 import { useGetTicketSales } from "@/hooks/useGetEvents";
-import NoNetwork from "../no-network";
 import { DataTable, DataTableLoading } from "../ui/data-table";
 import { DataGrid } from "../ui/data-grid";
 import { columns } from "./table-columns/sales";
-import InternalErrorPage from "@/app/internal-error";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 import TicketGridTemplate from "./grid-data-templates/ticket";
 import { orderByDate } from "@/lib/utils";
+import RenderPrettyError from "../render-pretty-error";
 
 const MyTickets: React.FC<HtmlHTMLAttributes<HTMLDivElement> & { layout: string; isFilteringEnabled: boolean; filterParams: string[] }> = ({ children, layout, isFilteringEnabled = false, filterParams = [], ...props }) => {
     const actor = useAuthenticatedUser();
-    const dataGridColumns: [] = [];
+
     const [isLoading, userTickets, error] = useGetTicketSales(actor as AppUser);
     const [tickets, setTickets] = useState<Ticket[]>([]);
-    const [fallback, setFallback] = useState(<div className="text-center">Loading, please waith...</div>);
+    const [fallback, setFallback] = useState(<div className="text-center">Fetching tickets, please wait...</div>);
 
     useEffect(() => {
         if (isLoading) {
             return;
         }
-        if (error != null) {
-            if (error?.code && ['ERR_NETWORK', 'ECONNABORTED'].includes(error.code)) {
-                setFallback(<NoNetwork />)
-            } else {
-                setFallback(<InternalErrorPage />)
-            }
+        if (error !== null) {
+            setFallback(<RenderPrettyError error={error} />);
             return;
         }
 

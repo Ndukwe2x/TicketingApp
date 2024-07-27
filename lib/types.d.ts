@@ -10,6 +10,7 @@
 //     featured: boolean;
 // };
 
+
 type DashboardEvent = {
     objectId: string;
     title: string;
@@ -36,6 +37,15 @@ type ImageInfo = {
     _id?: string;
 }
 
+type TicketCategory = {
+    name: string;
+    price: number;
+    qty: number;
+    discount: number;
+};
+
+type TicketCategories = TicketCategory[];
+
 type SingleEvent = {
     featured: boolean;
     _id: string;
@@ -44,7 +54,7 @@ type SingleEvent = {
     address: string;
     city: string;
     state: string;
-    ticketCategories: TicketCategory[];
+    ticketCategories: TicketCategories;
     ticketClosingDate: string;
     eventBanner: ImageInfo;
     posters: ImageInfo[];
@@ -52,14 +62,9 @@ type SingleEvent = {
     __v?: number;
 }
 
-type TicketCategory = {
-    name: string;
-    price: number;
-    qty: number;
-    discount: number;
-};
+type MultipleEvents = SingleEvent[];
 
-type Tickets = Ticket[];
+
 // {
 //     objectId: string;
 //     eventRef: string;
@@ -107,9 +112,12 @@ type Ticket = {
     numberOfTickets: number;
     referenceNo: number;
     __v: 0;
-    event_title?: string;
+    eventTitle?: string;
     event?: SingleEvent | null;
 }
+
+type Tickets = Ticket[];
+
 interface TicketProps {
     _id: string;
     eventRef: string;
@@ -122,7 +130,7 @@ interface TicketProps {
     numberOfTickets: number;
     referenceNo: number;
     __v: 0;
-    event_title?: string;
+    eventTitle?: string;
 }
 
 interface TicketColumnDefProps extends TicketProps {
@@ -148,7 +156,6 @@ type FetchApiOptions = {
     redirect: string;
     referrerPolicy: string;
 }
-
 
 type UserInfo = {
     id: string;
@@ -258,9 +265,12 @@ interface AppUser {
     canUpdateEvent: boolean;
     canDeleteEvent: boolean;
     canDeleteTicket: boolean;
+    canViewTeamMembers: boolean;
     setProperty: (property: string, value: any) => void;
     getRawData: () => Record<string, any> | UserInfo
 }
+
+type AppUsers = AppUser[];
 
 type GridColumnDef<TData> = {
     id: string | number;
@@ -308,11 +318,13 @@ type GridComponentOptions<TData> = {
     state: {},
 }
 
-interface TitleContextType {
-    title: string | null;
-    setTitle: (title: string) => void;
-    isTitleEnabled: boolean;
-    setIsTitleEnabled: (option: boolean) => void;
+interface PageHeaderContextType {
+    pageTitle: string | null | undefined;
+    setPageTitle: (title: string | null) => void;
+    isPageTitleEnabled: boolean;
+    setIsPageTitleEnabled: (option: boolean) => void;
+    widget: React.ReactNode;
+    setWidget: (widget: React.ReactNode) => void;
 }
 
 interface FormDataContextType {
@@ -328,3 +340,4 @@ interface ToggleViewProps {
     dataSetId: string;
     setExternalViewType: React.Dispatch<React.SetStateAction<ViewType>>;
 }
+

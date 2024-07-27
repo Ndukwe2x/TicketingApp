@@ -10,7 +10,7 @@ export default function NotFoundPage() {
             <NotFoundIcon />
 
             <Text variant='h3' className='text-center'>
-                404 <span className='inline-block w-0.5 h-6 bg-muted-foreground -mb-1 mx-2' />
+                404 <span className='inline-block w-0.5 h-6 bg-muted-foreground -mb-1 mx-2'></span>
                 Page not found.
             </Text>
             <Text className='text-center'>

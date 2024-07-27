@@ -32,7 +32,7 @@ const ProfileHeader: React.FC<React.HTMLAttributes<HTMLDivElement> & CompProps> 
                         actor && actor.canUpdateUser && <EditUserButton variant="outline" userId={userId} actor={actor} />
                     }
                     {
-                        actor && actor.canDeleteUser && <DeleteUserButton variant='destructive' actor={actor} account={user as AppUser} callback={handleAfterDelete} />
+                        actor && actor.canDeleteUser && <DeleteUserButton variant='destructive' actor={actor} account={user as AppUser} onSuccess={handleAfterDelete} />
                     }
                 </div>
                 <div className="md:hidden">

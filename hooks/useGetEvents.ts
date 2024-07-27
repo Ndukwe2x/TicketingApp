@@ -9,16 +9,22 @@ import useAuthenticatedUser from './useAuthenticatedUser';
 import { fetchUserById } from './useGetUsers';
 
 
-export async function fetchEventById(eventId: string, surpressError: boolean = false) {
+/**
+ * 
+ * @param eventId {string} The id of the event to fetch
+ * @param failQuietly {boolean} whether or not to surpress exceptionss in case of failure
+ * @returns Promise<SingleEvent | null>
+ */
+export async function fetchEventById(eventId: string, failQuietly: boolean = false): Promise<SingleEvent | null> {
     let url = Api.server + Api.endpoints.public.singleEvent.replace(':id', eventId);
 
     try {
         const res = await axios.get(url);
         return res.data.data || null;
     } catch (error) {
-        if (surpressError) {
+        if (failQuietly) {
             console.error(error);
-            return false;
+            return null;
         }
         throw error;
     }
@@ -28,7 +34,7 @@ export async function fetchEventById(eventId: string, surpressError: boolean = f
 //     return await Promise.all(eventIds.map(id => fetchEventById(id, actor)));
 // }
 
-export const fetchEventsWithoutAuthorisation = async () => {
+export const fetchEventsWithoutAuthorisation = async (): Promise<MultipleEvents | []> => {
     const url = Api.server + Api.endpoints.public.events;
     const response = await axios.get(url);
     const data = response.data.data || {};
@@ -38,32 +44,116 @@ export const fetchEventsWithoutAuthorisation = async () => {
 
 /**
  * 
- * @param userId string
- * @param actor AppUser
- * @returns Promise<SingleEvent[] | [] | unknown>
+ * @param userId {string}
+ * @param actor {AppUser}
+ * @param ignoreFetchError {boolean} Whether to terminate the operation when an error occurs with any
+ * of the events or to ignore errors from failed records and return only the records with 
+ * no errors
+ * @returns Promise<MultipleEvents | []>
  * @throws Error | AxiosError
  */
-export const fetchUserEvents = async (userId: string, actor: AppUser): Promise<SingleEvent[] | [] | unknown> => {
+export const fetchUserEvents = async (
+    userId: string,
+    actor: AppUser,
+    ignoreFetchError: boolean = false
+): Promise<MultipleEvents | []> => {
     if (!userId || !actor) {
         throw new Error('No user or actor provided');
     }
 
-    try {
-        const user = await fetchUserById(userId, actor);
-        if (user === null) {
-            throw new Error(`Unknown user! No user found for id: (${userId})`);
-        }
-        const eventIds = user.eventRef;
-        const fetchedEvents = eventIds.includes('*')
-            ? await fetchEventsWithoutAuthorisation()
-            : await Promise.all(
-                eventIds.map(id => fetchEventById(id))
-            );
-
-        return fetchedEvents;
-    } catch (error) {
-        return error;
+    const user = await fetchUserById(userId, actor);
+    if (user === null) {
+        throw new Error(`Unknown user! No user found for id: (${userId})`);
     }
+    const eventIds = user.eventRef;
+    if (!eventIds.length) {
+        return [];
+    }
+
+    const fetchedEvents: Array<SingleEvent | null> = eventIds.includes('*')
+        ? await fetchEventsWithoutAuthorisation()
+        : await Promise.all(
+            eventIds.map(id => fetchEventById(id, ignoreFetchError))
+        );
+
+
+    return fetchedEvents.filter(event => event !== null) as MultipleEvents | [];
+}
+
+export const decorateEvent = async (event: SingleEvent & { ticketsSold: Tickets }) => {
+    const actor = useAuthenticatedUser();
+    const [isLoading, ticketsSold] = useGetTicketSales(actor as AppUser, event);
+    event.ticketsSold = ticketsSold;
+
+    return event;
+}
+
+export const decorateTickets = async (tickets: Tickets | []) => {
+    const decoratedTickets: Tickets = await Promise.all(
+        tickets.map((ticket) => getEventAssociatedToTicket(ticket))
+    );
+    return decoratedTickets.filter(ticket => ticket.eventTitle != null);
+};
+
+export const fetchEventTickets = async (eventId: string, actor: AppUser): Promise<Tickets | []> => {
+    let url = [Api.server, Api.endpoints.admin.searchTickets, '?eventRef=', eventId].join('');
+
+    const options = {
+        headers: {
+            Authorization: `Bearer ${actor.token}`
+        }
+    }
+    // const preflightRes = await axios.options(url, options);
+    // if (preflightRes.status !== 200) {
+    //     return [];
+    // }
+    const res = await axios.get(url, options);
+    // if (res.status !== 200) {
+    //     return [];
+    // }
+    const data = res.data.data || {};
+    let tickets: Tickets | [] = data.tickets || [];
+
+    if (tickets.length) {
+        // tickets = decorate ? await decorateTickets(tickets) : tickets;
+
+        tickets = (orderByDate(
+            (tickets as unknown) as { key: string, value: string }[],
+            'dateOfPurchase', 'asc'
+        ) as unknown) as Tickets;
+    }
+
+    return tickets;
+}
+
+export const fetchUserTickets = async (actor: AppUser): Promise<Tickets | []> => {
+    let url = [Api.server, Api.endpoints.admin.searchTickets].join('');
+    const options = {
+        headers: {
+            Authorization: `Bearer ${actor.token}`
+        }
+    }
+    // const preflightRes = await axios.options(url, options);
+    // if (preflightRes.status !== 200) {
+    //     return [];
+    // }
+    const res = await axios.get(url, options);
+    // if (res.status !== 200) {
+    //     return [];
+    // }
+    const data = res.data.data || {};
+    let tickets: Tickets | [] = data.tickets || [];
+
+    if (tickets.length) {
+        // tickets = decorate ? await decorateTickets(tickets) : tickets;
+
+        tickets = (orderByDate(
+            (tickets as unknown) as { key: string, value: string }[],
+            'dateOfPurchase', 'asc'
+        ) as unknown) as Tickets;
+    }
+
+    return tickets;
 }
 
 
@@ -108,9 +198,9 @@ export const useGetEventById = (refid: string, actor: AppUser, surpressError?: b
     return [isLoading, event, error];
 };
 
-export const useGetEvents = (actor: AppUser): [isLoading: boolean, events: SingleEvent[] | [], error: any] => {
+export const useGetEvents = (actor: AppUser): [isLoading: boolean, events: MultipleEvents | [], error: any] => {
     const url = Api.server + Api.endpoints.admin.events;
-    const [events, setEvents] = useState<SingleEvent[]>([]);
+    const [events, setEvents] = useState<MultipleEvents>([]);
     const [error, setError] = useState<AxiosError | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -145,11 +235,11 @@ export const useGetEvents = (actor: AppUser): [isLoading: boolean, events: Singl
  * to site owners who's eventRef array contains the asterisk `(*)` character, which 
  * gives one absolute authority over every event published on the application.
  * 
- * @returns `Promise<SingleEvent[] | null>`
+ * @returns `Promise<MultipleEvents | null>`
  */
-export const useGetEventsWithoutAuthorization = (): [isLoading: boolean, events: SingleEvent[] | [], error: any] => {
+export const useGetEventsWithoutAuthorization = (): [isLoading: boolean, events: MultipleEvents | [], error: any] => {
     const url = Api.server + Api.endpoints.public.events;
-    const [events, setEvents] = useState<SingleEvent[] | []>([]);
+    const [events, setEvents] = useState<MultipleEvents | []>([]);
     const [error, setError] = useState<any>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -177,24 +267,24 @@ export const useGetEventsWithoutAuthorization = (): [isLoading: boolean, events:
  * @param actor `AppUser` The current user of the application
  * @returns Returns an array of `SingleEvent` on success and an empty array `[]` otherwise 
  */
-export const useGetEventsByUser = (theUser: AppUser, actor: AppUser): [
+export const useGetEventsByUser = (theUser: AppUser, actor: AppUser, ignoreFetchError: boolean = false): [
     isLoading: boolean,
-    events: SingleEvent[] | [],
+    events: MultipleEvents | [],
     error: any
 ] => {
     const [isLoading, setIsLoading] = useState(true);
-    const [events, setEvents] = useState<SingleEvent[]>([]);
+    const [events, setEvents] = useState<MultipleEvents>([]);
     const [error, setError] = useState<any>(null);
 
     useEffect(() => {
         if (theUser === null || actor === null) {
-            setIsLoading(false);
+            // setIsLoading(false);
             return;
         }
 
         (async () => {
             try {
-                const fetchedEvents = await fetchUserEvents(theUser.id, actor);
+                const fetchedEvents = await fetchUserEvents(theUser.id, actor, ignoreFetchError);
                 if (fetchedEvents instanceof Array) {
                     if ([...fetchedEvents].shift()?._id) {
                         setEvents(fetchedEvents);
@@ -203,9 +293,10 @@ export const useGetEventsByUser = (theUser: AppUser, actor: AppUser): [
             } catch (err) {
                 console.error(err);
                 setError(err);
+            } finally {
+                setIsLoading(false);
             }
         })();
-
 
         return function cleanup() {
 
@@ -225,26 +316,27 @@ export const useGetEventsByUser = (theUser: AppUser, actor: AppUser): [
  */
 export const useGetEventsByIds = (eventIds: string[], actor: AppUser): [
     isLoading: boolean,
-    events: SingleEvent[] | [],
+    events: MultipleEvents | [],
     error: any
 ] => {
-    const [events, setEvents] = useState<SingleEvent[] | []>([]);
+    const [events, setEvents] = useState<MultipleEvents | []>([]);
     const [error, setError] = useState<any>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
 
     useEffect(() => {
         (async (IDs: string[]) => {
-            // if (!navigator.onLine) {
-            //     setIsLoading(false);
-            //     return;
-            // }
             try {
                 if (IDs && IDs.length && actor != null) {
-                    const fetchedEvents = await Promise.all(
-                        IDs.map(id => fetchEventById(id))
+                    const fetchedEvents: Array<SingleEvent | null> = await Promise.all(
+                        IDs.map(id => fetchEventById(id, true))
                     );
-                    const filteredEvents = fetchedEvents.filter(event => typeof event._id !== 'undefined')
+                    if (!fetchedEvents.length) {
+                        setIsLoading(false);
+                        return;
+                    }
+
+                    const filteredEvents = fetchedEvents.filter(event => event !== null) as MultipleEvents;
 
                     setEvents(filteredEvents);
                     setIsLoading(false);
@@ -260,80 +352,52 @@ export const useGetEventsByIds = (eventIds: string[], actor: AppUser): [
     return [isLoading, events, error];
 }
 
-export const decorateEvent = async (event: SingleEvent & { ticketsSold: Ticket[] }) => {
-    const actor = useAuthenticatedUser();
-    const [isLoading, ticketsSold] = useGetTicketSales(actor as AppUser, event);
-    event.ticketsSold = ticketsSold;
-
-    return event;
-}
-
 export const useGetTicketSales = (actor: AppUser, event?: SingleEvent, ignoreError: boolean = false):
     [
         isLoading: boolean,
-        tickets: Ticket[] | [],
+        tickets: Tickets | [],
         error: any
     ] => {
-    let url = [Api.server, Api.endpoints.admin.searchTickets].join('');
 
-    const [tickets, setTickets] = useState<Ticket[] | []>([]);
+    const [tickets, setTickets] = useState<Tickets | []>([]);
     const [error, setError] = useState<any>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
-
-    const decorateTickets = async (tickets: Ticket[] | []) => {
-        const decoratedTickets = await Promise.all(
-            tickets.map((ticket) => getEventAssociatedToTicket(ticket))
-        );
-        return decoratedTickets.filter((ticket) => ticket.event_title != null);
-    };
-
-    const fetchUserTickets = async (url: string): Promise<Ticket[] | []> => {
-        const res = await axios.get(url, {
-            headers: {
-                Authorization: `Bearer ${actor.token}`
-            }
-        });
-        const data = res.data.data || {};
-        const decoratedTickets = await decorateTickets(data.tickets || []);
-        const orderedByDate = (orderByDate(
-            (decoratedTickets as unknown) as { key: string, value: string }[],
-            'dateOfPurchase', 'asc'
-        ) as unknown) as Tickets;
-
-        return orderedByDate;
-    }
 
     useEffect(() => {
         if (actor === null) {
             return;
         }
-        // setIsLoading(true);
 
         const fetchTickets = async () => {
-            let eventIds: string[] = [];
-            if (event) {
-                eventIds.push(event._id);
-            } else if (actor.isUser && actor.eventRef.length > 0) {
-                eventIds = [...eventIds, ...actor.eventRef];
-            }
-
             try {
+                let eventIds: string[] = [];
+                if (event) {
+                    eventIds.push(event._id);
+                } else {
+                    const userEvents = await fetchUserEvents(actor.id, actor, true);
+                    if (!userEvents.length) {
+                        setIsLoading(false);
+                        return;
+                    }
+                    // eventIds = [...eventIds, ...actor.eventRef];
+                    eventIds = userEvents.map(event => event._id);
+                }
+
                 let allTickets: any[] = [];
-                if (eventIds.length > 0) {
-                    const eventsTickets: Ticket[][] | [] = await Promise.all(
-                        eventIds.map(async id => {
-                            const eventUrl = url + '?eventRef=' + id;
-                            return await fetchUserTickets(eventUrl);
-                        }
-                        ));
+                if (eventIds.length) {
+                    const eventsTickets: Tickets[] | [] = await Promise.all(
+                        eventIds.map(async eventId => {
+                            return await fetchEventTickets(eventId, actor);
+                        })
+                    );
 
                     for (const eventTickets of eventsTickets) {
                         for (const eventTicket of eventTickets) {
                             allTickets.push(eventTicket);
                         }
                     }
-                } else if (actor.isOwner && actor.eventRef.includes('*')) {
-                    allTickets = await fetchUserTickets(url);
+                } else if (actor.isOwner) {
+                    allTickets = await fetchUserTickets(actor);
                 }
                 setTickets(allTickets);
             } catch (err) {
@@ -356,7 +420,7 @@ export const useGetTicketSales = (actor: AppUser, event?: SingleEvent, ignoreErr
 
 export const useGetEventTicketsWithAssociatedEvent = (actor: AppUser, event?: SingleEvent, ignoreError: boolean = false) => {
     const url = Api.server + Api.endpoints.admin.searchTickets + (event ? '?eventRef=' + event._id : '');
-    const [tickets, setTickets] = useState<Ticket[] | []>([]);
+    const [tickets, setTickets] = useState<Tickets | []>([]);
     const [error, setError] = useState<AxiosError | null | unknown>(null);
     const [initialTickets, setInitialTickets] = useState();
 
@@ -382,12 +446,12 @@ export const useGetEventTicketsWithAssociatedEvent = (actor: AppUser, event?: Si
         }
 
         actor !== null && fetchTickets();
-    }, [event])
+    }, [event, actor])
 
     return [tickets, error];
 }
 
-export const getEventAssociatedToTicket = async (ticket: Ticket): Promise<Ticket & { event_title?: string }> => {
+export const getEventAssociatedToTicket = async (ticket: Ticket): Promise<Ticket & { eventTitle?: string }> => {
     let url = Api.server + Api.endpoints.public.singleEvent;
     url = url.replace(':id', ticket.eventRef);
     let event: SingleEvent | null = null, error = null;
@@ -400,5 +464,5 @@ export const getEventAssociatedToTicket = async (ticket: Ticket): Promise<Ticket
         console.error(err);
     }
 
-    return { ...ticket, event_title: event?.title };
+    return { ...ticket, eventTitle: event?.title };
 };

@@ -1,5 +1,5 @@
 export const APPCONFIG = {
-    title: 'Tickets',
+    title: 'Light-Up Ticketing',
     description: 'A ticketing system for managing events and tickets.',
     version: '0.0.1',
     cloudinaryConfig: {
@@ -16,8 +16,8 @@ export const APPCONFIG = {
             use_asset_folder_as_public_id_prefix: true,
         }
     },
-    accountTypes: ['owner','user'],
-    userRoles: ['Super','Regular','Basic'],
+    accountTypes: ['owner', 'user'],
+    userRoles: ['Super', 'Regular', 'Basic'],
     paginationOptions: {
         maxItemsPerPage: 10,
     }

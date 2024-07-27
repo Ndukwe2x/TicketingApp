@@ -19,15 +19,13 @@ import { Skeleton } from '../ui/skeleton';
 export const DashboardNav = () => {
     const actor = useAuthenticatedUser();
     const viewPort = useDeviceViewPort();
-    // const [state, setState] = React.useState('collapsed');
-    let state = 'expanded';
-    if (viewPort && viewPort?.deviceWidth && viewPort?.deviceWidth <= 768) {
-        // setState('expanded');
-        state = 'collapsed';
+    let state = '';
+    if (viewPort && viewPort?.deviceWidth && viewPort?.deviceWidth > 1024) {
+        state = 'expanded';
     }
     // Testing...
     return (
-        <div id='dashboard-navigation' className={cn(`transition-[width] lg:flex ${state}`)}>
+        <div id='dashboard-navigation' className={cn(`transition-[width] lg:flex`, state)}>
             <div className='fixed top-16'>
                 <nav className='py-8 px-4 lg:px-8 border-r h-[90vh] flex flex-col gap-3'>
                     <ul className='menu w-full'>

@@ -13,11 +13,11 @@ import { title } from 'process';
 
 export const columns: ColumnDef<Ticket>[] = [
     {
-        accessorKey: 'event_title',
+        accessorKey: 'eventTitle',
         header: () => <div className='px-4'>Event</div>,
         cell: ({ row }) => (<div className='whitespace-nowrap'>
             <Link href={`${location.origin}/events/${row.original._id}`}>
-                {row.getValue('event_title')}
+                {row.getValue('eventTitle')}
             </Link>
         </div>),
     },

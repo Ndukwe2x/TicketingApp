@@ -3,14 +3,13 @@
 import React, { HtmlHTMLAttributes, useState } from "react";
 import { DataTable, DataTableLoading } from "../ui/data-table";
 import { useGetEvents, useGetEventsByIds, useGetEventsByUser } from "@/hooks/useGetEvents";
-import NoNetwork from "../no-network";
 import { columns } from "./table-columns/events";
 import { DataGrid } from "../ui/data-grid";
-import InternalErrorPage from "@/app/internal-error";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 import EventGridTemplate from "./grid-data-templates/event";
 import { orderByDate } from "@/lib/utils";
 import { APPCONFIG } from "@/lib/app-config";
+import RenderPrettyError from "../render-pretty-error";
 
 const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & {
     layout: string;
@@ -22,20 +21,16 @@ const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & {
     owner = owner ?? actor;
     const { maxItemsPerPage = 10 } = APPCONFIG.paginationOptions;
 
-    const [isLoading, rawEvents, error] = useGetEventsByUser(owner as AppUser, actor as AppUser);
+    const [isLoading, rawEvents, error] = useGetEventsByUser(owner as AppUser, actor as AppUser, true);
     const [events, setEvents] = useState<SingleEvent[] | []>([]);
-    const [fallback, setFallback] = useState(<div className="text-center">Loading, please wait...</div>);
+    const [fallback, setFallback] = useState(<div className="text-center">Fetching events, please wait...</div>);
 
     React.useEffect(() => {
         if (isLoading) {
             return;
         }
         if (error) {
-            if (error?.code && ['ERR_NETWORK', 'ECONNABORTED'].includes(error.code)) {
-                setFallback(<NoNetwork />)
-            } else {
-                setFallback(<InternalErrorPage />)
-            }
+            setFallback(<RenderPrettyError error={error} />);
             return;
         }
 

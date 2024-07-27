@@ -25,7 +25,7 @@ export default function AuthLayout({
     // });
 
     return (
-        <div className='container relative h-dvh overflow-hidden flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0'>
+        <div className='relative h-dvh overflow-hidden justify-center grid lg:max-w-none lg:grid-cols-2'>
             <div className='relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r'>
                 <div className='absolute inset-0'>
                     <Image
@@ -37,7 +37,7 @@ export default function AuthLayout({
                 </div>
                 <div className='relative z-20 flex items-center text-lg font-medium'>
                     <Link href='/'>
-                        <AppLogo color='white' />
+                        <AppLogo color='white' shadow='dark' />
                     </Link>
                 </div>
                 <div className='relative z-20 mt-auto'>
@@ -47,13 +47,16 @@ export default function AuthLayout({
                     </blockquote>
                 </div>
             </div>
-
-            <div className='w-full absolute top-8 left-8 lg:hidden z-20'>
-                <Link href='/'>
-                    <AppLogo />
-                </Link>
+            <div className='overflow-y-auto '>
+                <div className='flex flex-col gap-10 py-10 container lg:px-0'>
+                    <div className='w-full mb-10 lg:hidden z-20'>
+                        <Link href='/'>
+                            <AppLogo />
+                        </Link>
+                    </div>
+                    {children}
+                </div>
             </div>
-            {children}
         </div>
     );
 }
