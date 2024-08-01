@@ -1,0 +1,242 @@
+{"data":{"events":[
+ 
+    { 
+      "objectId":"60a73c6fb8bce667e4724d19",
+      "title": "Lightup Music Concert",
+      "eventDate": "2024-02-19:0800",
+      "address": "123 Main Street",
+      "city": "Port Harcourt",
+      "state": "Rivers",
+      "featured": "true",
+      "ticketCategories": [
+        { "name": "Table for 5", "price": "2000000", "qty": "20","discount:":"0.0" },
+        { "name": "VIP", "price": "300000", "qty": "200","discount:":"0.0" },
+        { "name": "Regular", "price": "5000", "qty": "1000","discount:":"0.0" }
+      ],
+      "ticketClosingDate": "2024-03-09:0800",
+      "eventBanner": "https://example.com/event/banner1.jpg",
+      "posters": ["https://example.com/event/poster1.jpg","https://example.com/event/poster1_1.jpg"],
+      "createdAt": "2024-02-02:1100"
+    },
+    
+    {
+      "objectId":"1241adice0033eekzcwl2w98920",  
+      "title": "Concert under the Stars",
+      "eventDate": "2024-02-20:0900",
+      "address": "456 Elm Street",
+      "city": "Lagos",
+      "state": "Lagos",
+      "featured": "false",
+      "ticketCategories": [
+        { "name": "VIP", "price": "500000", "qty": "50","discount:":"0.0" },
+        { "name": "Regular", "price": "10000", "qty": "500","discount:":"0.0" }
+      ],
+      "ticketClosingDate": "2024-03-10:0900",
+      "eventBanner": "https://example.com/event/banner2.jpg",
+      "posters": ["https://example.com/event/poster2.jpg"],
+      "createdAt": "2024-02-03:1200"
+    },
+    {
+      "objectId":"60a73cb2b8bce667e4724d23",
+      "title": "Rock Fest",
+      "eventDate": "2024-02-21:1500",
+      "address": "789 Oak Street",
+      "city": "Abuja",
+      "state": "Abuja",
+      "featured": "true",
+      "ticketCategories": [
+        { "name": "Platinum", "price": "1000000", "qty": "30","discount:":"0.0" },
+        { "name": "Gold", "price": "250000", "qty": "100","discount:":"0.0" },
+        { "name": "Silver", "price": "10000", "qty": "300","discount:":"0.0" }
+      ],
+      "ticketClosingDate": "2024-03-11:1500",
+      "eventBanner": "https://example.com/event/banner3.jpg",
+      "posters": ["https://example.com/event/poster3.jpg","https://example.com/event/poster3_1.jpg"],
+      "createdAt": "2024-02-04:1300"
+    },
+    {
+      "objectId":"60a73ca6b8bce667e4724d21",  
+      "title": "Jazz Evening",
+      "eventDate": "2024-02-22:1800",
+      "address": "101 Pine Street",
+      "city": "Calabar",
+      "state": "Cross River",
+      "featured": "false",
+      "ticketCategories": [
+        { "name": "Premium", "price": "750000", "qty": "25","discount:":"0.0" },
+        { "name": "Standard", "price": "150000", "qty": "150","discount:":"0.0" },
+        { "name": "Economy", "price": "5000", "qty": "400","discount:":"0.0" }
+      ],
+      "ticketClosingDate": "2024-03-12:1800",
+      "eventBanner": "https://example.com/event/banner4.jpg",
+      "posters": ["https://example.com/event/poster4.jpg","https://example.com/event/poster4_1.jpg"],
+      "createdAt": "2024-02-05:1400"
+    },
+    {
+      "objectId":"60a73cabb8bce667e4724d22",  
+      "title": "Pop Extravaganza",
+      "eventDate": "2024-02-23:2000",
+      "address": "222 Maple Street",
+      "city": "Kano",
+      "state": "Kano",
+      "featured": "true",
+      "ticketCategories": [
+        { "name": "Deluxe", "price": "500000", "qty": "40","discount:":"0.0" },
+        { "name": "General", "price": "10000", "qty": "200","discount:":"0.0" }
+      ],
+      "ticketClosingDate": "2024-03-13:2000",
+      "eventBanner": "https://example.com/event/banner5.jpg",
+      "posters": ["https://example.com/event/poster5.jpg","https://example.com/event/poster5_1.jpg",
+               "https://example.com/event/poster5_2.jpg"],
+      "createdAt": "2024-02-06:1500"
+    },
+    {
+      "objectId":"60a73c9fb8bce667e4724d20",  
+      "title": "Country Music Jamboree",
+      "eventDate": "2024-02-24:0900",
+      "address": "333 Cedar Street",
+      "city": "Enugu",
+      "state": "Enugu",
+      "featured": "true",
+      "ticketCategories": [
+        { "name": "Exclusive", "price": "1000000", "qty": "15","discount:":"0.0" },
+        { "name": "Standard", "price": "250000", "qty": "100","discount:":"0.0" },
+        { "name": "Budget", "price": "5000", "qty": "300","discount:":"0.0" }
+      ],
+      "ticketClosingDate": "2024-03-14:0900",
+      "eventBanner": "https://example.com/event/banner6.jpg",
+      "posters": ["https://example.com/event/poster6.jpg"],
+      "createdAt": "2024-02-07:1600"
+    },
+    {
+      "objectId":"60a73c99b8bce667e4724d1f",
+      "title": "Classical Symphony",
+      "eventDate": "2024-02-25:1200",
+      "address": "444 Walnut Street",
+      "city": "Ibadan",
+      "state": "Oyo",
+      "featured": "false",
+      "ticketCategories": [
+        { "name": "Premium", "price": "750000", "qty": "20","discount:":"0.0" },
+        { "name": "Standard", "price": "150000", "qty": "100","discount:":"0.0" },
+        { "name": "Student", "price": "5000", "qty": "200","discount:":"0.0" }
+      ],
+      "ticketClosingDate": "2024-03-15:1200",
+      "eventBanner": "https://example.com/event/banner7.jpg",
+      "posters": ["https://example.com/event/poster7.jpg",
+                "https://example.com/event/poster7_1.jpg",
+                "https://example.com/event/poster7_2.jpg",
+                 "https://example.com/event/poster7_3.jpg"],
+      "createdAt": "2024-02-08:1700"
+    },
+    {
+      "objectId":"60a73c99b8bce667e4724d1f",
+      "title": "Folk Music Festival",
+      "eventDate": "2024-02-26:1500",
+      "address": "555 Oak Street",
+      "city": "Abeokuta",
+      "state": "Ogun",
+      "featured": "false",
+      "ticketCategories": [
+        { "name": "Platinum", "price": "1000000", "qty": "25","discount:":"0.0" },
+        { "name": "Gold", "price": "250000", "qty": "150","discount:":"0.0" },
+        { "name": "Silver", "price": "10000", "qty": "300","discount:":"0.0" }
+      ],
+      "ticketClosingDate": "2024-03-16:1500",
+      "eventBanner": "https://example.com/event/banner8.jpg",
+      "posters": ["https://example.com/event/poster8.jpg"],
+      "createdAt": "2024-02-09:1800"
+    },
+    {
+      "objectId":"60a73c92b8bce667e4724d1e",
+      "title": "Indie Showcase",
+      "eventDate": "2024-02-27:1800",
+      "address": "666 Maple Street",
+      "city": "Akure",
+      "state": "Ondo",
+      "featured": "false",
+      "ticketCategories": [
+        { "name": "Premium", "price": "500000", "qty": "30","discount:":"0.0" },
+        { "name": "Standard", "price": "100000", "qty": "200","discount:":"0.0" }
+      ],
+      "ticketClosingDate": "2024-03-17:1800",
+      "eventBanner": "https://example.com/event/banner9.jpg",
+      "posters": ["https://example.com/event/poster9.jpg"],
+      "createdAt": "2024-02-10:1900"
+    },
+    {
+      "objectId":"60a73c8bb8bce667e4724d1d",
+      "title": "Hip Hop Jam",
+      "eventDate": "2024-02-28:2100",
+      "address": "777 Pine Street",
+      "city": "Benin City",
+      "state": "Edo",
+      "featured": "true",
+      "ticketCategories": [
+        { "name": "Diamond", "price": "2000000", "qty": "10","discount:":"0.0" },
+        { "name": "Platinum", "price": "750000", "qty": "50","discount:":"0.0" },
+        { "name": "Gold", "price": "150000", "qty": "200","discount:":"0.0" }
+      ],
+      "ticketClosingDate": "2024-03-18:2100",
+      "eventBanner": "https://example.com/event/banner10.jpg",
+      "posters": ["https://example.com/event/poster10.jpg","https://example.com/event/poster10_2.jpg"],
+      "createdAt": "2024-02-11:2000"
+    },
+    {
+      "objectId":"60a73c84b8bce667e4724d1c",
+      "title": "Reggae Rhythms",
+      "eventDate": "2024-03-01:1000",
+      "address": "888 Elm Street",
+      "city": "Jos",
+      "state": "Plateau",
+      "featured": "true",
+      "ticketCategories": [
+        { "name": "VIP", "price": "500000", "qty": "20","discount:":"0.0" },
+        { "name": "Standard", "price": "100000", "qty": "100","discount:":"0.0" },
+        { "name": "Budget", "price": "5000", "qty": "200","discount:":"0.0" }
+      ],
+      "ticketClosingDate": "2024-03-19:1000",
+      "eventBanner": "https://example.com/event/banner11.jpg",
+      "posters": ["https://example.com/event/poster11.jpg"],
+      "createdAt": "2024-02-12:2100"
+    },
+    {
+      "objectId":"60a73c7db8bce667e4724d1b",
+      "title": "Soulful Serenade",
+      "eventDate": "2024-03-02:1200",
+      "address": "999 Oak Street",
+      "city": "Kaduna",
+      "state": "Kaduna",
+      "featured": "true",
+      "ticketCategories": [
+        { "name": "VIP", "price": "750000", "qty": "25","discount:":"0.0" },
+        { "name": "Regular", "price": "150000", "qty": "150","discount:":"0.0" },
+        { "name": "Economy", "price": "5000", "qty": "300","discount:":"0.0" }
+      ],
+      "ticketClosingDate": "2024-03-20:1200",
+      "eventBanner": "https://example.com/event/banner12.jpg",
+      "posters": ["https://example.com/event/poster12.jpg","https://example.com/event/poster12_1.jpg"],
+      "createdAt": "2024-02-13:2200"
+    },
+    {
+      "objectId":"60a73c76b8bce667e4724d1a",
+      "title": "Electronic Dance Fest",
+      "eventDate": "2024-03-03:1400",
+      "address": "1010 Pine Street",
+      "city": "Warri",
+      "state": "Delta",
+      "featured": "true",
+      "ticketCategories": [
+        { "name": "Diamond", "price": "2000000", "qty": "15","discount:":"0.0" },
+        { "name": "Gold", "price": "500000", "qty": "100","discount:":"0.0" },
+        { "name": "Silver", "price": "10000", "qty": "200","discount:":"0.0" }
+      ],
+      "ticketClosingDate": "2024-03-21:1400",
+      "eventBanner": "https://example.com/event/banner13.jpg",
+      "posters": ["https://example.com/event/poster13_1.jpg","https://example.com/event/poster13_2.jpg"],
+      "createdAt": "2024-02-14:2300"
+    }]
+},
+"nbHits":"13",
+"status":"success"
+}

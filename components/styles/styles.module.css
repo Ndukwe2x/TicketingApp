@@ -1,0 +1,135 @@
+.event_form_page {
+    display: none;
+}
+.event_form_page.current {
+    display: flex;
+}
+
+.media_frame {
+    width: 100%;
+    background-color: rgb(241 241 241);
+    display: flex;
+    flex-flow: column;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 15px;
+    cursor: pointer;
+    position: relative;
+}
+
+.media_frame svg {
+    border: solid 2px currentColor;
+    border-radius: 8px;
+    min-height: 3rem;
+}
+
+.media_frame.banner {
+    padding: 20% 0;
+}
+.media_frame.poster {
+    padding: 50% 0
+}
+.media_frame.banner:empty {
+    padding: calc(20% + 25x) 0;
+}
+.media_frame.poster:empty {
+    padding: calc(50% + 25px) 0;
+}
+.grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.banner_preview {
+    display: none;
+    padding: calc(100% / 4) 0;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    border-radius: 10px;
+}
+.img_preview {
+    position: relative;
+    border: solid 1px #d9d9d9;
+    background-size: cover;
+    background-position: center;
+}
+.img_preview img {
+    width: 100% !important;
+    height: 100% !important;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    object-fit: cover;
+    border-radius: inherit;
+    opacity: 0;
+    pointer-events: none;
+    display: none;
+}
+
+.content_loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    position: absolute;
+    z-index: 10;
+    background-color: rgba(255, 255, 255, 0.71);
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+.spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #e11d48;
+    /* border-bottom: 3px solid #09090b; */
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    -webkit-animation: spin 0.5s linear infinite;
+    -o-animation: spin 0.5s linear infinite;
+    -moz-animation: spin 0.5s linear infinite;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+}
+
+.upload_btn {
+    /* border: dashed 3px #d9d9d9; */
+}
+
+.edit_btn {
+    display: none;
+    position: absolute;
+    top: 0;
+    right: 0;
+    /* box-shadow: 0px 0px 5px #000; */
+    border-radius: 50px;
+    margin-top: 8px;
+    margin-right: 8px;
+}
+.edit_btn .icon_box {
+    border-radius: inherit;
+    border: solid 1px gray;
+    padding: 5px;
+    background-color: rgb(0 0 0 / 71%);
+    color: #fff !important;
+}
+.px-1 {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+}
+@media screen and (min-width: 1024px) {
+    
+}

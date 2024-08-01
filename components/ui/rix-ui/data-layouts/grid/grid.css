@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .rix-ui-grid-row.grid {
+        gap: 1rem;
+    }
+    @media screen and (min-width: 576px) {
+        .rix-ui-grid-row.grid.sm\:grid-cols-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .rix-ui-grid-row.grid.sm\:grid-cols-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        .rix-ui-grid-row.grid.sm\:grid-cols-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        .rix-ui-grid-row.grid.sm\:grid-cols-5 {
+            grid-template-columns: repeat(5, 1fr);
+        }
+    }
+    @media screen and (min-width: 1024px) {
+        .rix-ui-grid-row.grid.md\:grid-cols-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .rix-ui-grid-row.grid.md\:grid-cols-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        .rix-ui-grid-row.grid.md\:grid-cols-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        .rix-ui-grid-row.grid.md\:grid-cols-5 {
+            grid-template-columns: repeat(5, 1fr);
+        }
+    }
+    @media screen and (min-width: 1120px) {
+        .rix-ui-grid-row.grid.lg\:grid-cols-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .rix-ui-grid-row.grid.lg\:grid-cols-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        .rix-ui-grid-row.grid.lg\:grid-cols-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        .rix-ui-grid-row.grid.lg\:grid-cols-5 {
+            grid-template-columns: repeat(5, 1fr);
+        }
+    }
+    @media screen and (min-width: 1200px) {
+        .rix-ui-grid-row.grid.xl\:grid-cols-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .rix-ui-grid-row.grid.xl\:grid-cols-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        .rix-ui-grid-row.grid.xl\:grid-cols-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        .rix-ui-grid-row.grid.xl\:grid-cols-5 {
+            grid-template-columns: repeat(5, 1fr);
+        }
+    }
+
+    .rix-ui-grid-card-header {
+        height: 12.5rem;
+        min-height: 12rem;
+        max-height: 12.5rem;
+    }
+}
