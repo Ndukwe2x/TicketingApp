@@ -120,7 +120,7 @@ const SelectEventToAddTeamMember:
             }
         }, [events, isLoading, error]);
 
-        const checkRef = useRef<Record<string, HTMLInputElement>>({});
+        const checkRef = useRef<Record<string, HTMLInputElement | null>>({});
         const masterCheckerRef = useRef<HTMLInputElement>(null);
         const formRef = useRef<HTMLDivElement>(null);
         const [selections, setSelections] = useState<string[]>([]);
@@ -132,7 +132,9 @@ const SelectEventToAddTeamMember:
 
             const masterChecker = e.target as HTMLInputElement;
             Object.values(checkRef.current).map(checkbox => {
-                checkbox.checked = masterChecker.checked;
+                if (checkbox) {
+                    checkbox.checked = masterChecker.checked;
+                }
             });
             updateSelections();
         }
@@ -144,9 +146,11 @@ const SelectEventToAddTeamMember:
             const checkbox = checkRef.current[eventId] as HTMLInputElement;
             if (masterCheckerRef.current.checked) {
                 masterCheckerRef.current.checked = false;
-                Object.values(checkRef.current).map(chbx => (
-                    chbx.checked = false
-                ))
+                Object.values(checkRef.current).map(chbx => {
+                    if (chbx) {
+                        chbx.checked = false
+                    }
+                })
             }
             checkbox.checked = true;
             updateSelections();
@@ -160,9 +164,9 @@ const SelectEventToAddTeamMember:
             const allChecks = Object.values(checkRef.current);
             const newSelections: string[] = (
                 allChecks
-                    .filter(check => check.checked)
+                    .filter(check => check && check.checked)
                     .map(check => {
-                        if (check.checked) {
+                        if (check && check.checked) {
                             return check.value;
                         }
                     }) as string[]
@@ -212,7 +216,8 @@ const SelectEventToAddTeamMember:
                                                         <label htmlFor={`check_event_${index}`} className="hidden"
                                                         >{event.title}</label>
                                                         <Input id={`check_event_${index}`} type="checkbox"
-                                                            ref={(el) => (checkRef.current[event._id] = el as HTMLInputElement)} className="event-check"
+                                                            ref={(el) => { checkRef.current[event._id] = el as HTMLInputElement }}
+                                                            className="event-check"
                                                             name={`check_event_${index}`} value={event._id}
                                                             onChange={e => handleCheckboxChange(e.target.value)} />
                                                     </TableCell>

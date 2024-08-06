@@ -566,4 +566,20 @@
     .form-page.current {
         display: block;
     }
+
+    [class*="search-box"] {
+        background-image: url(/search-icon.svg);
+        background-position-y: center;
+        background-repeat: no-repeat;
+    }
+
+    [class*="search-box\:icon-left"] {
+        padding-left: 3.5rem !important;
+        background-position-x: 1rem;
+    }
+
+    [class*="search-box\:icon-right"] {
+        padding-right: 3.5rem !important;
+        background-position-x: calc(100% - 1rem);
+    }
 }

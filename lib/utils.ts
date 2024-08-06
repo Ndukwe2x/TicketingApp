@@ -199,24 +199,7 @@ const calculateTimeDifference = (timestamp1: string, timestamp2: string): {
     }
 }
 
-/**
- * Splits an array into chunks of a specified size.
- * @param size The size of each chunk.
- * @returns An array of arrays, where each inner array contains `size` elements.
- */
-declare global {
-    interface Array<T> {
-        chunk(size: number): T[][];
-    }
-}
 
-Array.prototype.chunk = function (size: number): any[][] {
-    const result: any[][] = [];
-    for (let i = 0; i < this.length; i += size) {
-        result.push(this.slice(i, i + size));
-    }
-    return result;
-};
 
 function copyLink(link: string) {
     navigator.clipboard.writeText(link);
@@ -256,7 +239,6 @@ function defineStaticVariable<T>(iniValue: T): [T, StaticVariableSetterAction<T>
     return [data, setter];
 }
 
-
 export {
     cn,
     formatNumber,
@@ -273,3 +255,67 @@ export {
     parseFileToDataUri,
     defineStaticVariable
 }
+
+
+declare global {
+    interface Array<T> {
+        /**
+         * Splits an array into chunks of a specified size.
+         * @param size The size of each chunk.
+         * @returns An array of arrays, where each inner array contains `size` elements.
+         */
+        chunk(size: number): T[][];
+        removeDuplicates(keys?: (keyof T)[] | keyof T | string): T[]
+    }
+
+    interface String {
+        stripSpecialChar(replacement?: string, ignore?: string): string;
+    }
+}
+
+Array.prototype.chunk = function (size: number): any[][] {
+    const result: any[][] = [];
+    for (let i = 0; i < this.length; i += size) {
+        result.push(this.slice(i, i + size));
+    }
+    return result;
+};
+
+Array.prototype.removeDuplicates = function <T>(this: T[], keys?: (keyof T)[] | keyof T | string): T[] {
+    if (!keys) {
+        return Array.from(new Set(this));
+    }
+
+    const seen = new Set();
+
+    if (typeof keys === 'string') {
+        return this.filter(item => {
+            const keyValue = item[keys as (keyof T)];
+            if (seen.has(keyValue)) {
+                return false;
+            } else {
+                seen.add(keyValue);
+                return true;
+            }
+        });
+    }
+
+    return this.filter(item => {
+        const compositeKey = [...(keys as (keyof T)[])].map(key => item[key]).join('|');
+        if (seen.has(compositeKey)) {
+            return false;
+        } else {
+            seen.add(compositeKey);
+            return true;
+        }
+    });
+};
+
+String.prototype.stripSpecialChar = function (replacement: string = '', ignore: string = ''): string {
+    let regEx = /[^a-zA-Z0-9 ]/g
+    // if (ignore.length) {
+    //     regEx = /[^a-zA-Z0-9 ]/g
+    // }
+
+    return this.replace(regEx, replacement);
+};

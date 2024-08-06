@@ -6,13 +6,13 @@ import { DashboardNav } from '@/components/dashboard/dashboard-nav';
 import { APPCONFIG } from '@/lib/app-config';
 import { Text } from '@/components/ui/text';
 import { AppLogo } from '@/components/app-logo';
-import { FaFacebook, FaInstagram, FaXTwitter } from 'react-icons/fa6';
 import React, { useEffect, useRef, useState } from "react";
 import { Session } from '@/lib/session';
 import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
 import NoNetwork from '@/components/no-network';
 import PageHeader from '@/components/dashboard/page-header';
 import { Icons } from '@/components/icons';
+import Link from 'next/link';
 
 export default function MainLayout({
     children,
@@ -66,25 +66,25 @@ export default function MainLayout({
             </div>
 
             <footer className='w-full relative z-20 py-8 md:py-12 px-4 bg-foreground text-background text-sm'>
-                <div className='max-w-7xl mx-auto flex gap-5 flex-wrap justify-between items-center'>
+                <div className='max-w-7xl mx-auto flex gap-5 justify-between items-start'>
                     <div className='flex gap-4 w-full items-center'>
                         <AppLogo />
                         <Text>
-                            &copy; {(new Date()).getFullYear()} {APPCONFIG.title}. All rights reserved
+                            &copy; {(new Date()).getFullYear()} {APPCONFIG.title} | All rights reserved
                         </Text>
                     </div>
-                    <div className='flex gap-5 justify-center w-full items-center'>
-                        <a href='#' className=''>
-                            Privacy
-                        </a>
-                        <a href='#' className=''>
-                            Terms
-                        </a>
-
-                        <div className='flex gap-5 items-center text-lg'>
-                            <FaXTwitter />
-                            <FaInstagram />
-                            <FaFacebook />
+                    <div className='flex flex-col gap-5 justify-end w-full items-end'>
+                        <div className='flex gap-3 items-center'>
+                            <a href='/legal/privacy-policy' className='text-muted-foreground'>
+                                Privacy Policy
+                            </a>
+                            <a href='/legal/terms-of-service' className='text-muted-foreground'>
+                                Terms of Service
+                            </a>
+                        </div>
+                        <div className='flex gap-5 items-center'>
+                            <Link href={'tel:+2348068103366'}
+                                title='+2348068103366|ndletters@gmail.com'>Crafted by <span className='text-primary'>Softcode Technologies</span></Link>
                         </div>
                     </div>
                 </div>

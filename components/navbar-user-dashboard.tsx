@@ -72,7 +72,7 @@ const ActiveUserDropdown = () => {
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator className="border-b" />
                     <DropdownMenuItem>
-                        <Link href={'/users/' + actor?.id}>
+                        <Link href={'/profile'}>
                             Profile
                         </Link>
                     </DropdownMenuItem>

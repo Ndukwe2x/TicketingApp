@@ -16,18 +16,16 @@ import React from "react";
 //     }));
 // }
 
-const Profile = ({ params }: { params: { userId: string } }) => {
-    const { userId } = params;
+const Profile = () => {
     const actor = useAuthenticatedUser();
     const [eventsLayout, setEventsLayout] = React.useState('table');
-    const [isLoading, user] = useGetUserById(userId, actor as AppUser, true);
 
     return (
-        user && (
+        actor && (
             <Card>
                 <CardHeader>
                     <CardTitle>
-                        {`${user.firstname}'s Events`}
+                        My Events
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -35,7 +33,7 @@ const Profile = ({ params }: { params: { userId: string } }) => {
                         isFilteringEnabled={true}
                         filterParams={[]}
                         gridColumnRule={{ lg: 2, xl: 2, xxl: 3 }}
-                        owner={user} />
+                        owner={actor} />
                 </CardContent>
             </Card>
         )
