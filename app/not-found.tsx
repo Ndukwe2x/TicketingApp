@@ -6,7 +6,7 @@ import React from 'react';
 
 export default function NotFoundPage({ heading, text }: { heading?: string; text?: string }) {
     return (
-        <div className='h-[90dvh] flex flex-col items-center justify-center gap-2 mx-10'>
+        <div className='flex flex-col items-center justify-center gap-2 mx-10'>
             <NotFoundIcon />
 
             <Text variant='h3' className='text-center'>

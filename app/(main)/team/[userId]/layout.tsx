@@ -14,6 +14,7 @@ import { usePageHeader } from "@/hooks/usePageHeaderContext";
 import { useState } from "react";
 import Link from "next/link";
 import UserSearchForm from "@/components/dashboard/user-search-form";
+import { Text } from "@/components/ui/text";
 
 
 export default function ProfileLayout({
@@ -120,15 +121,16 @@ export default function ProfileLayout({
                 </div>
             ) : (
                 <React.Fragment>
+                    <NotFoundPage heading="User Not Found!" text="Sorry, but we could't find the user you're looking for." />
                     {
                         actor?.isSuper &&
-                        <div id="search-bar">
+                        <div id="search-bar" className="mt-10">
                             <div className="lg:w-5/6 mx-auto">
+                                <Text variant='h4' className="my-4">Search users, enter firstname or lastname.</Text>
                                 <UserSearchForm />
                             </div>
                         </div>
                     }
-                    <NotFoundPage heading="User Not Found!" text="Sorry, but we could't find the user you're looking for." />
                 </React.Fragment>
             )
         )
