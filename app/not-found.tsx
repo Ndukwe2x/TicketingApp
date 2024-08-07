@@ -4,17 +4,17 @@ import { Text } from '@/components/ui/text';
 import Link from 'next/link';
 import React from 'react';
 
-export default function NotFoundPage({text}: {text?: string}) {
+export default function NotFoundPage({ heading, text }: { heading?: string; text?: string }) {
     return (
-        <div className='h-[90dvh] flex flex-col items-center justify-center gap-2 mx-10'>
+        <div className='flex flex-col items-center justify-center gap-2 mx-10'>
             <NotFoundIcon />
 
             <Text variant='h3' className='text-center'>
                 404 <span className='inline-block w-0.5 h-6 bg-muted-foreground -mb-1 mx-2' />
-                Page not found.
+                {heading || "Page not found."}
             </Text>
             <Text className='text-center'>
-                { text || 'Sorry, we couldn&apos;t find the page you were looking for.' }
+                {text || 'Sorry, we couldn&apos;t find the page you were looking for.'}
             </Text>
 
             <Link href='/'>

@@ -28,7 +28,7 @@ const TicketGridTemplate: React.FC<{ data: Ticket }> = ({ data }) => {
                         <Text className="font-semibold text-muted-foreground">Customer:</Text>
                         <Text>{ticket.name}</Text>
                     </div>
-                    <div>
+                    {/* <div>
                         <Text className="font-semibold text-muted-foreground">Contact Info:</Text>
                         <div>
                             <Text><span className="font-semibold text-foreground w-1/4 inline-block">Email:</span> {ticket.email}</Text>
@@ -42,7 +42,7 @@ const TicketGridTemplate: React.FC<{ data: Ticket }> = ({ data }) => {
                     <div className="flex gap-5 py-2 border-b">
                         <Text className="font-semibold text-muted-foreground w-1/3">Ticket Reference:</Text>
                         <Text>{ticket.referenceNo}</Text>
-                    </div>
+                    </div> */}
                 </GridCardBody>
                 <GridCardFooter>
                     <div className='flex gap-3 items-center justify-between px-2'>

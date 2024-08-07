@@ -126,27 +126,26 @@ export const fetchEventTickets = async (eventId: string, actor: AppUser): Promis
     return tickets;
 }
 
+/**
+ * Fetches all tickets associated to a particular user
+ * 
+ * @param actor The user of the application
+ * @returns Promise<Tickets | []>
+ * @throws AxiosError
+ */
 export const fetchUserTickets = async (actor: AppUser): Promise<Tickets | []> => {
-    let url = [Api.server, Api.endpoints.admin.searchTickets].join('');
+    let url = [Api.server, Api.endpoints.admin.tickets].join('');
     const options = {
         headers: {
             Authorization: `Bearer ${actor.token}`
         }
     }
-    // const preflightRes = await axios.options(url, options);
-    // if (preflightRes.status !== 200) {
-    //     return [];
-    // }
+
     const res = await axios.get(url, options);
-    // if (res.status !== 200) {
-    //     return [];
-    // }
     const data = res.data.data || {};
     let tickets: Tickets | [] = data.tickets || [];
 
     if (tickets.length) {
-        // tickets = decorate ? await decorateTickets(tickets) : tickets;
-
         tickets = (orderByDate(
             (tickets as unknown) as { key: string, value: string }[],
             'dateOfPurchase', 'asc'
@@ -370,36 +369,37 @@ export const useGetTicketSales = (actor: AppUser, event?: SingleEvent, ignoreErr
 
         const fetchTickets = async () => {
             try {
-                let eventIds: string[] = [];
-                if (event) {
-                    eventIds.push(event._id);
-                } else {
-                    const userEvents = await fetchUserEvents(actor.id, actor, true);
-                    if (!userEvents.length) {
-                        setIsLoading(false);
-                        return;
-                    }
-                    // eventIds = [...eventIds, ...actor.eventRef];
-                    eventIds = userEvents.map(event => event._id);
-                }
+                // let eventIds: string[] = [];
+                // if (event) {
+                //     eventIds.push(event._id);
+                // } else {
+                //     const userEvents = await fetchUserEvents(actor.id, actor, true);
+                //     if (!userEvents.length) {
+                //         setIsLoading(false);
+                //         return;
+                //     }
+                //     // eventIds = [...eventIds, ...actor.eventRef];
+                //     eventIds = userEvents.map(event => event._id);
+                // }
 
-                let allTickets: any[] = [];
-                if (eventIds.length) {
-                    const eventsTickets: Tickets[] | [] = await Promise.all(
-                        eventIds.map(async eventId => {
-                            return await fetchEventTickets(eventId, actor);
-                        })
-                    );
+                // let allTickets: any[] = [];
+                // if (eventIds.length) {
+                //     const eventsTickets: Tickets[] | [] = await Promise.all(
+                //         eventIds.map(async eventId => {
+                //             return await fetchEventTickets(eventId, actor);
+                //         })
+                //     );
 
-                    for (const eventTickets of eventsTickets) {
-                        for (const eventTicket of eventTickets) {
-                            allTickets.push(eventTicket);
-                        }
-                    }
-                } else if (actor.isOwner) {
-                    allTickets = await fetchUserTickets(actor);
-                }
-                setTickets(allTickets);
+                //     for (const eventTickets of eventsTickets) {
+                //         for (const eventTicket of eventTickets) {
+                //             allTickets.push(eventTicket);
+                //         }
+                //     }
+                // } else if (actor.isOwner) {
+                //     allTickets = await fetchUserTickets(actor);
+                // }
+                const userTickets = await fetchUserTickets(actor);
+                setTickets(userTickets);
             } catch (err) {
                 setError(err);
                 console.error(err);

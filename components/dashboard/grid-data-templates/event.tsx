@@ -19,9 +19,14 @@ const EventGridTemplate: React.FC<{ data: SingleEvent }> = ({ data }) => {
     return (
         <GridContent>
             <GridCard>
-                <GridCardHeader className="flex flex-col justify-end overflow-hidden p-0 relative rounded-t-[10px]">
-                    <Image className="rounded-t-[10px] w-full" src={event.eventBanner.url || ''} alt={event.title} width={300} height={120} />
-                    <div className="absolute blackboard border-b flex gap-5 justify-between pb-4 pt-[10%] px-4 py-2 py-3 w-full">
+                <GridCardHeader className="bg-muted flex flex-col justify-end overflow-hidden p-0 relative rounded-t-[10px]">
+                    <Link href={`/events/${event._id}`} className="block w-full h-full">
+                        <Image className="rounded-t-[10px] w-full h-full" src={event.eventBanner.url || ''} alt={event.title} width={300} height={120} />
+                    </Link>
+                </GridCardHeader>
+                <GridCardBody className="border-t">
+                    {/* <div className="flex gap-5 justify-between pb-4 pt-[10%] px-4 py-2 py-3 w-full"> */}
+                    <div className="flex gap-5 justify-between w-full">
                         <Text variant='h3'><Link href={`/events/${event._id}`}>{event.title}</Link></Text>
                         <EventsListActionsDropdownMenu
                             id={actionMenuId}
@@ -32,21 +37,19 @@ const EventGridTemplate: React.FC<{ data: SingleEvent }> = ({ data }) => {
                             }
                             onActionFailure={(action, error) => handleActionFailure(action, actionMenuId, error)} />
                     </div>
-                </GridCardHeader>
-                <GridCardBody>
-                    <div className="flex gap-5 py-2 border-b">
+                    {/* <div className="flex gap-5 py-2 border-b">
                         <Text className="font-semibold text-muted-foreground w-1/3">Location:</Text>
                         <Text>{event.address}, {event.city}, {event.state} State</Text>
-                    </div>
-                    <div className="flex gap-5 py-2 border-b">
+                    </div> */}
+                    {/* <div className="flex gap-5 py-2 border-b">
                         <Text className="font-semibold text-muted-foreground w-1/3">Date & Time:</Text>
                         <Text>
                             {formatDate(new Date(event.eventDate), 'dddd, MMMM DD YYYY')}
                             <br />
                             {formatDate(new Date(event.eventDate), 'hh:mm A')}
                         </Text>
-                    </div>
-                    <div className="flex gap-5 py-2 border-b">
+                    </div> */}
+                    {/* <div className="flex gap-5 py-2 border-b">
                         <Text className="font-semibold text-muted-foreground w-1/3">Ticket closing on:</Text>
                         <Text>
                             {formatDate(new Date(event.ticketClosingDate), 'dddd, MMMM DD YYYY')}
@@ -73,7 +76,7 @@ const EventGridTemplate: React.FC<{ data: SingleEvent }> = ({ data }) => {
                     <div className="flex gap-5 py-2">
                         <Text className="font-semibold text-muted-foreground w-1/3">Ticket Sold:</Text>
                         <div><CountTicketsSoldForEvent event={event} /></div>
-                    </div>
+                    </div> */}
                 </GridCardBody>
             </GridCard>
         </GridContent>
