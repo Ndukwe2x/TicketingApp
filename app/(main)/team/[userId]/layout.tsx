@@ -13,6 +13,8 @@ import { cn } from '@/lib/utils';
 import { usePageHeader } from "@/hooks/usePageHeaderContext";
 import { useState } from "react";
 import Link from "next/link";
+import UserSearchForm from "@/components/dashboard/user-search-form";
+import { Text } from "@/components/ui/text";
 
 
 export default function ProfileLayout({
@@ -27,37 +29,37 @@ export default function ProfileLayout({
 
     const { userId } = params;
     const [isLoading, user, error] = useGetUserById(userId, actor as AppUser);
-    const [fallback, setFallback] = useState(<div className="text-center">Loading, please wait...</div>)
+    // const [fallback, setFallback] = useState(<div className="text-center">Loading, please wait...</div>)
 
 
 
-    useEffect(() => {
-        if (!isLoading) {
-            return;
-        }
-        if (error !== null) {
-            if (error.code) {
-                switch (error.code) {
-                    case 'ERR_NETWORK':
-                        setFallback(<NoNetwork />)
-                        break;
-                    default:
-                        break;
-                }
-            }
-            if (error.response && error.response.status == 404) {
-                // const res = error.response.data;
-                setFallback(<NotFoundPage text='Sorry, we could not find any user by the given id. You must have followed a broken link.' />);
-            }
-        } else if (user === null) {
-            console.error(error);
-            setFallback(<InternalErrorPage />);
-        }
+    // useEffect(() => {
+    //     if (!isLoading) {
+    //         return;
+    //     }
+    //     if (error !== null) {
+    //         if (error.code) {
+    //             switch (error.code) {
+    //                 case 'ERR_NETWORK':
+    //                     setFallback(<NoNetwork />)
+    //                     break;
+    //                 default:
+    //                     break;
+    //             }
+    //         }
+    //         if (error.response && error.response.status == 404) {
+    //             // const res = error.response.data;
+    //             setFallback(<NotFoundPage text='Sorry, we could not find any user by the given id. You must have followed a broken link.' />);
+    //         }
+    //     } else if (user === null) {
+    //         console.error(error);
+    //         setFallback(<InternalErrorPage />);
+    //     }
 
-        return () => {
+    //     return () => {
 
-        }
-    }, [isLoading, user, error]);
+    //     }
+    // }, [isLoading, user, error]);
 
     useEffect(() => {
         setPageTitle(null);
@@ -81,22 +83,56 @@ export default function ProfileLayout({
         }
     }, [actor, setPageTitle, setWidget])
 
+    // return (
+    //     user &&
+    //     <div id='user-profile' className={cn('relative flex flex-col')}>
+    //         <header id='profile-header' className='flex flex-col header w-full'>
+    //             <div className='flex flex-col gap-3 relative px-4 lg:px-8'>
+    //                 <ProfileHeader userId={userId} />
+    //             </div>
+    //         </header>
+    //         <main id='profile-body' className='px-4 lg:px-8'>
+    //             <aside className='sidebar'>
+    //                 {user != null && <ProfileCard user={user} />}
+    //             </aside>
+    //             <main className='major'>
+    //                 {children}
+    //             </main>
+    //         </main>
+    //     </div>
+    // );
     return (
-        user &&
-        <div id='user-profile' className={cn('relative flex flex-col')}>
-            <header id='profile-header' className='flex flex-col header w-full'>
-                <div className='flex flex-col gap-3 relative px-4 lg:px-8'>
-                    <ProfileHeader userId={userId} />
+        !isLoading && (
+            user ? (
+                <div id='user-profile' className={cn('relative flex flex-col')}>
+                    <header id='profile-header' className='flex flex-col header w-full'>
+                        <div className='flex flex-col gap-3 relative px-4 lg:px-8'>
+                            <ProfileHeader userId={userId} />
+                        </div>
+                    </header>
+                    <main id='profile-body' className='px-4 lg:px-8'>
+                        <aside className='sidebar'>
+                            {user != null && <ProfileCard user={user} />}
+                        </aside>
+                        <main className='major'>
+                            {children}
+                        </main>
+                    </main>
                 </div>
-            </header>
-            <main id='profile-body' className='px-4 lg:px-8'>
-                <aside className='sidebar'>
-                    {user != null && <ProfileCard user={user} />}
-                </aside>
-                <main className='major'>
-                    {children}
-                </main>
-            </main>
-        </div>
+            ) : (
+                <React.Fragment>
+                    <NotFoundPage heading="User Not Found!" text="Sorry, but we could't find the user you're looking for." />
+                    {
+                        actor?.isSuper &&
+                        <div id="search-bar" className="mt-10">
+                            <div className="lg:w-5/6 mx-auto">
+                                <Text variant='h4' className="my-4">Search users, enter firstname or lastname.</Text>
+                                <UserSearchForm />
+                            </div>
+                        </div>
+                    }
+                </React.Fragment>
+            )
+        )
     );
 }

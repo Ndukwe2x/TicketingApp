@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CalendarIcon } from '@radix-ui/react-icons';
+import { CalendarIcon, HeightIcon } from '@radix-ui/react-icons';
 import { IoLocationSharp } from 'react-icons/io5';
 import React, { Suspense, useEffect, useState } from 'react';
 import { Text } from '@/components/ui/text';
@@ -23,6 +23,7 @@ import AddTeamMember from '@/components/buttons/add-team-member';
 import Link from 'next/link';
 import { MdDelete, MdEdit } from 'react-icons/md';
 import RenderPrettyError from '@/components/render-pretty-error';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 export default function ViewEvent({ params }: { params: { eventId: string } }) {
     const actor = useAuthenticatedUser();
@@ -31,6 +32,11 @@ export default function ViewEvent({ params }: { params: { eventId: string } }) {
     const [teamLoading, organizingTeam, teamError] = useGetUsersByEvent(eventId, actor as AppUser);
     const [teamFallback, setTeamFallback] = useState('Loading team, please wait...');
     const { setPageTitle, setIsPageTitleEnabled, setWidget } = usePageHeader();
+
+    const isMobile = useMediaQuery('(min-width:320px)');
+    const isTablet = useMediaQuery('(min-width:768px)');
+    const isDesktop = useMediaQuery('(min-width:1024px)');
+    const isLargeDesktop = useMediaQuery('(min-width:1200px)');
 
     useEffect(() => {
         if (teamError) {
@@ -60,10 +66,29 @@ export default function ViewEvent({ params }: { params: { eventId: string } }) {
                 </React.Fragment>
             ));
         }
-    }, [teamLoading, organizingTeam, teamError, setPageTitle, setWidget, actor, eventError, event]);
+    }, [teamLoading, organizingTeam, teamError, setPageTitle, setWidget, actor, eventLoading, eventError, event]);
 
     if (eventError) {
         return <RenderPrettyError error={eventError} />
+    }
+
+    const bannerBaseWidth = 238;
+    const bannerBaseHeight = 160;
+    const bannerImgDimensions: { width: number; height: number } = {
+        width: bannerBaseWidth,
+        height: bannerBaseHeight
+    }
+    if (isTablet) {
+        bannerImgDimensions.width = bannerBaseWidth * 2;
+        bannerImgDimensions.height = bannerBaseHeight * 2;
+    }
+    if (isDesktop) {
+        bannerImgDimensions.width = bannerBaseWidth * 4;
+        bannerImgDimensions.height = bannerBaseHeight * 4;
+    }
+    if (isLargeDesktop) {
+        bannerImgDimensions.width = bannerBaseWidth * 5;
+        bannerImgDimensions.height = bannerBaseHeight * 5;
     }
 
     return (
@@ -71,13 +96,13 @@ export default function ViewEvent({ params }: { params: { eventId: string } }) {
             ?
             <div>
                 <Card>
-                    <CardContent className='relative flex aspect-[3/2] md:aspect-[5/2] items-center justify-center p-3'>
+                    <CardContent className='relative flex aspect-[3/2] md:aspect-[5/2] items-center justify-center p-1'>
                         <Image
                             src={event.eventBanner.url}
                             alt={event.title}
                             className='rounded-lg card-img event-page_event-banner'
-                            width={238}
-                            height={160}
+                            width={bannerImgDimensions.width}
+                            height={bannerImgDimensions.height}
                         />
                         {/* <Image
                             src={event.eventBanner.url}
@@ -96,26 +121,10 @@ export default function ViewEvent({ params }: { params: { eventId: string } }) {
                     </CardContent>
                 </Card>
 
-                <section className='flex-cols-[3:1] justify-between gap-5 relative'>
-                    <div>
-                        <div className='flex flex-col gap-3'>
-                            <Text asLabel>{formatDate(new Date(event.eventDate), 'dddd, MMMM DD')}</Text>
-                            <Text variant='h1'>{event.title}</Text>
-                        </div>
-                    </div>
-                    <aside className='h-fit bottom-2 left-0 right-0 md:top-24'>
-                        <div>
-                            {/* <AttachUserToEvent event={event} /> */}
-                            {/* <div className='flex items-end gap-3 mb-4 lg:mb-5'>
-                                <EditEventButton event={event} actor={actor as AppUser} variant='outline' />
-                                <DeleteEventButton actor={actor as AppUser} event={event} />
-                            </div> */}
-                        </div>
-                    </aside>
-                </section>
+
                 <div className='flex-cols-[3:1] justify-between mt-10 gap-5 relative'>
                     <div className='flex flex-col gap-10 mb-10'>
-
+                        <Text variant='h1'>{event.title}</Text>
                         <section className='relative h-fit grid grid-cols-2 max-w-2xl gap-4'>
                             <div className='flex gap-2'>
                                 <CalendarIcon className='h-6 w-6' />

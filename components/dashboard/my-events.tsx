@@ -15,8 +15,16 @@ const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & {
     layout: string;
     isFilteringEnabled: boolean;
     filterParams: string[];
+    gridColumnRule?: {
+        xs?: number;
+        sm?: number;
+        md?: number;
+        lg?: number;
+        xl?: number;
+        xxl?: number;
+    };
     owner?: AppUser | UserInfo | null;
-}> = ({ layout, isFilteringEnabled = false, filterParams = [], owner, ...props }) => {
+}> = ({ layout, isFilteringEnabled = false, filterParams = [], gridColumnRule, owner, ...props }) => {
     const actor = useAuthenticatedUser();
     owner = owner ?? actor;
     const { maxItemsPerPage = 10 } = APPCONFIG.paginationOptions;
@@ -24,6 +32,14 @@ const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & {
     const [isLoading, rawEvents, error] = useGetEventsByUser(owner as AppUser, actor as AppUser, true);
     const [events, setEvents] = useState<SingleEvent[] | []>([]);
     const [fallback, setFallback] = useState(<div className="text-center">Fetching events, please wait...</div>);
+    const defaultGridColumnRule = {
+        xs: 1,
+        sm: 2,
+        md: 2,
+        lg: 3,
+        xl: 3,
+        ...(gridColumnRule && gridColumnRule)
+    }
 
     React.useEffect(() => {
         if (isLoading) {
@@ -62,7 +78,7 @@ const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & {
                         </colgroup>
                     </DataTable>
                 ) : (
-                    <DataGrid Template={EventGridTemplate} data={events} columnRule={{ sm: 2, md: 2, lg: 3, xl: 3 }} paginationOptions={{ itemsPerPage: maxItemsPerPage }} fallback="Loading... Please wait" />
+                    <DataGrid Template={EventGridTemplate} data={events} columnRule={defaultGridColumnRule} paginationOptions={{ itemsPerPage: maxItemsPerPage }} fallback="Loading... Please wait" />
                 )
         ) : (
             fallback

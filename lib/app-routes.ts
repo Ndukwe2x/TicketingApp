@@ -10,5 +10,6 @@ export const AuthFreeRoutes: string[] = [
     '/_static',
     '/_next/static',
     '/favicon.ico',
-    '/showcase.jpg'
+    '/showcase.jpg',
+    '/legal'
 ];

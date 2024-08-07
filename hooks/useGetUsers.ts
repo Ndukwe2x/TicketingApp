@@ -4,6 +4,14 @@ import { useEffect, useState } from "react";
 import { useGetEventsByIds, useGetEventById, useGetEventsByUser, fetchUserEvents } from "./useGetEvents";
 import UserClass from "@/lib/User.class";
 import { orderByDate } from "@/lib/utils";
+import { getCookie } from "cookies-next";
+import { cookieOptions } from "@/lib/app-config";
+
+const getCookieUser = (): AppUser => {
+    const cookie: string = getCookie('app_user', { ...cookieOptions, maxAge: undefined, expires: undefined }) as string;
+    const loggedUser: UserInfo = JSON.parse(cookie);
+    return new UserClass(loggedUser);
+}
 
 const fetchUsersByEventId = async (eventId: string, actor: AppUser): Promise<UserInfo[] | []> => {
     const url = Api.server + Api.endpoints.admin.search + '?eventRef=' + eventId;
@@ -14,6 +22,19 @@ const fetchUsersByEventId = async (eventId: string, actor: AppUser): Promise<Use
     });
     const data = res.data.data || {};
     return data.accounts || [];
+}
+
+const fetchUsers = async (actor: AppUser): Promise<UserInfo[]> => {
+    const url = Api.server + Api.endpoints.admin.search;
+    const res = await axios.get(url, {
+        headers: {
+            Authorization: `Bearer ${actor.token}`
+        }
+    });
+    const resData = res.data.data || {};
+    const result: UserInfo[] = resData.accounts || [];
+
+    return result;
 }
 
 /**
@@ -38,10 +59,10 @@ const dissociateUserFromEvent = async (user: UserInfo, eventId: string, actor: A
     return response.status === 200;
 }
 
-const useGetUsers = (actor: AppUser): [isLoading: boolean, users: AppUser[] | [], error: any] => {
+const useGetUsers = (actor: AppUser): [isLoading: boolean, users: UserInfo[] | [], error: any] => {
 
     const url = Api.server + Api.endpoints.admin.search;
-    const [users, setUsers] = useState<AppUser[]>([]);
+    const [users, setUsers] = useState<UserInfo[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<any>(null);
 
@@ -59,10 +80,10 @@ const useGetUsers = (actor: AppUser): [isLoading: boolean, users: AppUser[] | []
                 const data = result.accounts || [];
 
                 if (data.length) {
-                    const orderedUsers = orderByDate(data, 'createdAt');
-                    const decoratedUsers = orderedUsers.map((user: any) => (new UserClass(user) as unknown) as AppUser);
+                    const orderedUsers = (orderByDate(data, 'createdAt') as unknown) as UserInfo[];
+                    // const decoratedUsers = orderedUsers.map((user: any) => (new UserClass(user) as unknown) as AppUser);
 
-                    setUsers(decoratedUsers);
+                    setUsers(orderedUsers);
                 }
             } catch (error) {
                 setError(error as any);
@@ -354,6 +375,8 @@ export {
     dissociateUserFromEvent,
     fetchUserById,
     fetchUsersByEventId,
+    fetchUsers,
+    getCookieUser,
     useGetUsers,
     useGetUserById,
     useGetUsersByEvent,

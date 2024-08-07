@@ -23,7 +23,7 @@ export const columns: ColumnDef<AppUser>[] = [
     {
         accessorKey: 'name',
         header: 'Name',
-        cell: ({ row }) => <div className='capitalize'>
+        cell: ({ row }) => <div className='capitalize whitespace-nowrap'>
             <Link href={'/users/' + row.original.id}>{row.original.firstname} {row.original.lastname}</Link>
         </div>,
     },
@@ -54,7 +54,7 @@ export const columns: ColumnDef<AppUser>[] = [
                 </div>
             );
         },
-        cell: ({ row }) => <div>{humanReadableDateFormat(row.getValue('createdAt'))}</div>,
+        cell: ({ row }) => <div className='whitespace-nowrap'>{humanReadableDateFormat(row.getValue('createdAt'))}</div>,
     },
     // {
     //     accessorKey: 'userStatus',

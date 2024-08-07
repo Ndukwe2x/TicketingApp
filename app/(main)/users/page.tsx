@@ -10,30 +10,36 @@ import { useGetUsers } from '@/hooks/useGetUsers';
 import { useRouter } from 'next/navigation';
 import NotFoundPage from '../../[...not-found]/page';
 import InternalErrorPage from '@/app/internal-error';
+import RenderPrettyError from '@/components/render-pretty-error';
+import UserClass from '@/lib/User.class';
+import LoadingDashboardUsers from './loading';
 
 const Users = () => {
     const actor = useAuthenticatedUser();
-    const [isLoading, users, error] = useGetUsers(actor as AppUser);
+    const [isLoading, rawUsers, error] = useGetUsers(actor as AppUser);
     const router = useRouter();
 
-    if (isLoading) {
-        return null;
-    }
     if (error) {
-        return <InternalErrorPage />
+        return <RenderPrettyError error={error} />
     }
 
+    const users = rawUsers.map((user: any) => (new UserClass(user) as unknown) as AppUser);
+
     return (
-        <div className='flex flex-col gap-5'>
-            <Card>
-                <CardContent className='pt-5'>
-                    <DataTable
-                        columns={columns}
-                        data={users}
-                        fallback={isLoading ? 'Loading, please wait...' : 'No users at the moment...'} />
-                </CardContent>
-            </Card>
-        </div>
+        isLoading ? (
+            <LoadingDashboardUsers />
+        ) : (
+            <div className='flex flex-col gap-5'>
+                <Card>
+                    <CardContent className='pt-5'>
+                        <DataTable
+                            columns={columns}
+                            data={users}
+                            fallback={isLoading ? 'Loading, please wait...' : 'No users at the moment...'} />
+                    </CardContent>
+                </Card>
+            </div>
+        )
     );
 }
 
