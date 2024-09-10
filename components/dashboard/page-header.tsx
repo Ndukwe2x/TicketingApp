@@ -1,8 +1,9 @@
 import NavigateBack from "@/components/dashboard/navigate-back";
 import { Heading } from "@/components/ui/headers";
 import { usePageHeader } from "@/hooks/usePageHeaderContext";
+import { APPCONFIG } from "@/lib/app-config";
 import { cn } from "@/lib/utils";
-import { capitalCase } from "change-case";
+import { capitalCase, pascalCase } from "change-case";
 import { usePathname } from "next/navigation";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
@@ -44,6 +45,12 @@ export default function PageHeader({ children, className, ...props }: PageHeader
         }
     }, [path, titleRef, , pageTitle, setIsPageTitleEnabled]);
 
+    useCallback(() => {
+        if (title == null) {
+            return;
+        }
+        document.title = `${pascalCase(title as string)} - ${APPCONFIG.title}`;
+    }, [title])();
 
     return (
         <div className={cn('flex items-center mb-4 gap-3', className)} {...props}>

@@ -24,6 +24,7 @@
         --input: 240 5.9% 90%;
         --ring: 346.8 77.2% 49.8%;
         --radius: 0.5rem;
+        --header-height: 4.65572rem;
     }
 
     .dark {
@@ -102,6 +103,9 @@
 
     #dashboard-navigation.expanded {
         width: 18rem;
+        height: auto;
+        min-height: calc(100vh - 75px);
+        max-height: 100vh;
     }
 
     @media screen and (max-width: 1024px) {
@@ -125,6 +129,9 @@
 
     #dashboard-navigation .fixed {
         width: inherit;
+        height: inherit;
+        min-height: inherit;
+        max-height: inherit;
     }
 
     #dashboard-navigation .menu-text,
@@ -438,6 +445,52 @@
         margin-top: 2rem;
     }
 
+    .avatar-upload-preview:not(.loaded) {
+        display: none;
+    }
+
+    .avatar-upload-preview {
+        display: grid;
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: inherit;
+        background-color: transparent;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        z-index: 1;
+    }
+
+    .avatar-upload-preview img {
+        -o-object-fit: cover;
+        object-fit: cover;
+        height: 100%;
+        width: 100%;
+        -o-object-position: center;
+        object-position: center;
+        visibility: hidden;
+        border-radius: inherit;
+        pointer-events: none;
+    }
+
+    .avatar-upload-preview .change-image,
+    .avatar-upload-preview .reset-picker {
+        width: 2.65rem;
+        height: 2.65rem;
+        /* position: absolute; */
+        /* align-self: center; */
+        /* justify-self: center; */
+        background-color: #00000091;
+    }
+
+    /* .avatar-upload-preview:hover .edit-btn {
+        display: grid;
+    } */
+
+
     .event-page_event-banner {
         width: auto;
         min-width: 100%;
@@ -531,9 +584,6 @@
     }
 
     .time-of-day {
-        position: absolute;
-        bottom: 7px;
-        left: 33%;
         pointer-events: none;
         color: gray;
     }
@@ -581,5 +631,28 @@
     [class*="search-box\:icon-right"] {
         padding-right: 3.5rem !important;
         background-position-x: calc(100% - 1rem);
+    }
+
+    .fixed.top-offset {
+        top: 4.6875rem;
+        top: var(--header-height);
+    }
+
+    .content-area {
+        height: auto;
+        min-height: calc(100vh - var(--header-height));
+        max-height: calc(100vh - var(--header-height));
+    }
+
+    .mini-scrollbar::-webkit-scrollbar {
+        width: 0.7rem;
+    }
+
+    .mini-scrollbar::-webkit-scrollbar-track {
+        background-color: transparent;
+    }
+
+    .mini-scrollbar::-webkit-scrollbar-thumb {
+        border-radius: 5px;
     }
 }

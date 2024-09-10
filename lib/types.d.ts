@@ -330,6 +330,8 @@ interface PageHeaderContextType {
 interface FormDataContextType {
     formData: Record<string, any>;
     setFormData: React.Dispatch<React.SetStateAction<Record<string, any>>>;
+    posterPreviewList?: ImageInfo[];
+    setPosterPreviewList?: React.Dispatch<React.SetStateAction<ImageInfo[]>>
 }
 
 type TypeOfFormControl = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;

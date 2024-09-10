@@ -6,10 +6,11 @@ import { cn } from '@/lib/utils';
 import { APPCONFIG } from '@/lib/app-config';
 import { Providers } from './providers';
 import { Toaster } from '@/components/ui/sonner';
+import { NextRequest } from 'next/server';
+import { Router } from 'next/router';
 
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
-
 export const metadata: Metadata = {
     title: APPCONFIG.title,
     description: APPCONFIG.description,

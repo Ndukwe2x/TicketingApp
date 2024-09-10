@@ -6,7 +6,7 @@ import { Api } from "@/lib/api";
 import { Text } from "../ui/text";
 import { Icons } from "../icons";
 import styles from '../styles/styles.module.css';
-import MediaUploader, { EditButton } from "../buttons/media-uploader";
+import MediaUploader, { EditButton, UploadButton } from "../buttons/media-uploader";
 import axios, { AxiosResponse, isAxiosError } from "axios";
 import { Checkbox } from "../ui/checkbox";
 import AddTicketCategory from "./add-ticket-category";
@@ -16,10 +16,11 @@ import DateTimeControls from "./event-form-datetime-control";
 import generateRandomString from "@/lib/random-string-generator";
 import { MdClose, MdDeleteOutline, MdInfo } from "react-icons/md";
 import EventEditFormSummary from "./event-edit-form-summary";
-import { FormDataContext } from "@/hooks/useFormDataContext";
+import { FormDataContext, useFormData } from "@/hooks/useFormDataContext";
 import { deleteEvent } from "@/hooks/useGetEvent";
 import { useRouter } from "next/navigation";
 import * as NextImage from "next/image";
+import { HTMLAttributes } from "react";
 // import { useCallback } from "react";s
 
 interface TempImagesProps {
@@ -48,7 +49,7 @@ const EventForm = (
 ) => {
     const [isFirstPage, setIsFirstPage] = React.useState<boolean>(true);
     const [isLastPage, setIsLastPage] = React.useState<boolean>(false);
-    const [isCurrentPageCompleted, setIsCurrentPageCompleted] = React.useState<boolean>(false);
+    // const [isCurrentPageCompleted, setIsCurrentPageCompleted] = React.useState<boolean>(false);
     const [pageNumber, setPageNumber] = React.useState(1);
     const pageBaseClass = styles.event_form_page;
     const pageActiveClass = styles.current;
@@ -67,11 +68,11 @@ const EventForm = (
     const [tempImages, setTempImages] = React.useState<Partial<TempImagesProps>>({});
     const [isSuccessful, setIsSuccessful] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [posterPreviewList, setPosterPreviewList] = useState<ImageInfo[]>(event && event.posters || []);
 
     const formRef = useRef<HTMLFormElement>(null);
-    // const isCurrentPageCompleted = useRef<boolean>(false);
-    const uploadedImagesRef = useRef<{ banner: ImageInfo, posters: ImageInfo[] } | {}>({});
-    // let formDataRef = useRef<Partial<SingleEvent> | {}>({});
+    const isCurrentPageCompleted = useRef<boolean>(false);
+    // const uploadedImagesRef = useRef<{ banner: ImageInfo, posters: ImageInfo[] } | {}>({});
     const bannerRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
 
@@ -79,7 +80,7 @@ const EventForm = (
 
 
     const getInputsFromCurrentPage = () => {
-        const fieldList: string = 'input:not([type="file"]), textarea, select';
+        const fieldList: string = 'input:required, textarea:required, select:required';
         return (formRef.current?.querySelector(currentPageSelector)?.querySelectorAll(fieldList) as unknown) as HTMLFormControlsCollection;
     };
 
@@ -91,17 +92,17 @@ const EventForm = (
         let totalUnfilled = 0;
         inputFields && Array.from(inputFields).forEach(field => {
             let elem = field as TypeOfFormControl;
-            if (elem.required && !elem.value) {
+            if (!elem.value) {
                 totalUnfilled += 1;
             }
         });
 
         if (totalUnfilled > 0) {
-            setIsCurrentPageCompleted(false)
-            // isCurrentPageCompleted.current = false;
+            // setIsCurrentPageCompleted(false)
+            isCurrentPageCompleted.current = false;
         } else {
-            setIsCurrentPageCompleted(true)
-            // isCurrentPageCompleted.current = true;
+            // setIsCurrentPageCompleted(true)
+            isCurrentPageCompleted.current = true;
         }
     };
 
@@ -144,7 +145,7 @@ const EventForm = (
             // This helps us currate all the form data as the user fills the form,
             // and then use to create a summary of the entire user inputs
 
-            // else if ( formRef.current !== null ) {
+            // if ( formRef.current !== null ) {
             //     const enteredData = new FormData(formRef.current as HTMLFormElement);
             //     const objectifiedFormData = formDataToObjects(enteredData.entries())
             //     .filter(({name, value}) => value != '[object File]');
@@ -239,10 +240,16 @@ const EventForm = (
      * with the name 'eventBanner';
      * @param data The response data returned from Cloudinary after a successful image upload
      */
-    const previewBanner = (file: File) => {
+    const previewBanner = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (bannerRef.current == null) {
             return;
         }
+        const files = e.target.files || [];
+        if (!files.length) {
+            return;
+        }
+        const file = files[0];
+
         const bannerPreview = bannerRef.current;
         createSuspense(bannerPreview);
         bannerPreview.classList.remove('hidden');
@@ -273,7 +280,7 @@ const EventForm = (
                     banner: file
                 }));
 
-                setTempImages(tempImages => ({ ...tempImages, eventBanner: { url: dataUri } }));
+                setTempImages(tmpImgs => ({ ...tmpImgs, eventBanner: { url: dataUri } }));
             })
             .catch((error) => {
                 const msg = 'Unable to preview image';
@@ -283,116 +290,43 @@ const EventForm = (
 
     }
 
-    const removePoster = (target: HTMLButtonElement, poster?: ImageInfo) => {
-        if (poster) {
-            const posters = formData.posters as ImageInfo[];
+    const previewPoster = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files || [];
+        if (!files.length) {
+            toast('No file selected');
+            console.log('No file selected');
+            return;
+        }
 
-            if (posters.length) {
-                const newPosters = posters.filter(p => p.public_id !== poster.public_id);
-                setFormData(formData => ({ ...formData, posters: newPosters }));
+        try {
+            for (const file of files) {
+                const dataUri = await parseFileToDataUri(file, { minSize: '5KB', maxSize: '5MB' });
+                const imageData: ImageInfo = {
+                    url: dataUri,
+                    public_id: generateRandomString(32, 'mixed_lower')
+                };
+                setPosterPreviewList(currentList => ([
+                    ...currentList,
+                    imageData
+                ]));
+
+                addFilesToUpload(files => {
+                    return {
+                        ...files,
+                        posters: [...(files.posters || []), file]
+                    }
+                });
+
+                setTempImages(tmpImgs => ({
+                    ...tmpImgs,
+                    posters: [...(tmpImgs.posters || []), { url: dataUri }]
+                }))
             }
-        }
-        target.closest('.poster-group')?.remove();
-    }
-
-    const posterRemoveBtn = (poster: ImageInfo) => (
-        <Button onClick={(e) => removePoster(e.target as HTMLButtonElement, poster)}
-            type="button" role="button" variant={null}
-            className="remove-poster rounded-full absolute right-2 top-2 px-1.5 py-1 bg-black/60 text-white">
-            <MdClose size={24} />
-        </Button>
-    );
-    const createPosterGroup = (containerId: string | HTMLElement) => {
-        const container: Element =
-            typeof containerId === 'string'
-                ? document.querySelector(containerId) as HTMLElement
-                : containerId;
-
-        if (container == null) {
-            console.error('Target container not found.');
-            return;
-        }
-
-        const posterGroup = document.createElement('div');
-        const existingPosters = document.querySelectorAll(`.${styles.media_frame}.${styles.poster}`);
-        const posterId = existingPosters.length > 0
-            ? existingPosters.length - 1
-            : existingPosters.length;
-        const groupId = 'poster_' + posterId;
-        const uploadBtn = container.getElementsByClassName('upload-btn')[0];
-
-        posterGroup.id = groupId;
-        posterGroup.classList.add(styles.media_frame, styles.poster, styles.img_preview, 'poster-group', 'loading');
-
-
-        container?.insertBefore(posterGroup, uploadBtn);
-
-        createSuspense(`#${groupId}`, false);
-    }
-
-    const previewPosters = (file: File) => {
-        createPosterGroup('#posters');
-
-        const posterPreview = document.querySelector('.poster-group.loading') as HTMLElement;
-        const errorMsg: string = 'Unable to preview image';
-        if (!posterPreview) {
+        } catch (err) {
+            const errorMsg: string = 'Image preview error';
             toast(errorMsg);
-            console.error(errorMsg);
-            return;
-        };
-
-        posterPreview.classList.remove('hidden');
-        posterPreview.classList.add('relative');
-        posterPreview.style.display = 'flex';
-
-        parseFileToDataUri(file)
-            .then(dataUri => {
-                const imageWrapper = document.createElement('div');
-                const img = new Image();
-                img.src = dataUri;
-                img.alt = file.name;
-                img.onload = () => {
-                    const suspense = posterPreview.getElementsByClassName('suspense')[0];
-                    if (suspense) {
-                        posterPreview.replaceChild(img, suspense);
-                    }
-                    updatePageStatus();
-                    posterPreview.classList.remove('loading');
-                    imageWrapper.style.backgroundImage = `url(${dataUri})`;
-                    // imageWrapper.classList.add(styles.poster)
-
-                    if (imageWrapper.querySelector('img')) {
-                        imageWrapper.replaceChild(img, imageWrapper.querySelector('img') as HTMLImageElement)
-                    } else {
-                        imageWrapper.appendChild(img);
-                    }
-                    if (!imageWrapper.querySelector('.remove-poster')) {
-                        const poster: ImageInfo = {
-                            url: dataUri,
-                            public_id: generateRandomString(32, 'mixed_lower')
-                        }
-                        const removeBtn = (posterRemoveBtn(poster) as unknown) as string;
-
-                        imageWrapper.setHTMLUnsafe(removeBtn);
-                    }
-                    posterPreview.appendChild(imageWrapper);
-                    addFilesToUpload(files => {
-                        return {
-                            ...files,
-                            posters: [...(files.posters || []), file]
-                        }
-                    });
-
-                    setTempImages(tempImages => ({
-                        ...tempImages,
-                        posters: [...(tempImages.posters || []), { url: dataUri }]
-                    }))
-                }
-            })
-            .catch(error => {
-                toast(errorMsg);
-                console.error(errorMsg + ":", error);
-            });
+            console.error(errorMsg, err);
+        }
     }
 
     const createSuspense = (containerId: string | HTMLElement, hideUploadBtn: boolean = true): void => {
@@ -476,8 +410,8 @@ const EventForm = (
             ev.preventDefault();
         }
 
-        setIsLoading(true);
         try {
+            setIsLoading(true);
             let data = formData;
 
             if (filesToUpload.banner || filesToUpload.posters) {
@@ -540,13 +474,13 @@ const EventForm = (
                 MediaUploader.deleteRecentlyUploadedImages([eventBanner, ...posters]);
                 toast('Unable to create event. An unexpected error has occured.');
                 console.error(error);
+                setIsLoading(false);
             }
         } catch (error) {
             toast('Unable to create event. One or more of the selected image(s) could not be uploaded');
             console.error(error);
-            return;
+            setIsLoading(false);
         }
-
     }
 
     const createSummary = React.useCallback(() => {
@@ -554,7 +488,7 @@ const EventForm = (
     }, [formData, tempImages])
 
     return (
-        <FormDataContext.Provider value={{ formData, setFormData }}>
+        <FormDataContext.Provider value={{ formData, setFormData, posterPreviewList, setPosterPreviewList }}>
             <form id={formId}
                 name={formId}
                 action={formAction}
@@ -614,12 +548,12 @@ const EventForm = (
                                         title={event.title}
                                         alt={event.eventBanner.public_id}
                                         width="280" height="200" />}
-                                    <EditButton name="eventBanner" onFileSelection={e => readSelectedFiles(e, previewBanner)}
+                                    <EditButton name="eventBanner" onFileSelection={previewBanner}
                                         className={cn((event && event.eventBanner.url) && 'block')} />
                                 </div>
-                                {(!event || !event.eventBanner.url) && <MediaUploader.uploadButton name="eventBanner"
-                                    onFileSelection={e => readSelectedFiles(e, previewBanner)}
-                                    required
+                                {(!event || !event.eventBanner.url) && <UploadButton name="eventBanner"
+                                    onFileSelection={previewBanner}
+                                    required={true}
                                     className={cn(styles.banner)} />}
                             </div>
                             {event && event.eventBanner.url && <input type="hidden" name="eventBanner[url]" defaultValue={event.eventBanner.url} />}
@@ -629,34 +563,21 @@ const EventForm = (
                     <div id="event-form_page_d" className={`${pageBaseClass} flex-col gap-4 flex-1`}>
                         <Text variant='h4'>Event posters:</Text>
                         <div className='flex flex-col gap-2'>
-                            <div id="posters" className="poster-groups gap-3 grid grid-cols-3">
+                            <div id="posters" className="poster-groups gap-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
                                 {
-                                    (event && event.posters.length) ? (
-                                        event.posters.map((poster, index) => (
-                                            <React.Fragment key={index}>
-                                                <div className="poster-group relative">
-                                                    <div className={cn(styles.media_frame, styles.poster, styles.img_preview)} style={{ backgroundImage: `url(${poster.url})` }}>
-                                                        <NextImage.default src={poster.url}
-                                                            title={poster.public_id}
-                                                            alt={poster.public_id}
-                                                            width="120" height="180" />
-                                                    </div>
-                                                    {<input type="hidden" name={`posters[${index}][url]`} defaultValue={poster.url} />}
-                                                    {<input type="hidden" name={`posters[${index}][public_id]`}
-                                                        defaultValue={poster.public_id || ''} />}
-                                                    <Button onClick={(e) => removePoster(e.target as HTMLButtonElement, poster)}
-                                                        type="button" role="button" variant={null}
-                                                        className="rounded-full absolute right-2 top-2 px-1.5 py-1 bg-black/60 text-white">
-                                                        <MdClose size={24} />
-                                                    </Button>
-                                                </div>
-                                            </React.Fragment>
-                                        ))
-                                    ) : (
-                                        null
-                                    )
+                                    posterPreviewList && posterPreviewList.map((poster, index) => (
+                                        <React.Fragment key={index}>
+                                            <CreatePosterPreview poster={poster} index={index}>
+                                                <input type="hidden" name={`posters[${index}][url]`} defaultValue={poster.url} />
+                                                <input type="hidden" name={`posters[${index}][public_id]`}
+                                                    defaultValue={poster.public_id || ''} />
+                                            </CreatePosterPreview>
+                                        </React.Fragment>
+                                    ))
                                 }
-                                <MediaUploader.uploadButton name="posters" onFileSelection={e => readSelectedFiles(e, previewPosters)}
+                                <UploadButton name="posters" onFileSelection={previewPoster}
+                                    required={true}
+                                    aria-required={true}
                                     className={styles.poster} />
                             </div>
                         </div>
@@ -666,6 +587,8 @@ const EventForm = (
                             <Text variant='h4'>Ticket Duration</Text>
                             <Label htmlFor='ticket-closing-date'>Ticket Sales Closes:</Label>
                             <Input type="date" name="ticketClosingDate"
+                                required
+                                aria-required="true"
                                 defaultValue={event && event.ticketClosingDate ? formatDate(new Date(event.ticketClosingDate), 'YYYY-MM-DD') : ''}
                                 onChange={updateFormData} />
                         </div>
@@ -687,14 +610,14 @@ const EventForm = (
                     </div>
                     <div className="flex flex-row justify-content-between pt-5">
                         {!isFirstPage && <Button type="button" onClick={(ev) => backToPreviousPage(ev)} className="max-w-max"><Icons.backward /> Back</Button>}
-                        {isLastPage && <Button type='submit' disabled={!isCurrentPageCompleted} className="max-w-max ml-auto">
+                        {isLastPage && <Button type='submit' disabled={isCurrentPageCompleted.current === false} className="max-w-max ml-auto">
                             {
                                 isLoading ?
                                     <><Icons.spinner className='mr-2 h-4 w-4 animate-spin' /> Loading...</>
                                     : <>Submit <Icons.forward /></>
                             }
                         </Button>}
-                        {!isLastPage && <Button type='button' disabled={!isCurrentPageCompleted} onClick={gotoNextPage} className="max-w-max ml-auto">Next <Icons.forward /></Button>}
+                        {!isLastPage && <Button type='button' disabled={isCurrentPageCompleted.current === false} onClick={gotoNextPage} className="max-w-max ml-auto">Next <Icons.forward /></Button>}
                     </div>
                 </div>
             </form>
@@ -704,16 +627,43 @@ const EventForm = (
 
 export default EventForm;
 
-const readSelectedFiles = (ev: React.ChangeEvent<HTMLInputElement>, processFile: Callback) => {
-    const files = ev.target.files // Get the selected file
 
-    if (!files?.length) {
-        console.error('No file selected.');
-        return;
+interface PosterPreviewerProps extends HTMLAttributes<HTMLDivElement> {
+    poster: ImageInfo;
+    index: number;
+}
+
+
+function CreatePosterPreview({ children, className, poster, index, ...props }: PosterPreviewerProps) {
+    const Image = NextImage.default;
+    const { formData, setFormData, posterPreviewList, setPosterPreviewList } = useFormData();
+
+    const removePoster = (poster: ImageInfo) => {
+        const existingPosters = formData?.posters as ImageInfo[];
+        if (existingPosters?.length) {
+            const newPosters = existingPosters.filter(p => p.public_id !== poster.public_id);
+            setFormData && setFormData(formData => ({ ...formData, posters: newPosters }));
+        }
+        if (posterPreviewList?.length) {
+            const modifiedPosters = posterPreviewList.filter(p => p.public_id !== poster.public_id);
+            setPosterPreviewList && setPosterPreviewList(modifiedPosters);
+        }
     }
 
-    for (let i = 0; i < files.length; i++) {
-        const file: File = files[i];
-        processFile(file);
-    }
+    return (
+        <React.Fragment>
+            <div id={`poster-group-${index}`} className={cn(className, styles.poster_group, "poster-group border relative rounded-lg")} {...props}>
+                <div className="image-wrapper rounded-lg overflow-hidden invisible">
+                    <Image src={poster.url} alt={poster.public_id} width={200} height={300} />
+                </div>
+                <div className={cn(styles.image_facade, "image-facade absolute left-0 top-0 right-0 bottom-0 rounded-lg")} style={{ backgroundImage: `url(${poster.url})` }}></div>
+                {children}
+                <Button onClick={(e) => removePoster(poster)}
+                    type="button" role="button" variant={null}
+                    className="remove-poster rounded-full absolute right-2 top-2 px-1.5 py-1 bg-black/60 text-white">
+                    <MdClose size={24} />
+                </Button>
+            </div>
+        </React.Fragment>
+    )
 }

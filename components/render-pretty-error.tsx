@@ -3,9 +3,20 @@ import ServiceUnavailable from "@/app/service-unavailable";
 import { isAxiosError } from "axios";
 import NotFoundPage from "@/app/[...not-found]/page";
 import Error from "@/app/(main)/error";
+import { useCallback } from "react";
+import NoNetwork from "./no-network";
+import { useState } from "react";
 
 export default function RenderPrettyError({ error }: { error: unknown }) {
+    const [isConnectionError] = useState(() => {
+        return !navigator.onLine;
+    });
+
     if (isAxiosError(error)) {
+        if (isConnectionError) {
+            return <NoNetwork />
+        }
+
         const status = error.response ? error.response.status : null;
 
         switch (status) {

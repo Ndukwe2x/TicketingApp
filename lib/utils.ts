@@ -206,8 +206,27 @@ function copyLink(link: string) {
     toast('Link copied!', { position: 'top-center' });
 }
 
-function parseFileToDataUri(file: File): Promise<string> {
+// interface FileReaderProps {
+//     file: File;
+//     options?: {
+//         minSize?: number | string;
+//         maxSize?: number | string;
+//     };
+//     sizeUnit?: 'KB' | 'MB' | 'GB' | 'TB';
+// }
+function parseFileToDataUri(
+    file: File,
+    options?: {
+        minSize?: number | string,
+        maxSize?: number | string,
+    },
+    sizeUnit?: 'KB' | 'MB' | 'GB' | 'TB'
+): Promise<string> {
     return new Promise((resolve, reject) => {
+        if (options) {
+            const { minSize, maxSize } = options;
+
+        }
         const reader = new FileReader();
         reader.onload = () => {
             if (typeof reader.result === 'string') {

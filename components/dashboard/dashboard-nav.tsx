@@ -26,8 +26,8 @@ export const DashboardNav = () => {
     // Testing...
     return (
         <div id='dashboard-navigation' className={cn(`transition-[width] lg:flex`, state)}>
-            <div className='fixed top-16'>
-                <nav className='py-8 px-4 lg:px-8 border-r h-[90vh] flex flex-col gap-3'>
+            <div className='fixed top-offset bottom-0'>
+                <nav className='py-8 px-4 lg:px-8 flex flex-col gap-3 h-full overflow-y-auto mini-scrollbar bg-white'>
                     <ul className='menu w-full'>
                         {
                             actor ? (

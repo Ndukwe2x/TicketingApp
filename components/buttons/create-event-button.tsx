@@ -4,7 +4,7 @@ import React, { MouseEvent, ReactHTMLElement, ReactNode, useState } from "react"
 import Modal from "../ui/modal";
 import Link from "next/link";
 import { MdEvent } from "react-icons/md";
-import EventForm from "../dashboard/event-form";
+import EventForm from "../dashboard/event-form-experimental";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 import { toast } from "../ui/sonner";

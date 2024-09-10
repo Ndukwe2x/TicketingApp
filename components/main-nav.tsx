@@ -92,7 +92,7 @@ const MainNav: React.FC<NavProps> = ({ children, className, ...props }) => {
 
     return (
         <nav {...props} className={cn(
-            'fixed w-full top-0 left-0 z-10 transition-all duration-300 bg-background border-b ' + className,
+            'fixed w-full top-0 left-0 z-10 transition-all duration-300 bg-background ' + className,
             hasScrolled && 'shadow-md bg-background'
         )}>
             <div className='flex items-center justify-between p-4 lg:px-8 mx-auto'>

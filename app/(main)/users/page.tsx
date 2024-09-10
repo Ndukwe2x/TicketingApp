@@ -14,7 +14,7 @@ import RenderPrettyError from '@/components/render-pretty-error';
 import UserClass from '@/lib/User.class';
 import LoadingDashboardUsers from './loading';
 
-const Users = () => {
+export default function Users() {
     const actor = useAuthenticatedUser();
     const [isLoading, rawUsers, error] = useGetUsers(actor as AppUser);
     const router = useRouter();
@@ -42,5 +42,3 @@ const Users = () => {
         )
     );
 }
-
-export default Users;
