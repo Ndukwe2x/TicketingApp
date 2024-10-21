@@ -5,6 +5,29 @@ import { setCookie } from 'cookies-next';
 import { APPCONFIG } from './app-config';
 import { toast } from '@/components/ui/sonner';
 
+function isBool(data: unknown) {
+    return typeof data === 'boolean';
+}
+function isString(data: unknown) {
+    return typeof data === 'string';
+}
+
+function isNumber(data: unknown) {
+    return typeof data === 'number';
+}
+
+function isNumeric(data: string) {
+    return isString(data) && data.match(/^[\d+]/g);
+}
+
+function isFunction(data: unknown) {
+    return typeof data === 'function';
+}
+
+function isDate(input: unknown) {
+    return input instanceof Date;
+}
+
 function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }
@@ -135,7 +158,7 @@ function formDataToObjects(formData: IterableIterator<[string, FormDataEntryValu
 
 //     return result;
 // }
-function parseFormFields(formFields: { name: string; value: string }[], inputObject?: Record<string, any>
+function parseFormFields(formFields: { name: string; value: string | number }[], inputObject?: Record<string, any>
 ): Record<string, any> {
     const outputObject: Record<string, any> = { ...inputObject };
 
@@ -258,13 +281,47 @@ function defineStaticVariable<T>(iniValue: T): [T, StaticVariableSetterAction<T>
     return [data, setter];
 }
 
+const getEmptyFormFields = (form: HTMLFormElement, requiredOnly: boolean = false): TypeOfFormControl[] => {
+    const formElements = Array.from(form.elements);
+    var emptyFields = [];
+    for (const element of formElements) {
+        const input = element as TypeOfFormControl;
+        if (requiredOnly && !input.required) {
+            continue;
+        }
+        if (input.value === "") {
+            emptyFields.push(input);
+        }
+    }
+
+    return emptyFields;
+}
+
+const parseDate = (datetime: string | Date, format: string = 'DD/MM/YYYY H:i:s A') => {
+    datetime = isDate(datetime) ? datetime : new Date(datetime);
+    const formattedDate = formatDate(datetime, format);
+    const [date, time, meridian] = formattedDate.split(' ');
+    const dateSeparator = formattedDate.search('/') ? '/' : (formattedDate.search('-') ? '-' : '/');
+    const [day, month, year] = date.split(dateSeparator);
+    const yearArr = year.split('').chunk(2).map(chunk => chunk.join(''));
+
+    return { day, month, year, yearArr, time, meridian }
+}
+
 export {
+    isString,
+    isNumber,
+    isNumeric,
+    isFunction,
+    isDate,
+    isBool,
     cn,
     formatNumber,
     formatCurrency,
     formatDate,
     humanReadableDateFormat,
     getElementSiblings,
+    getEmptyFormFields,
     formDataToObjects,
     parseFormFields,
     convertToDotNotation,
@@ -272,7 +329,8 @@ export {
     calculateTimeDifference,
     copyLink,
     parseFileToDataUri,
-    defineStaticVariable
+    defineStaticVariable,
+    parseDate
 }
 
 

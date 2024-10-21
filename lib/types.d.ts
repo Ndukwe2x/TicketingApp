@@ -207,7 +207,7 @@ type NewlyCreatedUserAccountData = {
     status: string
 }
 
-type Callback = (param: Any, ...rest: any[]) => void;
+type Callback = (param?: Any, ...rest: any[]) => void;
 
 interface CloudinaryUploadResponseData {
     asset_id: string;
@@ -318,6 +318,21 @@ type GridComponentOptions<TData> = {
     state: {},
 }
 
+interface TempImagesProps {
+    eventBanner?: Partial<ImageInfo>;
+    posters?: Partial<ImageInfo>[];
+};
+
+interface SelectedUploadFilesProps {
+    banner?: File,
+    posters?: File[]
+}
+
+interface UploadResponseDataProps {
+    banner?: Partial<CloudinaryUploadResponseData>;
+    posters?: Partial<CloudinaryUploadResponseData>[];
+}
+
 interface PageHeaderContextType {
     pageTitle: string | null | undefined;
     setPageTitle: (title: string | null) => void;
@@ -327,11 +342,18 @@ interface PageHeaderContextType {
     setWidget: (widget: React.ReactNode) => void;
 }
 
-interface FormDataContextType {
-    formData: Record<string, any>;
-    setFormData: React.Dispatch<React.SetStateAction<Record<string, any>>>;
+interface EventFormDataContextType {
+    formData: SingleEvent | Record<string, any>;
+    updateFormData?: (data: Record<string, any> | Callback) => void;
     posterPreviewList?: ImageInfo[];
-    setPosterPreviewList?: React.Dispatch<React.SetStateAction<ImageInfo[]>>
+    updatePosterPreviewList?: (data: ImageInfo | ImageInfo[], overwrite?: boolean) => void;
+    tempImages?: TempImagesProps;
+    updateTempImages?: (data: TempImagesProps) => void;
+    filesToUpload?: SelectedUploadFilesProps;
+    updateFilesToUpload?: (data: SelectedUploadFilesProps) => void;
+    onPending?: Callback;
+    onSuccess?: Callback;
+    onFailure?: Callback;
 }
 
 type TypeOfFormControl = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
@@ -343,3 +365,7 @@ interface ToggleViewProps {
     setExternalViewType: React.Dispatch<React.SetStateAction<ViewType>>;
 }
 
+interface MultistepFormWizardStepProps {
+    prevStep: () => void;
+    nextStep: () => void;
+}

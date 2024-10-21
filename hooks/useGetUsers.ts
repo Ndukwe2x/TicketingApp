@@ -259,17 +259,7 @@ const useGetUserTeams = (user: AppUser | null, actor: AppUser | null, ignoreErro
     const [error, setError] = useState<any>(null);
 
     const fetchTeams = async (userId: string, actor: AppUser) => {
-        const userEvents = await fetchUserEvents(userId, actor) as any;
-        if (userEvents instanceof Error) {
-            setError(userEvents);
-            setIsLoading(false);
-            return;
-        }
-        if (!userEvents?.length) {
-            setIsLoading(false);
-            return;
-        }
-        const eventIds: string[] = userEvents.map((event: SingleEvent) => event._id);
+
 
         // const fetchUsersByEventId = async (eventId: string) => {
         //     const url = Api.server + Api.endpoints.admin.search + '?eventRef=' + eventId;
@@ -283,6 +273,18 @@ const useGetUserTeams = (user: AppUser | null, actor: AppUser | null, ignoreErro
         // }
 
         try {
+            const userEvents = await fetchUserEvents(userId, actor) as any;
+            if (userEvents instanceof Error) {
+                setError(userEvents);
+                setIsLoading(false);
+                return;
+            }
+            if (!userEvents?.length) {
+                setIsLoading(false);
+                return;
+            }
+            const eventIds: string[] = userEvents.map((event: SingleEvent) => event._id);
+
             const batchResponse = await Promise.all(eventIds.map(
                 async id => {
                     return { [id]: await fetchUsersByEventId(id, actor as AppUser) };

@@ -49,7 +49,7 @@ export default function UsersListActionsDropdownMenu({
                         className='flex gap-6 bg-transparent shadow-none text-foreground hover:bg-accent items-center justify-between p-1.5 rounded-sm w-full' />}
 
 
-                    {actor && actor.canUpdateUser && <EditUserButton variant={null} actor={actor} userId={user.id}
+                    {actor && actor.canUpdateUser && <EditUserButton variant={null} actor={actor} user={user}
                         className='flex gap-6 bg-transparent shadow-none text-foreground hover:bg-accent items-center justify-between p-1.5 rounded-sm w-full' />}
 
                     <DropdownMenuSeparator />

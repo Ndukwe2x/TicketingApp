@@ -1,20 +1,20 @@
 import React, { FormEvent, FormEventHandler, MouseEvent, useRef } from "react";
-import { formatDate } from "@/lib/utils";
+import { formatDate, isDate } from "@/lib/utils";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { useFormData } from "@/hooks/useFormDataContext";
 import { Button } from "../ui/button";
 import { FaClock } from "react-icons/fa6";
 import { CalendarIcon, ClockIcon } from "@radix-ui/react-icons";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { DatePicker, MobileTimePicker, renderTimeViewClock, TimePicker } from "@mui/x-date-pickers";
+import { useDataPasserContext, useEventFormData } from "@/hooks/useCustomContexts";
 
 interface DateTimeProps extends Partial<HTMLInputElement> {
     datetime: string | Date
 };
 const DateTimeControls: React.FC<DateTimeProps> = ({ datetime }) => {
     const [eventTimestamp, setEventTimestamp] = React.useState<string | number | Date>(datetime ? new Date(datetime) : '');
-    const { formData, setFormData } = useFormData() as FormDataContextType;
+    const { updateFormData } = useEventFormData();
     const dateInputRef = useRef<HTMLInputElement | null>(null);
     const timeInputRef = useRef<HTMLInputElement | null>(null);
     const isMobile = useMediaQuery('(max-width: 360px)');
@@ -47,7 +47,7 @@ const DateTimeControls: React.FC<DateTimeProps> = ({ datetime }) => {
 
     const handleDateTimeInput = (e: FormEvent<HTMLInputElement>): void => {
         const input = e.target as HTMLInputElement;
-        let [date, time]: string[] = eventTimestamp instanceof Date ? eventTimestamp.toISOString().split('T') : ['', ''];
+        let [date, time]: string[] = isDate(eventTimestamp) ? eventTimestamp.toISOString().split('T') : ['', ''];
 
         switch (input?.type) {
             case 'date':
@@ -61,40 +61,34 @@ const DateTimeControls: React.FC<DateTimeProps> = ({ datetime }) => {
         }
         if (date === '') {
             setEventTimestamp('');
-            setFormData(formData => ({
-                ...formData,
-                eventDate: ''
-            }));
+            updateFormData && updateFormData({ eventDate: '' });
             return;
         }
 
         const finalDate = new Date(`${date} ${time}`).toISOString();
         setEventTimestamp(new Date(finalDate));
-        setFormData(formData => ({
-            ...formData,
-            eventDate: new Date(finalDate).toISOString()
-        }))
+        updateFormData && updateFormData({ eventDate: new Date(finalDate).toISOString() })
     }
 
-    const period = eventTimestamp instanceof Date ? formatDate(eventTimestamp, 'A') : '';
+    const period = isDate(eventTimestamp) ? formatDate(eventTimestamp, 'A') : '';
 
     return (
         <div className="flex flex-row flex-1 gap-5">
             <input id='date' name="eventDate" type='hidden'
-                value={eventTimestamp instanceof Date ? eventTimestamp.toISOString() : eventTimestamp} />
+                value={isDate(eventTimestamp) ? eventTimestamp.toISOString() : eventTimestamp} />
             <div className='flex flex-col gap-2 flex-1'>
                 <Label htmlFor='date-control' className="w-full block">Date:</Label>
                 <div className="relative">
                     {/* <DatePicker /> */}
                     <Input ref={dateInputRef} id='date-control' type='date'
                         onChange={(e) => handleDateTimeInput(e)} required aria-required='true'
-                        defaultValue={eventTimestamp instanceof Date ? formatDate(new Date(eventTimestamp), 'YYYY-MM-DD') : ''}
+                        defaultValue={isDate(eventTimestamp) ? formatDate(eventTimestamp, 'YYYY-MM-DD') : ''}
                         className="invisible"
                     />
                     <Button variant={'outline'}
                         className="border flex items-center justify-between cursor-default absolute w-full top-0 px-2"
                         type='button' onClick={() => showDateTimePicker('date')}>
-                        <span>{eventTimestamp instanceof Date ? formatDate(new Date(eventTimestamp), 'DD/MM/YYYY') : 'DD/MM/YYYY'}</span>
+                        <span>{isDate(eventTimestamp) ? formatDate(eventTimestamp, 'DD/MM/YYYY') : 'DD/MM/YYYY'}</span>
                         <CalendarIcon width={22} height={22} />
                     </Button>
                 </div>
@@ -104,7 +98,7 @@ const DateTimeControls: React.FC<DateTimeProps> = ({ datetime }) => {
                 <div className="relative">
                     <Input ref={timeInputRef} id='time-control' type='time'
                         onChange={(e) => handleDateTimeInput(e)} required aria-required='true'
-                        defaultValue={eventTimestamp instanceof Date ? formatDate(eventTimestamp, 'hh:mm') : ''}
+                        defaultValue={isDate(eventTimestamp) ? formatDate(eventTimestamp, 'hh:mm') : ''}
                         className="invisible"
                     />
                     {/* <MobileTimePicker
@@ -124,7 +118,7 @@ const DateTimeControls: React.FC<DateTimeProps> = ({ datetime }) => {
                     <Button variant={'outline'}
                         className="border flex items-center justify-between gap-1.5 md:gap-7 cursor-default absolute w-full top-0 px-2"
                         type='button' onClick={() => showDateTimePicker('time')}>
-                        <span>{eventTimestamp instanceof Date ? formatDate(eventTimestamp, 'hh:mm') : '00:00'}</span>
+                        <span>{isDate(eventTimestamp) ? formatDate(eventTimestamp, 'hh:mm') : '00:00'}</span>
                         <span className="time-of-day mr-auto">
                             {
                                 period === 'AM' && <>

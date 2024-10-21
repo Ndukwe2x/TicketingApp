@@ -27,7 +27,7 @@ export const DashboardNav = () => {
     return (
         <div id='dashboard-navigation' className={cn(`transition-[width] lg:flex`, state)}>
             <div className='fixed top-offset bottom-0'>
-                <nav className='py-8 px-4 lg:px-8 flex flex-col gap-3 h-full overflow-y-auto mini-scrollbar bg-white'>
+                <nav className='py-8 px-4 lg:px-8 flex flex-col gap-3 h-full overflow-y-auto mini-scrollbar'>
                     <ul className='menu w-full'>
                         {
                             actor ? (
@@ -138,7 +138,7 @@ const OwnerMenu = ({ actor }: { actor: AppUser }) => {
             // addon: <MdAddBox size={26} />,
             submenu: actor?.canCreateUser ? <CreateUserButton displayText={
                 <Link href='#' className='rounded-lg hover:bg-gray-400/40 cursor-pointer flex items-center lg:px-4 px-3 py-2'>
-                    <MdPersonAdd size={20} className='mr-2 ml-4' /><span className='sr' aria-description='Add New User'>Add New User</span>
+                    <MdPersonAdd size={20} className='mr-2 ml-4' /><span className='sr' aria-label='Add New User'>Add New User</span>
                 </Link>
             } /> : ''
         },
@@ -179,7 +179,7 @@ const UserMenu = ({ actor }: { actor: AppUser }) => {
                 icon: <HiMiniUsers />,
                 submenu: actor?.isSuperUser ? <AddTeamMember displayText={
                     <Link href='#' className='rounded-lg hover:bg-gray-400/40 cursor-pointer flex items-center lg:px-4 px-3 py-2'>
-                        <MdPersonAdd size={20} className='mr-2 ml-4' /><span className='sr' aria-description='Add New Team Member'>Add New Team Member</span>
+                        <MdPersonAdd size={20} className='mr-2 ml-4' /><span className='sr' aria-label='Add New Team Member'>Add New Team Member</span>
                     </Link>
                 } /> : null
             }

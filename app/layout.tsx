@@ -4,7 +4,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { APPCONFIG } from '@/lib/app-config';
-import { Providers } from './providers';
+import { GlobalProviders } from './providers/global-providers';
 import { Toaster } from '@/components/ui/sonner';
 import { NextRequest } from 'next/server';
 import { Router } from 'next/router';
@@ -26,7 +26,7 @@ export default function RootLayout({
             <body
                 className={cn(inter.variable, 'min-h-screen bg-background font-sans antialiased')}
             >
-                <Providers>{children}</Providers>
+                <GlobalProviders>{children}</GlobalProviders>
                 <Toaster position='top-center' pauseWhenPageIsHidden={true} closeButton={true} />
             </body>
         </html>

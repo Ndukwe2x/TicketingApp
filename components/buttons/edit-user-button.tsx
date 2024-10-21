@@ -10,14 +10,15 @@ import { cn } from "@/lib/utils";
 import UserClass from "@/lib/User.class";
 
 interface EditButtonProps extends HtmlHTMLAttributes<HTMLButtonElement> {
-    userId: string;
+    user: AppUser | UserInfo | string;
     actor: AppUser;
     variant?: any;
 }
-const EditUserButton: React.FC<EditButtonProps> = ({ children, className, userId, actor, variant, ...props }) => {
+const EditUserButton: React.FC<EditButtonProps> = ({ children, className, user, actor, variant, ...props }) => {
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-    const formAction = Api.server + Api.endpoints.admin.singleUser.replace(':id', userId);
-    const [isLoading, user] = useGetUserById(userId, actor);
+    // const userId: string = typeof user === 'string' ? user : user?.id;
+    // const formAction = Api.server + Api.endpoints.admin.singleUser.replace(':id', userId);
+    // const [isLoading, user] = useGetUserById(userId, actor);
 
     const handleClose = () => {
         setIsDialogOpen(false);
@@ -41,14 +42,15 @@ const EditUserButton: React.FC<EditButtonProps> = ({ children, className, userId
     };
 
     const handleFailure = (error: any) => {
-
+        toast('Account update failed.');
+        return;
     }
 
     const content = <UserForm
         onSuccess={handleSuccess}
         onFailure={handleFailure}
         isNew={false}
-        action={formAction}
+        // action={formAction}
         account={user as AppUser} />;
 
     return (

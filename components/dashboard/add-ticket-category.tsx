@@ -8,7 +8,7 @@ import { MdAdd, MdClose } from "react-icons/md";
 import { Button } from "../ui/button";
 import { cn, formatCurrency } from "@/lib/utils";
 import { Text } from "../ui/text";
-import { useFormData } from "@/hooks/useFormDataContext";
+import { useEventFormData } from "@/hooks/useCustomContexts";
 
 // const CallbackContext = React.createContext<any>(null);
 const RenderCategoryForm = (
@@ -18,7 +18,7 @@ const RenderCategoryForm = (
     category?: TicketCategory
 ) => {
 
-    const { formData, setFormData } = useFormData() as FormDataContextType;
+    const { formData, updateFormData } = useEventFormData();
     const [groupData, setGroupData] = useState({});
     const currentFormData = useRef<Record<string, any>>({ ...formData });
     const handleInput: FormEventHandler<HTMLInputElement> = (ev) => {
@@ -31,33 +31,35 @@ const RenderCategoryForm = (
         }));
     }
 
-    useEffect(() => {
-        if (Object.values(groupData).length) {
-            if (!currentFormData.current.ticketCategories || typeof currentFormData.current.ticketCategories === 'string') {
-                currentFormData.current.ticketCategories = [];
-            }
-            const index: number = typeof key === 'string' ? parseInt(key, 10) : key;
+    // useEffect(() => {
+    //     if (Object.values(groupData).length) {
+    //         if (!currentFormData.current.ticketCategories || typeof currentFormData.current.ticketCategories === 'string') {
+    //             currentFormData.current.ticketCategories = [];
+    //         }
+    //         const index: number = typeof key === 'string' ? parseInt(key, 10) : key;
 
-            setFormData(prevData => {
-                let ticketCategories = prevData.ticketCategories || [];
-                ticketCategories[index] = groupData;
-                return { ...prevData, ticketCategories: ticketCategories }
-            });
-        }
-    }, [groupData, currentFormData, setFormData, key]);
+    //         updateFormData && updateFormData(prevData => {
+    //             let ticketCategories = prevData.ticketCategories || [];
+    //             ticketCategories[index] = groupData;
+    //             return { ...prevData, ticketCategories: ticketCategories }
+    //         });
+    //     }
+    // }, [groupData, currentFormData, updateFormData, key]);
 
     return (
         <div className='flex flex-col gap-4 p-4'>
             <div className='flex flex-col gap-2'>
                 <Label>Name:</Label>
                 <Input name={`ticketCategories[${key}][name]`} placeholder='Category name'
-                    onChange={(ev) => { onNameChange(ev); handleInput(ev) }} defaultValue={category ? category.name : ''} />
+                    onChange={(ev) => { onNameChange(ev); handleInput(ev) }}
+                    defaultValue={category ? category.name : ''} />
             </div>
             <div className='flex gap-4'>
                 <div className='flex flex-col gap-2'>
                     <Label>Price</Label>
                     <Input type='number' name={`ticketCategories[${key}][price]`} placeholder='1000'
-                        onChange={(ev) => { onPriceChange(ev); handleInput(ev) }} defaultValue={category ? (category.price as unknown) as string : ''} />
+                        onChange={(ev) => { onPriceChange(ev); handleInput(ev) }}
+                        defaultValue={category ? (category.price as unknown) as string : ''} />
                 </div>
                 <div className='flex flex-col gap-2'>
                     <Label>Discount</Label>
@@ -145,22 +147,22 @@ const TicketCategoryGroup: React.FC<CategoryGroupProps> = ({ children, className
     )
 }
 
-const AddTicketCategory = ({ categories }: { categories?: TicketCategory[] | null }) => {
+const AddTicketCategory = ({ categories }: { categories?: TicketCategory[] }) => {
     const [categoryGroupIndices, addCategoryGroupIndex] = React.useState<number[]>([]);
-
+    const categoriesContainer = useRef<HTMLDivElement>(null);
     const addCategoryGroup = (e: MouseEvent) => {
-        const ticketCategoriesGroups = document.querySelector('#ticket-categories');
-        const groups = ticketCategoriesGroups?.querySelectorAll('.category-group');
+        // const ticketCategoriesGroups = document.querySelector('#ticket-categories');
+        const groups = categoriesContainer.current?.querySelectorAll('.category-group');
         const groupIndex: number = groups?.length || 0;
         addCategoryGroupIndex(existingIndices => [...existingIndices, groupIndex]);
     };
 
     return (
         <>
-            <Text variant='p' className="leading-5 mt-0 text-muted-foreground text-xs" style={{ marginTop: '0' }}>
+            <Text variant='p' className="leading-5 my-3 text-muted-foreground text-xs" style={{ marginTop: '0' }}>
                 {`Hint: Click/tap on the 'Add Ticket Category' tab to add a new category accordion panel.
                 Then, click/tap on the panel to provide details. You can add multiple categories.`}</Text>
-            <Accordion id="ticket-categories">
+            <Accordion id="ticket-categories" ref={categoriesContainer}>
                 {
                     (categories) &&
                     categories?.map((category, index) => <TicketCategoryGroup category={category} groupId={index} key={index} />)

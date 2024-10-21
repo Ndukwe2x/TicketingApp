@@ -6,7 +6,7 @@ import { Text } from "../ui/text";
 import { useGetUserTeams } from "@/hooks/useGetUsers";
 import { useGetEventsByIds, useGetEventsByUser } from "@/hooks/useGetEvents";
 import Avatar from '@/components/profile/avatar';
-import { formatDate } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 
 interface CompProps {
@@ -19,12 +19,23 @@ const ProfileCard: React.FC<React.HTMLAttributes<HTMLDivElement> & CompProps> = 
     const [isEventsLoading, events, error] = useGetEventsByUser(user as AppUser, actor as AppUser);
     const [teams] = useGetUserTeams(user as AppUser, actor as AppUser);
     const [teamMembers, setTeamMembers] = useState<AppUser[]>([]);
+    const [totalEvents, setTotalEvents] = useState<number | string>('Unverified');
+    const [totalTeamMembers, setTotalTeamMembers] = useState<number | string>('Unverified');
 
     useEffect(() => {
         for (const [key, value] of Object.entries(teams)) {
             setTeamMembers(state => [...state, ...value]);
         }
-    }, [teams])
+    }, [teams]);
+
+    useEffect(() => {
+        if (events.length) {
+            setTotalEvents(events.length);
+        }
+        if (teamMembers.length) {
+            setTotalTeamMembers(teamMembers.length);
+        }
+    }, [events, teamMembers]);
 
     return (
         events && !isEventsLoading &&
@@ -34,11 +45,11 @@ const ProfileCard: React.FC<React.HTMLAttributes<HTMLDivElement> & CompProps> = 
                 <div className='grid grid-cols-2 gap-5'>
                     <div className="flex flex-col items-center">
                         <Text variant='h4' className="responsive-text">Events</Text>
-                        <span className='counter'>{events.length}</span>
+                        <span className={cn('counter', typeof totalEvents === 'string' ? 'text-red-800 text-sm' : '')}>{totalEvents}</span>
                     </div>
                     <div className="flex flex-col items-center">
                         <Text variant='h4' className="responsive-text">Team Members</Text>
-                        <span>{teamMembers.length}</span>
+                        <span className={cn('counter', typeof totalTeamMembers === 'string' ? 'text-red-800 text-sm' : '')}>{totalTeamMembers}</span>
                     </div>
                     {/* <div className="flex flex-col items-center">
                         <Text variant='h4' className="responsive-text">Events</Text>

@@ -35,7 +35,7 @@ const EventsListActionsDropdownMenu = ({ event, onBeforeAction, onActionSuccess,
                     <DropdownMenuTrigger asChild>
                         <Button variant='ghost' className='h-8 w-8 p-0'>
                             <span className='sr-only'>Open menu</span>
-                            <MdMoreVert className='h-4 w-4' />
+                            <MdMoreVert className='h-4 w-4' fontSize={24} />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align='end'>

@@ -4,12 +4,14 @@ import React, { MouseEvent, ReactHTMLElement, ReactNode, useState } from "react"
 import Modal from "../ui/modal";
 import Link from "next/link";
 import { MdEvent } from "react-icons/md";
-import EventForm from "../dashboard/event-form-experimental";
+// import EventForm from "../dashboard/event-form-experimental";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 import { toast } from "../ui/sonner";
 import { Api } from "@/lib/api";
 import { Skeleton } from "../ui/skeleton";
+import EventForm from "../dashboard/multistep-form-wizard/event-form-wizard";
+import { DataPasserProvider } from "@/app/providers/data-passer-provider";
 
 interface CreateEventButtonProps extends React.HtmlHTMLAttributes<HTMLButtonElement> {
     displayText?: ReactNode | string | null;

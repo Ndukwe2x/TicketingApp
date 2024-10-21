@@ -40,10 +40,10 @@ export default function MainLayout({
     return (
         !isLoading && <div ref={initialRenderRef} className={cn('relative min-h-screen flex flex-col justify-between')}>
             <MainNav id="app-header" />
-            <div className='flex md:py-16 py-8 w-full'>
+            <div className='flex md:py-16 py-8 w-full main-layout'>
                 <DashboardNav />
-                <div className='content-area flex flex-col flex-1 relative md:px-5'>
-                    <main id="main" className='flex-1 p-4  lg:px-8 lg:py-8 border border-gray-300 rounded-xl bg-gray-200'>
+                <div className='content-area flex flex-col flex-1 relative'>
+                    <main id="main" className='flex-1 p-4  lg:px-8 lg:py-8 border rounded-xl bg-secondary'>
                         {
                             // initialRenderRef.current !== null ? (
 
@@ -51,7 +51,7 @@ export default function MainLayout({
                             //     <div className='text-center w-full py-9'><NoNetwork /></div>
                             // ) : (
                             <React.Fragment>
-                                <PageHeader />
+                                <PageHeader className='z-[1] relative' />
                                 {children}
                             </React.Fragment>
                             // )

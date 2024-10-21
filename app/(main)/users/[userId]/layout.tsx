@@ -92,7 +92,7 @@ export default function ProfileLayout({
                 <div id='user-profile' className={cn('relative flex flex-col')}>
                     <header id='profile-header' className='flex flex-col header w-full'>
                         <div className='flex flex-col gap-3 relative px-4 lg:px-8'>
-                            <ProfileHeader userId={userId} />
+                            <ProfileHeader account={user} />
                         </div>
                     </header>
                     <main id='profile-body' className='px-4 lg:px-8'>

@@ -1,11 +1,12 @@
 "use client";
 
 import NotFoundPage from "@/app/[...not-found]/page";
+import ToggleView from "@/components/buttons/viewtype-toggle";
 import MyEvents from "@/components/dashboard/my-events";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
-import { fetchUsers, getCookieUser, useGetUserById } from "@/hooks/useGetUsers";
-import React from "react";
+// import { fetchUsers, getCookieUser, useGetUserById } from "@/hooks/useGetUsers";
+import React, { useState } from "react";
 
 // export async function generateStaticParams(): Promise<{ userId: string; }[]> {
 //     const loggedUser = getCookieUser();
@@ -18,15 +19,16 @@ import React from "react";
 
 const Profile = () => {
     const actor = useAuthenticatedUser();
-    const [eventsLayout, setEventsLayout] = React.useState('table');
+    const [eventsLayout, setEventsLayout] = useState<ViewType>('list');
 
     return (
         actor && (
             <Card>
-                <CardHeader>
+                <CardHeader className="flex-row items-center justify-between">
                     <CardTitle>
                         My Events
                     </CardTitle>
+                    <ToggleView dataSetId="events" setExternalViewType={setEventsLayout} />
                 </CardHeader>
                 <CardContent>
                     <MyEvents layout={eventsLayout}
