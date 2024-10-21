@@ -55,7 +55,7 @@ const Step2: React.FC<MultistepFormWizardStepProps & { event?: SingleEvent }> = 
         return () => {
 
         }
-    }, [form.current, forwardButton.current]);
+    }, []);
 
     const handleSubmit: FormEventHandler<HTMLFormElement> = (ev) => {
         const data: { name: string, value: string | number }[] = [];

@@ -19,9 +19,9 @@ const Step1: React.FC<Omit<MultistepFormWizardStepProps, 'prevStep'> & { event?:
     // const { formData, updateFormData } = useFormContext();
     const formId: string = 'event_form_' + generateRandomString(32, 'mixed_lower', false);
     const isNew: boolean = event ? false : true;
-    const formAction = isNew
-        ? Api.server + Api.endpoints.admin.events
-        : Api.server + Api.endpoints.admin.event.replace(':id', event?._id as string);
+    // const formAction = isNew
+    //     ? Api.server + Api.endpoints.admin.events
+    //     : Api.server + Api.endpoints.admin.event.replace(':id', event?._id as string);
     const pageBaseClass = styles.event_form_page;
     const pageActiveClass = styles.current;
     const form = useRef<HTMLFormElement>(null);
@@ -55,7 +55,7 @@ const Step1: React.FC<Omit<MultistepFormWizardStepProps, 'prevStep'> & { event?:
         return () => {
 
         }
-    }, [form.current, forwardButton.current]);
+    }, []);
 
     const handleSubmit: FormEventHandler<HTMLFormElement> = (ev) => {
         const data = Array.from(

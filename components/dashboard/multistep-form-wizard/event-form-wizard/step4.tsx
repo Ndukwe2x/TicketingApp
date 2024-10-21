@@ -1,74 +1,59 @@
-// import { useForm, SubmitHandler } from 'react-hook-form';
 import { useEventFormData } from "@/hooks/useCustomContexts";
-import { Api } from '@/lib/api';
 import generateRandomString from '@/lib/random-string-generator';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Text } from '@/components/ui/text';
-import DateTimeControls from '../../event-form-datetime-control';
-import { DataPasserProvider } from '@/app/providers/data-passer-provider';
 import styles from '../../../styles/styles.module.css';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/icons';
-import React, { useState, useRef, useEffect, FormEventHandler, HTMLAttributes } from 'react';
+import React, { useRef, useEffect, FormEventHandler, HTMLAttributes } from 'react';
 import { cn, getEmptyFormFields, parseFileToDataUri } from '@/lib/utils';
-import AddTicketCategory from '../../add-ticket-category';
 import { MdClose } from 'react-icons/md';
 import * as NextImage from "next/image";
-import { EditButton, UploadButton } from "@/components/buttons/media-uploader";
+import { UploadButton } from "@/components/buttons/media-uploader";
 import { toast } from "@/components/ui/sonner";
 
 
 const Step4: React.FC<MultistepFormWizardStepProps> = ({ prevStep, nextStep }) => {
-    // const { register, formState: { errors } } = useForm<TicketCategories>();
     const {
-        updateFormData,
         posterPreviewList = [],
         updatePosterPreviewList,
-        tempImages,
         updateTempImages,
         updateFilesToUpload
     } = useEventFormData();
     const formId: string = 'event_form_' + generateRandomString(32, 'mixed_lower', false);
-    // const isNew: boolean = event ? false : true;
-    // const formAction = isNew
-    //     ? Api.server + Api.endpoints.admin.events
-    //     : Api.server + Api.endpoints.admin.event.replace(':id', event?._id as string);
     const pageBaseClass = styles.event_form_page;
     const pageActiveClass = styles.current;
     // const [isFormCompleted, setIsFormCompleted] = useState<boolean>(false);
     const form = useRef<HTMLFormElement>(null);
     const forwardButton = useRef<HTMLButtonElement>(null);
-    // const [filesToUpload, addFilesToUpload] = React.useState<SelectedUploadFilesProps>({});
 
-    // useEffect(() => {
-    //     if (!(form.current && forwardButton.current)) {
-    //         return;
-    //     }
+    useEffect(() => {
+        if (!(form.current && forwardButton.current)) {
+            return;
+        }
 
-    //     const frm = form.current;
-    //     const btn = forwardButton.current;
-    //     let emptyFields = getEmptyFormFields(frm, true);
-    //     if (emptyFields.length) {
-    //         btn.disabled = true;
-    //     } else {
-    //         btn.disabled = false;
-    //     }
-    //     const formElements = Array.from(frm.elements);
-    //     formElements.forEach((element) => {
-    //         element.addEventListener('change', (ev) => {
-    //             emptyFields = getEmptyFormFields(frm, true);
-    //             if (emptyFields.length) {
-    //                 btn.disabled = true;
-    //             } else {
-    //                 btn.disabled = false;
-    //             }
-    //         });
-    //     });
-    //     return () => {
+        const frm = form.current;
+        const btn = forwardButton.current;
+        let emptyFields = getEmptyFormFields(frm, true);
+        if (emptyFields.length) {
+            btn.disabled = true;
+        } else {
+            btn.disabled = false;
+        }
+        const formElements = Array.from(frm.elements);
+        formElements.forEach((element) => {
+            element.addEventListener('change', (ev) => {
+                emptyFields = getEmptyFormFields(frm, true);
+                if (emptyFields.length) {
+                    btn.disabled = true;
+                } else {
+                    btn.disabled = false;
+                }
+            });
+        });
+        return () => {
 
-    //     }
-    // }, [form.current, forwardButton.current]);
+        }
+    }, []);
 
     const handleSubmit: FormEventHandler<HTMLFormElement> = (ev) => {
         // const data = Array.from(
@@ -80,37 +65,6 @@ const Step4: React.FC<MultistepFormWizardStepProps> = ({ prevStep, nextStep }) =
         nextStep();
         ev.preventDefault();
     };
-
-    // const createSuspense = (containerId: string | HTMLElement, hideUploadBtn: boolean = true): void => {
-    //     const container: HTMLElement =
-    //         typeof containerId === 'string'
-    //             ? document.querySelector(containerId) as HTMLElement
-    //             : containerId;
-
-    //     if (container == null) {
-    //         console.error('Target container not found.');
-    //         return;
-    //     }
-
-    //     const loading = document.createElement('div');
-    //     const spinner = document.createElement('span');
-    //     const hint = document.createElement('span');
-
-    //     spinner.classList.add(styles.spinner);
-    //     hint.innerText = 'Loading, please wait...';
-    //     hint.classList.add(styles.hint);
-    //     loading.classList.add('suspense', styles.content_loading);
-    //     loading.appendChild(spinner);
-    //     loading.appendChild(hint);
-    //     container.appendChild(loading);
-
-    //     const uploadBtn = container.parentElement?.getElementsByClassName('upload-btn')[0];
-    //     if (uploadBtn && hideUploadBtn) {
-    //         uploadBtn.remove();
-    //     }
-
-    //     container.style.display = 'flex';
-    // };
 
     const previewPoster = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files || [];
@@ -128,17 +82,9 @@ const Step4: React.FC<MultistepFormWizardStepProps> = ({ prevStep, nextStep }) =
                     public_id: generateRandomString(32, 'mixed_lower')
                 };
                 updatePosterPreviewList && updatePosterPreviewList(imageData);
-
-                // updateFilesToUpload(files => {
-                //     return {
-                //         ...files,
-                //         posters: [...(files.posters || []), file]
-                //     }
-                // });
                 updateFilesToUpload && updateFilesToUpload({
                     posters: [file]
-                })
-
+                });
                 updateTempImages && updateTempImages({
                     posters: [{ url: dataUri }]
                 })

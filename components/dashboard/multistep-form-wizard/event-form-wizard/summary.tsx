@@ -38,10 +38,6 @@ const Summary: React.FC<Omit<MultistepFormWizardStepProps, 'nextStep'>> = ({ pre
     const router = useRouter();
 
     const uploadImages = async (filesToUpload: SelectedUploadFilesProps) => {
-        // if (filesToUpload.banner) {
-        //     throw new Error('No banner selected');
-        // }
-        // let currentFormData = {...formDataRef.current};
         const results: UploadResponseDataProps = {};
 
         try {
@@ -53,9 +49,6 @@ const Summary: React.FC<Omit<MultistepFormWizardStepProps, 'nextStep'>> = ({ pre
                 if (null === bannerRes) {
                     throw new Error('Unable to upload banner. An internal error has occurred')
                 }
-                // if (!results.banner) {
-                //     results.banner = {};
-                // }
                 results.banner = bannerRes;
             }
 

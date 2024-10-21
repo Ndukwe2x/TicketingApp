@@ -75,7 +75,7 @@ const UserForm = (
             }
         });
         completed.current = totalUnfilled === 0;
-    }, []);
+    }, [currentPageSelector]);
 
 
     useEffect(() => {

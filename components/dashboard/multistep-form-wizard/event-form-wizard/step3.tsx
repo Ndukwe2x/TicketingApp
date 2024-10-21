@@ -70,7 +70,7 @@ const Step3: React.FC<MultistepFormWizardStepProps & { event?: SingleEvent }> = 
         return () => {
 
         }
-    }, [form.current, forwardButton.current]);
+    }, []);
 
     const handleSubmit: FormEventHandler<HTMLFormElement> = (ev) => {
         const data = Array.from(
@@ -204,43 +204,3 @@ const Step3: React.FC<MultistepFormWizardStepProps & { event?: SingleEvent }> = 
 };
 
 export default Step3;
-
-// interface PosterPreviewerProps extends HTMLAttributes<HTMLDivElement> {
-//     poster: ImageInfo;
-//     index: number;
-// }
-
-
-// function CreatePosterPreview({ children, className, poster, index, ...props }: PosterPreviewerProps) {
-//     const Image = NextImage.default;
-//     const { formData, updateFormData, posterPreviewList, updatePosterPreviewList } = useEventFormData()
-
-//     const removePoster = (poster: ImageInfo) => {
-//         const existingPosters = formData?.posters as ImageInfo[];
-//         if (existingPosters?.length) {
-//             const newPosters = existingPosters.filter(p => p.public_id !== poster.public_id);
-//             updateFormData({ posters: newPosters });
-//         }
-//         if (posterPreviewList?.length) {
-//             const modifiedPosters = posterPreviewList.filter(p => p.public_id !== poster.public_id);
-//             updatePosterPreviewList && updatePosterPreviewList(modifiedPosters, true);
-//         }
-//     }
-
-//     return (
-//         <React.Fragment>
-//             <div id={`poster-group-${index}`} className={cn(className, styles.poster_group, "poster-group border relative rounded-lg")} {...props}>
-//                 <div className="image-wrapper rounded-lg overflow-hidden invisible">
-//                     <Image src={poster.url} alt={poster.public_id} width={200} height={300} />
-//                 </div>
-//                 <div className={cn(styles.image_facade, "image-facade absolute left-0 top-0 right-0 bottom-0 rounded-lg")} style={{ backgroundImage: `url(${poster.url})` }}></div>
-//                 {children}
-//                 <Button onClick={(e) => removePoster(poster)}
-//                     type="button" role="button" variant={null}
-//                     className="remove-poster rounded-full absolute right-2 top-2 px-1.5 py-1 bg-black/60 text-white">
-//                     <MdClose size={24} />
-//                 </Button>
-//             </div>
-//         </React.Fragment>
-//     )
-// }

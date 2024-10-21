@@ -1,26 +1,17 @@
-// import { useForm, SubmitHandler } from 'react-hook-form';
 import { useEventFormData } from "@/hooks/useCustomContexts";
-import { Api } from '@/lib/api';
 import generateRandomString from '@/lib/random-string-generator';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Text } from '@/components/ui/text';
-import DateTimeControls from '../../event-form-datetime-control';
-import { DataPasserProvider } from '@/app/providers/data-passer-provider';
 import styles from '../../../styles/styles.module.css';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/icons';
-import React, { useState, useRef, useEffect, FormEventHandler, HTMLAttributes } from 'react';
-import { cn, formatDate, getEmptyFormFields, parseFileToDataUri } from '@/lib/utils';
-import AddTicketCategory from '../../add-ticket-category';
-import { MdClose, MdInfo } from 'react-icons/md';
-import * as NextImage from "next/image";
-import { EditButton, UploadButton } from "@/components/buttons/media-uploader";
-import { toast } from "@/components/ui/sonner";
+import React, { useRef, useEffect, FormEventHandler } from 'react';
+import { cn, formatDate, getEmptyFormFields } from '@/lib/utils';
+import { MdInfo } from 'react-icons/md';
 import { Checkbox } from "@/components/ui/checkbox";
 
 const Step5: React.FC<MultistepFormWizardStepProps> = ({ prevStep, nextStep }) => {
-    // const { register, formState: { errors } } = useForm<TicketCategories>();
     const { formData, updateFormData } = useEventFormData();
     const formId: string = 'event_form_' + generateRandomString(32, 'mixed_lower', false);
     const pageBaseClass = styles.event_form_page;
@@ -55,7 +46,7 @@ const Step5: React.FC<MultistepFormWizardStepProps> = ({ prevStep, nextStep }) =
         return () => {
 
         }
-    }, [form.current, forwardButton.current]);
+    }, []);
 
     const handleSubmit: FormEventHandler<HTMLFormElement> = (ev) => {
         const data = Array.from(
