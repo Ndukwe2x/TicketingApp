@@ -41,4 +41,6 @@ const BrickwallDateTime = React.forwardRef<
     )
 });
 
+BrickwallDateTime.displayName = 'BrickwallDateTime';
+
 export default BrickwallDateTime;

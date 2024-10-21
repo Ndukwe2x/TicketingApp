@@ -39,7 +39,7 @@ const AccordionTrigger = React.forwardRef<
         </button>
     )
 });
-
+AccordionTrigger.displayName = 'AccordionTrigger';
 
 const AccordionHeader = React.forwardRef<
     HTMLDivElement,
@@ -54,7 +54,8 @@ const AccordionHeader = React.forwardRef<
                 {addon ?? ''}
             </h3>
         </div>
-    ))
+    ));
+AccordionHeader.displayName = 'AccordionHeader';
 
 
 const AccordionContent = React.forwardRef<
@@ -65,6 +66,7 @@ const AccordionContent = React.forwardRef<
             {children}
         </div>
     ));
+AccordionContent.displayName = 'AccordionContent';
 
 const AccordionItem = React.forwardRef<
     HTMLDivElement,
@@ -89,6 +91,8 @@ const AccordionItem = React.forwardRef<
             </PanelContext.Provider>
         )
     });
+
+AccordionItem.displayName = 'AccordionItem';
 
 export {
     Accordion,
