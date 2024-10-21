@@ -1,14 +1,12 @@
-import React, { HtmlHTMLAttributes, MouseEvent, ReactHTMLElement } from "react"
+import React, { HtmlHTMLAttributes } from "react"
 import Modal from "../ui/modal";
-import Link from "next/link";
 import { MdEditCalendar, MdEvent } from "react-icons/md";
-import EventForm from "../dashboard/event-form";
-import styles from '@/components/styles/styles.module.css';
 import { Button } from "../ui/button";
 import axios, { AxiosResponse } from "axios";
 import { Api } from "@/lib/api";
 import { toast } from "../ui/sonner";
 import { cn } from "@/lib/utils";
+import EventForm from "../dashboard/multistep-form-wizard/event-form-wizard";
 
 interface CreateButtonProps extends HtmlHTMLAttributes<HTMLButtonElement> {
     actor: AppUser;

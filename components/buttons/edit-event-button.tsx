@@ -4,7 +4,7 @@ import { MdEdit } from "react-icons/md";
 import { toast } from "../ui/sonner";
 import { Button } from "../ui/button";
 import { Api } from "@/lib/api";
-import EventForm from "../dashboard/event-form";
+import EventForm from "../dashboard/multistep-form-wizard/event-form-wizard";
 
 interface EditButtonProps extends HtmlHTMLAttributes<HTMLButtonElement> {
     event: SingleEvent;
