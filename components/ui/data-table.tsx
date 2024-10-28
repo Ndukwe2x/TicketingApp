@@ -29,6 +29,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import * as ChangeCase from "change-case";
 import '../../app/globals.css';
 import { ReactNode } from 'react';
+import { cn } from '@/lib/utils';
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -183,26 +184,30 @@ export function DataTable<TData, TValue>({ children, columns, data, fallback, is
     );
 }
 
-export function DataTableLoading({ showHeader, columnCount }: { showHeader?: boolean, columnCount?: number }) {
+export function DataTableLoading(
+    { showHeader, columnCount, rowHeight = 4, rowSpacing = 4 }:
+        { showHeader?: boolean; columnCount?: number; rowHeight?: number; rowSpacing?: number }
+) {
     let columns = [];
     if (showHeader && columnCount) {
         for (let i = 0; i < columnCount; i++) {
             columns.push(i);
         }
     }
+
     return (
         <div>
             {
                 showHeader && columnCount &&
-                <div className='flex gap-4'>
+                <div className='flex gap-4 mb-4'>
                     {columns.map((i) => (
                         <Skeleton key={i} className='w-full h-6' />
                     ))}
                 </div>
             }
-            <Skeleton className='mt-4 w-full h-4' />
-            <Skeleton className='mt-4 w-full h-4' />
-            <Skeleton className='mt-4 w-full h-4' />
+            <Skeleton className={cn(`mt-${rowSpacing} w-full h-${rowHeight}`)} />
+            <Skeleton className={cn(`mt-${rowSpacing} w-full h-${rowHeight}`)} />
+            <Skeleton className={cn(`mt-${rowSpacing} w-full h-${rowHeight}`)} />
         </div>
     );
 }

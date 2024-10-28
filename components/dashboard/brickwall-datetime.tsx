@@ -9,7 +9,7 @@ interface BrickwallDateTimeProps {
 const BrickwallDateTime = React.forwardRef<
     HTMLDivElement,
     React.HTMLAttributes<HTMLDivElement> & BrickwallDateTimeProps
->(({ children, className, datetime, dateFormat = 'DD/MMMM/YYYY hh:mm:s A' }, ref) => {
+>(({ children, className, datetime, dateFormat = 'DD/MMM/YYYY hh:mm:s A' }, ref) => {
 
     const {
         day,
@@ -35,7 +35,7 @@ const BrickwallDateTime = React.forwardRef<
                         <div className="date-year-hundreds">{yearArr[1]}</div>
                     </div>
                 </div>
-                <div className="block3 date-time">{time}</div>
+                <div className="block3 date-time">{time} {meridian}</div>
             </div>
         </div>
     )

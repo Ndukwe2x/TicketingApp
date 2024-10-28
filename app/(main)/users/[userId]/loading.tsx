@@ -1,7 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useCallback } from "react";
+import ProfileHeader from '@/components/profile/header';
+import ProfileCard from '@/components/profile/profile-card';
+import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
 import { cn } from '@/lib/utils';
+import { useEffect } from "react";
+import { usePageHeader } from "@/hooks/usePageHeaderContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTableLoading } from "@/components/ui/data-table";
@@ -101,14 +106,14 @@ export default function LoadingUserProfile() {
                     <ProfileHeaderSkeleton />
                 </div>
             </header>
-            <div id='profile-body' className='px-4 lg:px-8'>
+            <main id='profile-body' className='px-4 lg:px-8'>
                 <aside className='sidebar'>
                     <ProfileCardSkeleton />
                 </aside>
                 <main className='major'>
                     <ContentSkeleton />
                 </main>
-            </div>
+            </main>
         </React.Fragment>
     );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback } from "react";
+import React, { ReactNode, useCallback } from "react";
 import NotFoundPage from '@/app/not-found';
 import { useGetUserById } from '@/hooks/useGetUsers';
 import NoNetwork from '@/components/no-network';
@@ -15,6 +15,9 @@ import { usePageHeader } from "@/hooks/usePageHeaderContext";
 import Link from "next/link";
 import UserSearchForm from "@/components/dashboard/user-search-form";
 import { Text } from "@/components/ui/text";
+import LoadingUserProfile from "./loading";
+import { isAxiosError } from "axios";
+import RenderPrettyError from "@/components/render-pretty-error";
 
 
 export default function ProfileLayout({
@@ -86,35 +89,11 @@ export default function ProfileLayout({
 
     }
 
+    let output: ReactNode = '';
+
     return (
-        !isLoading && (
-            user ? (
-                <div id='user-profile' className={cn('relative flex flex-col')}>
-                    <header id='profile-header' className='flex flex-col header w-full'>
-                        <div className='flex flex-col gap-3 relative px-4 lg:px-8'>
-                            <ProfileHeader account={user} />
-                        </div>
-                    </header>
-                    <main id='profile-body' className='px-4 lg:px-8'>
-                        <aside className='sidebar'>
-                            {user != null && <ProfileCard user={user} />}
-                        </aside>
-                        <main className='major'>
-                            {children}
-                        </main>
-                    </main>
-                </div>
-            ) : (
-                <React.Fragment>
-                    <NotFoundPage heading="User Not Found!" text="Sorry, but we could't find the user you're looking for." />
-                    <div id="search-bar" className="mt-10">
-                        <div className="lg:w-5/6 mx-auto">
-                            <Text variant='h4' className="my-4">Search users, enter firstname or lastname.</Text>
-                            <UserSearchForm />
-                        </div>
-                    </div>
-                </React.Fragment>
-            )
-        )
-    );
+        <div id='user-profile' className={cn('relative flex flex-col')}>
+            {children}
+        </div>
+    )
 }

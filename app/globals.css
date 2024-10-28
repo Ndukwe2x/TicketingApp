@@ -732,8 +732,6 @@
         grid-column: span 2;
     }
 
-    .datetime-wrapper {}
-
     .date-day-month,
     .date-year,
     .date-time {
@@ -745,8 +743,4 @@
         text-align: center;
         border: solid 1px currentColor;
     }
-
-    .date-year {}
-
-    .date-time {}
 }

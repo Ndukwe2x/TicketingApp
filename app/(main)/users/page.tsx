@@ -12,7 +12,7 @@ import NotFoundPage from '../../[...not-found]/page';
 import InternalErrorPage from '@/app/internal-error';
 import RenderPrettyError from '@/components/render-pretty-error';
 import UserClass from '@/lib/User.class';
-import LoadingDashboardUsers from './loading';
+import LoadingDashboardUsers from './__loading';
 
 export default function Users() {
     const actor = useAuthenticatedUser();
@@ -26,7 +26,7 @@ export default function Users() {
     const users = rawUsers.map((user: any) => (new UserClass(user) as unknown) as AppUser);
 
     return (
-        isLoading ? (
+        isLoading || error ? (
             <LoadingDashboardUsers />
         ) : (
             <div className='flex flex-col gap-5'>

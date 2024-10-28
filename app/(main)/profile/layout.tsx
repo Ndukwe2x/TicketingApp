@@ -7,6 +7,7 @@ import useAuthenticatedUser from '@/hooks/useAuthenticatedUser';
 import { cn } from '@/lib/utils';
 import { useEffect } from "react";
 import { usePageHeader } from "@/hooks/usePageHeaderContext";
+import LoadingUserProfile from "./loading";
 
 
 export default function ProfileLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
@@ -18,22 +19,8 @@ export default function ProfileLayout({ children }: Readonly<{ children: React.R
     }, [setPageTitle]);
 
     return (
-        actor && (
-            <div id='user-profile' className={cn('relative flex flex-col')}>
-                <header id='profile-header' className='flex flex-col header w-full'>
-                    <div className='flex flex-col gap-3 relative px-4 lg:px-8'>
-                        <ProfileHeader account={actor} />
-                    </div>
-                </header>
-                <main id='profile-body' className='px-4 lg:px-8'>
-                    <aside className='sidebar'>
-                        {actor != null && <ProfileCard user={actor} />}
-                    </aside>
-                    <main className='major'>
-                        {children}
-                    </main>
-                </main>
-            </div>
-        )
-    );
+        actor && <div id='user-profile' className={cn('relative flex flex-col')}>
+            {children}
+        </div>
+    )
 }
