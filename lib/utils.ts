@@ -342,7 +342,7 @@ declare global {
          * @returns An array of arrays, where each inner array contains `size` elements.
          */
         chunk(size: number): T[][];
-        removeDuplicates(keys?: (keyof T)[] | keyof T | string): T[]
+        removeDuplicates(keys?: (keyof T)[] | keyof T | string): T[];
     }
 
     interface String {

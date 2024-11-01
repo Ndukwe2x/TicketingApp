@@ -98,7 +98,7 @@ const UserForm = (
         const btn = submitBtnRef.current as HTMLButtonElement;
         const formElements = new FormData(frm).entries();
         let emptyFields = [];
-        for (const [field, value] of formElements.toArray()) {
+        for (const [field, value] of Array.from(formElements)) {
             if (!value) {
                 emptyFields.push(field);
             }
