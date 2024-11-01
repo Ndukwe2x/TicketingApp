@@ -59,7 +59,11 @@ const MyTickets: React.FC<HtmlHTMLAttributes<HTMLDivElement> & { layout: string;
                             </colgroup>
                         </DataTable>
                     ) : (
-                        <DataGrid Template={TicketGridTemplate} data={tickets} columnRule={{ sm: 2, md: 2, lg: 3, xl: 3 }} fallback="Loading..." />
+                        <DataGrid
+                            Template={TicketGridTemplate}
+                            data={tickets}
+                            columnRule={{ sm: 2, md: 2, lg: 3, xl: 3 }}
+                            fallback="Loading..." />
                     )
             ) : (
                 fallback

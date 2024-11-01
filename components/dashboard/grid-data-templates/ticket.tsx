@@ -1,13 +1,35 @@
 import DeleteTicket from "@/components/buttons/ticket/delete-ticket";
 import SendTicketToCustomer from "@/components/buttons/ticket/resend-ticket";
 import { GridCard, GridCardBody, GridCardFooter, GridCardHeader, GridContent } from "@/components/ui/rix-ui/data-layouts/grid/grid";
+import { ImageSkeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/sonner";
 import { Text } from "@/components/ui/text";
+import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
+import { useGetEventById } from "@/hooks/useGetEvents";
 import { cn } from "@/lib/utils";
+import { isAxiosError } from "axios";
+import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { ReactNode } from "react";
 import { FiEye } from "react-icons/fi";
 
+const RenderEventMedia: React.FC<{ eventId: string }> = ({ eventId }) => {
+    const actor = useAuthenticatedUser() as AppUser;
+    const [isLoading, event, error] = useGetEventById(eventId, actor);
+    let output: ReactNode = null;
+    if (isLoading) {
+        output = <ImageSkeleton width={280} height={160} />;
+    } else if (event !== null) {
+        output = (<div>
+            <Image src={event.eventBanner.url} alt={event.title} width={280} height={160} />
+        </div>)
+    } else {
+        if (isAxiosError(error)) {
+
+        }
+    }
+    return output;
+}
 const TicketGridTemplate: React.FC<{ data: Ticket }> = ({ data }) => {
 
     const ticket: Ticket = { ...data };
@@ -17,9 +39,10 @@ const TicketGridTemplate: React.FC<{ data: Ticket }> = ({ data }) => {
             <GridContent id={`tkt__${ticket._id}`}>
                 <GridCard>
                     <GridCardHeader>
+                        <RenderEventMedia eventId={ticket.eventRef} />
                         <div className="flex flex-col gap-5 py-2 border-b">
+                            <Text>{ticket.ticketCategory} to for:</Text>
                             <Text variant='h3'>{ticket.eventTitle}</Text>
-                            <Text>Ticket for: {ticket.ticketCategory}</Text>
                         </div>
                         {/* <div className="flex gap-5 py-2 border-b">
                         <Text className="font-semibold text-muted-foreground">Ticket Category:</Text>
@@ -36,12 +59,12 @@ const TicketGridTemplate: React.FC<{ data: Ticket }> = ({ data }) => {
                             <Text><span className="font-semibold text-foreground w-1/4 inline-block">Email:</span> {ticket.email}</Text>
                             <Text><span className="font-semibold text-foreground w-1/4 inline-block">Phone:</span> {ticket.phone}</Text>
                         </div>
-                    </div>
-                    <div className="flex gap-5 py-2 border-b">
-                        <Text className="font-semibold text-muted-foreground w-1/3">Quantity:</Text>
-                        <Text>{ticket.numberOfTickets}</Text>
-                    </div>
-                    <div className="flex gap-5 py-2 border-b">
+                    </div> */}
+                        <div className="flex gap-5 py-2 border-b">
+                            <Text className="font-semibold text-muted-foreground w-1/3">Quantity:</Text>
+                            <Text>{ticket.numberOfTickets}</Text>
+                        </div>
+                        {/* <div className="flex gap-5 py-2 border-b">
                         <Text className="font-semibold text-muted-foreground w-1/3">Ticket Reference:</Text>
                         <Text>{ticket.referenceNo}</Text>
                     </div> */}
@@ -116,10 +139,6 @@ const handlePendingDeleteState = (colId: string) => {
     overlay.appendChild(pending);
     card?.classList.add('relative');
     card?.appendChild(overlay);
-
-
-    // column.style.background = '#ff000047';
-    // column.style.border = 'solid 1px #ff000047';
 }
 
 const handleDeleteSuccessState = (data: any, colId: string) => {

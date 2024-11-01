@@ -106,14 +106,14 @@ export default function LoadingUserProfile() {
                     <ProfileHeaderSkeleton />
                 </div>
             </header>
-            <main id='profile-body' className='px-4 lg:px-8'>
+            <div id='profile-body' className='px-4 lg:px-8'>
                 <aside className='sidebar'>
                     <ProfileCardSkeleton />
                 </aside>
                 <main className='major'>
                     <ContentSkeleton />
                 </main>
-            </main>
+            </div>
         </React.Fragment>
     );
 }

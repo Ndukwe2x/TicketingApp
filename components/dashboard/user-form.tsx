@@ -17,12 +17,13 @@ import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 import generator from "generate-password";
 import { BiUser } from "react-icons/bi";
 import * as NextImageAlias from "next/image";
-import { cn, parseFileToDataUri } from "@/lib/utils";
+import { cn, getEmptyFormFields, parseFileToDataUri } from "@/lib/utils";
 import { toast } from "../ui/sonner";
 import { MdOutlineCancel } from "react-icons/md";
 import MediaUploader from "../buttons/media-uploader";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
+import { useFormContext } from "@/hooks/useCustomContexts";
 
 const NextImage = NextImageAlias.default;
 
@@ -32,6 +33,18 @@ type SubmittedData = UserInfo & {
     firstName?: string;
     lastName?: string;
 };
+
+type FormDataProps = {
+    user_avatar?: File | null;
+    firstName?: string | null;
+    lastName?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    accountType?: string | null;
+    role?: string | null;
+    password?: string | null;
+    re_password?: string | null
+}
 
 const UserForm = (
     { onSuccess, onFailure, action, isNew = true, account = null, eventsToAttach = [] }:
@@ -45,51 +58,64 @@ const UserForm = (
         }
 ) => {
     const actor = useAuthenticatedUser();
-    const [isPageCompleted, setIsPageCompleted] = useState<boolean>(false);
     const pageBaseClass = 'user-form-page';
     const pageActiveClass = 'active';
-    const currentPageSelector = `.${pageBaseClass}.${pageActiveClass}`;
     const { accountTypes, userRoles } = APPCONFIG;
-    const [selectedAccountType, setSelectedAccountType] = useState((account ? account.accountType : null));
-    const [selectedRole, setSelectedRole] = useState((account ? account.role : null));
     const [passwordHidden, togglePasswordHidden] = useReducer(state => !state, true);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<Error | AxiosError | null>(null);
     const formRef = useRef<HTMLFormElement | null>(null);
     const router = useRouter();
-    const completed = useRef<boolean>(false);
+    const submitBtnRef = useRef<HTMLButtonElement>(null);
+    const formAction = isNew
+        ? Api.server + Api.endpoints.admin.register
+        : Api.server + Api.endpoints.admin.singleUser.replace(':id', account?.id as string)
 
-    const updatePageStatus = useCallback((): void => {
-        const getInputsFromCurrentPage = () => {
-            const fieldList = 'input[type="file"]:required, input:not([type="hidden"]), textarea, select';
-            return formRef?.current?.querySelector(currentPageSelector)?.querySelectorAll(fieldList);
-        }
-        const inputs = getInputsFromCurrentPage();
-        let totalUnfilled = 0;
+    const strongPassword = {
+        length: 12,
+        numbers: true,
+        symbols: true,
+        uppercase: true,
+        lowercase: true
+    };
 
-        inputs?.forEach(item => {
-            const input = item as HTMLInputElement;
-            let itemHasValue = input.value || false;
-            if (!itemHasValue) {
-                totalUnfilled += 1;
-            }
-        });
-        completed.current = totalUnfilled === 0;
-    }, [currentPageSelector]);
+    const password = generator.generate(strongPassword);
 
+    const [formData, setFormData] = useState<FormDataProps>({
+        user_avatar: null,
+        firstName: null,
+        lastName: null,
+        email: null,
+        phone: null,
+        accountType: null,
+        role: null,
+        password: password,
+        re_password: password
+    });
 
     useEffect(() => {
-        if (formRef.current === null) {
-            return;
+        const frm = formRef.current as HTMLFormElement;
+        const btn = submitBtnRef.current as HTMLButtonElement;
+        const formElements = new FormData(frm).entries();
+        let emptyFields = [];
+        for (const [field, value] of formElements.toArray()) {
+            if (!value) {
+                emptyFields.push(field);
+            }
         }
-        const elements = Array.from(formRef.current.elements);
-        elements.forEach((element, index) => {
-            element.addEventListener('change', (ev) => {
-                updatePageStatus();
-            })
-        })
-    }, [formRef, updatePageStatus]);
+        if (emptyFields.length) {
+            btn.disabled = true;
+        } else {
+            btn.disabled = false;
+        }
 
+        return () => { }
+    }, [formData, formRef, submitBtnRef]);
+
+
+    const handleInput = (fieldName: string, value: string) => {
+        setFormData(existing => ({ ...existing, [fieldName]: value }));
+    }
 
     const handleSubmit = async (ev: FormEvent) => {
         if (!ev.defaultPrevented) {
@@ -101,9 +127,8 @@ const UserForm = (
         }
 
         setIsLoading(true);
-        const form = ev.target as HTMLFormElement;
-        const formData = new FormData(form);
-        const rawData = (Object.fromEntries(formData.entries()) as unknown) as SubmittedData;
+
+        const rawData = formData as SubmittedData;
         const refinedData: Omit<SubmittedData, 'user_avatar' | 're_password'> = rawData;
 
         // Handle avatar image upload at this point and modify
@@ -127,7 +152,7 @@ const UserForm = (
                 finalData = { ...finalData, eventRef: eventsToAttach }
             }
 
-            const apiRes = await axios.post(form.action, finalData, {
+            const apiRes = await axios.post(formAction, finalData, {
                 headers: {
                     Authorization: `Bearer ${actor?.token}`
                 }
@@ -147,22 +172,6 @@ const UserForm = (
             toast((error as Error | AxiosError).message);
         }
     }
-
-    // generator.generate(options);
-    const passwordOptions = {
-        length: 12,
-        numbers: true,
-        symbols: true,
-        uppercase: true,
-        lowercase: true
-    };
-
-    const password = generator.generate(passwordOptions);
-    const [pass, setPass] = useState(password);
-    const [rePass, setRePass] = useState(password);
-    const formAction = isNew
-        ? Api.server + Api.endpoints.admin.register
-        : Api.server + Api.endpoints.admin.singleUser.replace(':id', account?.id as string)
 
     return (
         <>
@@ -191,30 +200,39 @@ const UserForm = (
                                 <div className='flex flex-col gap-2 flex-1'>
                                     <Label htmlFor='firstName'>Firstname:</Label>
                                     <Input id='firstName' name="firstName" type='text' className="text-lg responsive-text-2"
-                                        placeholder='Firstname:' defaultValue={account ? account.firstname : ''} required aria-required='true' />
+                                        placeholder='Firstname:'
+                                        defaultValue={formData.firstName ?? account?.firstname ?? ''}
+                                        required aria-required='true' onChange={ev => handleInput('firstName', ev.target.value)} />
                                 </div>
                                 <div className='flex flex-col gap-2 flex-1'>
                                     <Label htmlFor='lastName'>Lastname:</Label>
                                     <Input id='lastName' name="lastName" type='text' className="text-lg responsive-text-2"
-                                        placeholder='Lastname:' defaultValue={account ? account.lastname : ''} required aria-required='true' />
+                                        placeholder='Lastname:' defaultValue={formData.lastName ?? account?.lastname ?? ''}
+                                        required aria-required='true' onChange={ev => handleInput('lastName', ev.target.value)} />
                                 </div>
 
                                 <div className='flex flex-col gap-2'>
                                     <Label htmlFor='email'>Email:</Label>
                                     <Input id='email' name="email" type='email' className="text-lg responsive-text-2"
-                                        placeholder='Email:' defaultValue={account ? account.email : ''} required aria-required='true' />
+                                        placeholder='Email:' defaultValue={formData.email ?? account?.email ?? ''}
+                                        required aria-required='true' onChange={ev => handleInput('email', ev.target.value)} />
                                 </div>
                                 <div className='flex flex-col gap-2'>
                                     <Label htmlFor='phone'>Phone:</Label>
                                     <Input id='phone' name="phone" type='tel' className="text-lg responsive-text-2"
-                                        placeholder='Phone:' defaultValue={account ? account.phone : ''} required aria-required='true' />
+                                        placeholder='Phone:' defaultValue={formData.phone ?? account?.phone ?? ''}
+                                        required aria-required='true' onChange={ev => handleInput('phone', ev.target.value)} />
                                 </div>
                                 <div className="gap-5 grid grid-col md:grid-cols-1">
                                     {
                                         actor !== null && actor.isOwner ?
                                             <div className='flex flex-col gap-2'>
                                                 <Label htmlFor='account-type'>Account Type:</Label>
-                                                <Select name="accountType" required aria-required='true' value={selectedAccountType ?? ''} defaultValue={selectedAccountType ?? ''} onValueChange={setSelectedAccountType} >
+                                                <Select name="accountType" required aria-required='true'
+                                                    value={formData.accountType ?? account?.accountType ?? ''}
+                                                    defaultValue={formData.accountType ?? account?.accountType ?? ''}
+                                                    onValueChange={value => handleInput('accountType', value)}
+                                                    autoComplete="off">
                                                     <SelectTrigger>
                                                         <SelectValue placeholder='Select account type' />
                                                     </SelectTrigger>
@@ -228,12 +246,15 @@ const UserForm = (
                                                 </Select>
                                             </div>
                                             :
-                                            <Input name="accountType" type='hidden' value='user' />
+                                            <Input name="accountType" type='hidden' value='user' autoComplete='off' />
 
                                     }
                                     <div className='flex flex-col gap-2'>
                                         <Label htmlFor='account-role'>Role:</Label>
-                                        <Select name="role" value={selectedRole ?? ''} defaultValue={selectedRole ?? ''} onValueChange={setSelectedRole} required aria-required='true'>
+                                        <Select name="role" value={formData.role ?? account?.role ?? ''}
+                                            defaultValue={formData.role ?? account?.role ?? ''}
+                                            onValueChange={value => handleInput('role', value)}
+                                            required aria-required='true'>
                                             <SelectTrigger>
                                                 <SelectValue placeholder='Select user role' />
                                             </SelectTrigger>
@@ -255,10 +276,15 @@ const UserForm = (
                                             <div className="relative">
                                                 <Input id='password' name="password" type={passwordHidden ? 'password' : 'text'}
                                                     className="text-lg responsive-text-2" placeholder='Password:'
-                                                    required aria-required='true' value={pass} onChange={(ev) => { setPass(ev.target.value); updatePageStatus() }} />
+                                                    required aria-required='true'
+                                                    value={formData.password ?? ''}
+                                                    onChange={(ev) => {
+                                                        // setPass(ev.target.value);
+                                                        handleInput('password', ev.target.value)
+                                                    }} />
                                                 <Button onClick={() => togglePasswordHidden()} variant={null}
                                                     className="absolute top-0 right-0" type="button">
-                                                    {passwordHidden ? (<FaEye />) : (<FaEyeSlash />)}
+                                                    {passwordHidden ? <FaEye /> : <FaEyeSlash />}
                                                 </Button>
                                             </div>
                                         </div>
@@ -268,17 +294,27 @@ const UserForm = (
                                                 <Input id='re-password' name="re_password" type={passwordHidden ? 'password' : 'text'}
                                                     className="text-lg responsive-text-2"
                                                     placeholder='Re-Password:'
-                                                    required aria-required='true' value={rePass} onChange={(ev) => { setRePass(ev.target.value); updatePageStatus() }} />
+                                                    required aria-required='true'
+                                                    value={formData.re_password ?? ''}
+                                                    onChange={(ev) => {
+                                                        // setRePass(ev.target.value);
+                                                        handleInput('re_password', ev.target.value)
+                                                    }} />
                                                 <Button onClick={() => togglePasswordHidden()} variant={null}
                                                     className="absolute top-0 right-0" type="button">
-                                                    {passwordHidden ? (<FaEye />) : (<FaEyeSlash />)}
+                                                    {passwordHidden ? <FaEye /> : <FaEyeSlash />}
                                                 </Button>
                                             </div>
                                         </div>
                                         <PasswordGenerator
-                                            handleGeneratedPassword={(randPass) => {
-                                                setPass(randPass);
-                                                setRePass(randPass)
+                                            handleGeneratedPassword={randPass => {
+                                                // setPass(randPass);
+                                                // setRePass(randPass);
+                                                // setFormData(prev => (
+                                                //     { ...prev, password: randPass, re_password: randPass }
+                                                // ))
+                                                handleInput('password', randPass);
+                                                handleInput('re_password', randPass)
                                             }}
                                             options={{ length: 16 }} />
                                     </>
@@ -288,7 +324,7 @@ const UserForm = (
                     </div>
 
                     <div className="flex flex-row justify-content-between pt-5">
-                        {<Button type='submit' disabled={!completed.current && !account} className="max-w-max ml-auto">
+                        {<Button ref={submitBtnRef} disabled={true} type='submit' className="max-w-max ml-auto">
                             {
                                 isLoading ?
                                     <><Icons.spinner className='mr-2 h-4 w-4 animate-spin' /> Loading...</>
@@ -360,7 +396,7 @@ function AccountAvatar({ account }: { account: AppUser | null }) {
 
     const filePicker = <Input type='file' accept='image/jpeg,image/png'
         ref={filePickerRef}
-        name='user_avatar' required className="hidden" onChange={handlePickAvatar} />;
+        name='user_avatar' className="hidden" onChange={handlePickAvatar} />;
 
     return (
         <div className="flex flex-col items-center avatar-uploader">
