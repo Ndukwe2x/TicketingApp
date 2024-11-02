@@ -9,7 +9,7 @@ const TicketsSoldForEvent: React.FC<HtmlHTMLAttributes<HTMLDivElement> &
 { event: SingleEvent & { ticketsSold: Ticket[] | [] } }> = ({ children, className, event }) => {
     const actor = useAuthenticatedUser();
     const [fallback, setFallback] = useState<ReactNode>('Fetching tickets, please wait. This may take a moment...');
-    const [isLoading, tickets, error] = useGetTicketSales(actor as AppUser, event);
+    const [isLoading, tickets, error] = useGetTicketSales(actor as AppUser, event, true);
 
     useEffect(() => {
         if (error) {

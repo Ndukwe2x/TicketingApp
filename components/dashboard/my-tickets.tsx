@@ -13,7 +13,7 @@ import RenderPrettyError from "../render-pretty-error";
 const MyTickets: React.FC<HtmlHTMLAttributes<HTMLDivElement> & { layout: string; isFilteringEnabled: boolean; filterParams: string[] }> = ({ children, layout, isFilteringEnabled = false, filterParams = [], ...props }) => {
     const actor = useAuthenticatedUser();
 
-    const [isLoading, userTickets, error] = useGetTicketSales(actor as AppUser);
+    const [isLoading, userTickets, error] = useGetTicketSales(actor as AppUser, undefined, true);
     const [tickets, setTickets] = useState<Ticket[]>([]);
     const [fallback, setFallback] = useState(<div className="text-center">Fetching tickets, please wait...</div>);
 

@@ -95,7 +95,7 @@ export const decorateTickets = async (tickets: Tickets | []) => {
     return decoratedTickets.filter(ticket => ticket.eventTitle != null);
 };
 
-export const fetchEventTickets = async (eventId: string, actor: AppUser): Promise<Tickets | []> => {
+export const fetchEventTickets = async (eventId: string, actor: AppUser, ignoreError: boolean = false): Promise<Tickets | []> => {
     let url = [Api.server, Api.endpoints.admin.searchTickets, '?eventRef=', eventId].join('');
 
     const options = {
@@ -107,23 +107,26 @@ export const fetchEventTickets = async (eventId: string, actor: AppUser): Promis
     // if (preflightRes.status !== 200) {
     //     return [];
     // }
-    const res = await axios.get(url, options);
-    // if (res.status !== 200) {
-    //     return [];
-    // }
-    const data = res.data.data || {};
-    let tickets: Tickets | [] = data.tickets || [];
+    try {
+        const res = await axios.get(url, options);
+        const data = res.data.data || {};
+        let tickets: Tickets | [] = data.tickets || [];
 
-    if (tickets.length) {
-        // tickets = decorate ? await decorateTickets(tickets) : tickets;
+        if (tickets.length) {
+            // tickets = decorate ? await decorateTickets(tickets) : tickets;
 
-        tickets = (orderByDate(
-            (tickets as unknown) as { key: string, value: string }[],
-            'dateOfPurchase', 'asc'
-        ) as unknown) as Tickets;
+            tickets = (orderByDate(
+                (tickets as unknown) as { key: string, value: string }[],
+                'dateOfPurchase', 'asc'
+            ) as unknown) as Tickets;
+        }
+        return tickets;
+    } catch (error) {
+        if (ignoreError) {
+            return [];
+        }
+        throw error;
     }
-
-    return tickets;
 }
 
 /**
@@ -387,7 +390,7 @@ export const useGetTicketSales = (targetUser: AppUser, event?: SingleEvent, igno
                 if (eventIds.length) {
                     const eventsTickets: Tickets[] | [] = await Promise.all(
                         eventIds.map(async eventId => {
-                            return await fetchEventTickets(eventId, actor);
+                            return await fetchEventTickets(eventId, actor, ignoreError);
                         })
                     );
 
