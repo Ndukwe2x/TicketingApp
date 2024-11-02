@@ -117,6 +117,10 @@ const UserForm = (
         setFormData(existing => ({ ...existing, [fieldName]: value }));
     }
 
+    const handleSelectedAvatar = (file: File) => {
+        setFormData(state => ({ ...state, user_avatar: file }));
+    }
+
     const handleSubmit = async (ev: FormEvent) => {
         if (!ev.defaultPrevented) {
             ev.preventDefault();
@@ -193,7 +197,7 @@ const UserForm = (
                         {/* <Text variant='h3'>User Info</Text> */}
                         <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-3">
                             <aside className="avatar-section md:order-1">
-                                <AccountAvatar account={account} />
+                                <AccountAvatar onSelection={(file) => { handleSelectedAvatar(file as File) }} account={account} />
                             </aside>
                             <aside className="input-section grid gap-5">
                                 <p className="text-muted-foreground text-xs required">All fields are required except otherwise indicated</p>
@@ -340,14 +344,14 @@ const UserForm = (
 
 export default UserForm;
 
-function AccountAvatar({ account }: { account: AppUser | null }) {
+function AccountAvatar({ onSelection, account }: { onSelection: Callback; account: AppUser | null }) {
     const editBtnClass = 'change-image';
     const resetBtnClass = 'reset-picker';
     const filePickerRef = useRef<HTMLInputElement | null>(null);
     const selectedFilePreviewRef = useRef<HTMLSpanElement | null>(null);
     const [avatar, setAvatar] = useState<{ url?: string, alt?: string }>({
-        url: (account && account.avatar ? account.avatar : ''),
-        alt: (account && account.avatar ? account.fullName : '')
+        url: (account?.avatar ?? ''),
+        alt: (account?.fullName ?? account?.avatar ?? '')
     });
     const [selection, setSelection] = useState<string>('');
 
@@ -387,11 +391,14 @@ function AccountAvatar({ account }: { account: AppUser | null }) {
                 toast(msg)
                 console.error(`${msg}: `, error.message());
             });
+
+        onSelection(file);
     }
 
     const resetFilePicker = (ev: MouseEvent) => {
         setSelection('');
         setAvatar({});
+
     }
 
     const filePicker = <Input type='file' accept='image/jpeg,image/png'
