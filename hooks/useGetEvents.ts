@@ -351,55 +351,57 @@ export const useGetEventsByIds = (eventIds: string[], actor: AppUser): [
     return [isLoading, events, error];
 }
 
-export const useGetTicketSales = (actor: AppUser, event?: SingleEvent, ignoreError: boolean = false):
+export const useGetTicketSales = (targetUser: AppUser, event?: SingleEvent, ignoreError: boolean = false):
     [
         isLoading: boolean,
         tickets: Tickets | [],
         error: any
     ] => {
 
+    const actor = useAuthenticatedUser();
     const [tickets, setTickets] = useState<Tickets | []>([]);
     const [error, setError] = useState<any>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        if (actor === null) {
+        if (!actor || !targetUser) {
             return;
         }
 
         const fetchTickets = async () => {
             try {
-                // let eventIds: string[] = [];
-                // if (event) {
-                //     eventIds.push(event._id);
-                // } else {
-                //     const userEvents = await fetchUserEvents(actor.id, actor, true);
-                //     if (!userEvents.length) {
-                //         setIsLoading(false);
-                //         return;
-                //     }
-                //     // eventIds = [...eventIds, ...actor.eventRef];
-                //     eventIds = userEvents.map(event => event._id);
-                // }
+                let eventIds: string[] = [];
+                if (event) {
+                    eventIds.push(event._id);
+                } else {
+                    const userEvents = await fetchUserEvents(targetUser.id, actor, true);
+                    if (!userEvents.length) {
+                        setIsLoading(false);
+                        return;
+                    }
+                    // eventIds = [...eventIds, ...actor.eventRef];
+                    eventIds = userEvents.map(event => event._id);
+                }
 
-                // let allTickets: any[] = [];
-                // if (eventIds.length) {
-                //     const eventsTickets: Tickets[] | [] = await Promise.all(
-                //         eventIds.map(async eventId => {
-                //             return await fetchEventTickets(eventId, actor);
-                //         })
-                //     );
+                let allTickets: any[] = [];
+                if (eventIds.length) {
+                    const eventsTickets: Tickets[] | [] = await Promise.all(
+                        eventIds.map(async eventId => {
+                            return await fetchEventTickets(eventId, actor);
+                        })
+                    );
 
-                //     for (const eventTickets of eventsTickets) {
-                //         for (const eventTicket of eventTickets) {
-                //             allTickets.push(eventTicket);
-                //         }
-                //     }
-                // } else if (actor.isOwner) {
+                    for (const eventTickets of eventsTickets) {
+                        for (const eventTicket of eventTickets) {
+                            allTickets.push(eventTicket);
+                        }
+                    }
+                }
+                // else if (actor.isOwner) {
                 //     allTickets = await fetchUserTickets(actor);
                 // }
-                const userTickets = await fetchUserTickets(actor);
-                setTickets(userTickets);
+                // const userTickets = await fetchUserTickets(actor);
+                setTickets(allTickets);
             } catch (err) {
                 setError(err);
                 console.error(err);

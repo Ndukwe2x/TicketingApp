@@ -41,6 +41,8 @@ export default function ViewEvent({ params }: { params: { eventId: string } }) {
     useEffect(() => {
         if (teamError) {
             setTeamFallback(teamError.message);
+        } else if (!(teamLoading && organizingTeam?.length)) {
+            setTeamFallback('No team memebers found.');
         }
         // setIsPageTitleEnabled && setIsPageTitleEnabled(false);
         setPageTitle(null);

@@ -17,7 +17,11 @@ export default function RenderPrettyError({ error }: { error: unknown }) {
             return <NoNetwork />
         }
 
-        const status = error.response ? error.response.status : null;
+        const status = error.response
+            ? error.response.status
+            : (
+                error.code === 'ERR_NETWORK' ? 503 : null
+            );
 
         switch (status) {
             case 400:
