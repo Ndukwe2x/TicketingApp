@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Text } from '@/components/ui/text';
 import DateTimeControls from '../../event-form-datetime-control';
-import { DataPasserProvider } from '@/app/providers/data-passer-provider';
 import styles from '../../../styles/styles.module.css';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/icons';
