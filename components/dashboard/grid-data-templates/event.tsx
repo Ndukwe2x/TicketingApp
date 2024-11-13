@@ -9,20 +9,29 @@ import CountTicketsSoldForEvent from "../count-tickets-sold-for-event";
 import EventsListActionsDropdownMenu from "../events-list-actions-dropdown-menu";
 import generateRandomString from "@/lib/random-string-generator";
 import BrickwallDateTime from "../brickwall-datetime";
+import RenderEventBanner from "../render-event-banner";
+import { useAppData } from "@/hooks/useCustomContexts";
 
 const EventGridTemplate: React.FC<{ data: SingleEvent }> = ({ data }) => {
     const actor = useAuthenticatedUser();
     const event: SingleEvent & { ticketsSold: Ticket[] | [] } = { ...data, ticketsSold: [] }
-
+    const { setPageData } = useAppData();
     const actionMenuId = 'eve-' + generateRandomString(32, 'alphanumeric', false);
-
+    const imageBox = '14.270625rem';
 
     return (
         <GridContent>
             <GridCard>
-                <GridCardHeader className="bg-muted flex flex-col justify-end overflow-hidden p-0 relative rounded-t-[10px]">
-                    <Link href={`/events/${event._id}`} className="block w-full h-full">
-                        <Image className="rounded-t-[10px] w-full h-full" src={event.eventBanner.url || ''} alt={event.title} width={300} height={120} />
+                <GridCardHeader className="bg-muted flex flex-col justify-end overflow-hidden p-0 relative">
+                    <Link href={`/events/${event._id}`}
+                        className="block w-full h-full"
+                        style={{
+                            height: imageBox,
+                            minHeight: imageBox,
+                            maxHeight: imageBox
+                        }}
+                    >
+                        <RenderEventBanner className="card-img" eventId={event._id} />
                     </Link>
                     <div className="absolute p-2 right-0">
                         {/* <Text>
@@ -36,13 +45,18 @@ const EventGridTemplate: React.FC<{ data: SingleEvent }> = ({ data }) => {
                 <GridCardBody className="border-t">
                     {/* <div className="flex gap-5 justify-between pb-4 pt-[10%] px-4 py-2 py-3 w-full"> */}
                     <div className="flex gap-5 justify-between w-full">
-                        <Text variant='h3'><Link href={`/events/${event._id}`}>{event.title}</Link></Text>
+                        <Text variant='h3'>
+                            <Link href={`/events/${event._id}`} title={event.title}>{event.title.truncateAt(24)}</Link>
+                        </Text>
                         <EventsListActionsDropdownMenu
                             id={actionMenuId}
                             event={event}
                             onBeforeAction={action => handleBeforeAction(action, actionMenuId)}
                             onActionSuccess={
-                                (eventId, action) => handleActionSuccess(eventId, action, actionMenuId)
+                                (eventId, action) => {
+                                    handleActionSuccess(eventId, action, actionMenuId);
+                                    setPageData('events', { eventUpdated: eventId })
+                                }
                             }
                             onActionFailure={(action, error) => handleActionFailure(action, actionMenuId, error)} />
                     </div>
@@ -136,6 +150,8 @@ function handleActionSuccess(response: any, action: string, menuId: string): voi
         default:
             break;
     }
+
+
 }
 
 function handleActionFailure(action: string, menuId: string, error?: Error | unknown): void {

@@ -535,25 +535,26 @@
     }
 
     .event-posters {
-        display: flex;
+        /* display: flex;
         margin-left: -0.5rem;
-        margin-right: -0.5rem;
-        flex-flow: wrap;
+        margin-right: -0.5rem; */
+        /* flex-flow: wrap; */
     }
 
     .event-poster {
-        --width: calc(100% / 12 * 4);
+        --width: 100%;
         width: var(--width);
         max-width: var(--width);
         min-width: var(--width);
-        padding: 0 .5rem;
-        flex: 1 1 var(--width);
+        height: 10rem;
+        /* padding: 0 .5rem; */
+        /* flex: 1 1 var(--width); */
     }
 
     .poster-overlay {
         width: 100%;
-        height: min-content;
-        min-height: min-content;
+        height: 100%;
+        min-height: 100%;
         border-radius: 1rem;
         background-position: center;
         background-size: cover;

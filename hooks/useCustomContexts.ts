@@ -31,19 +31,11 @@ export const useEventFormData = (): EventFormDataContextType => {
     return context;
 }
 
-
-/**
- * Data passer context
- */
-interface DataPasserContextProps {
-    data: Record<string, any>;
-}
-
-export const DataPasserContext = createContext<DataPasserContextProps | undefined>(undefined);
-export const useDataPasserContext = () => {
-    const context = useContext(DataPasserContext);
+export const AppDataContext = createContext<AppDataContextProps | undefined>(undefined);
+export const useAppData = () => {
+    const context = useContext(AppDataContext);
     if (!context) {
-        throw new Error('useDataPasserContext must be used within a DataPasserProvider');
+        throw new Error('useAppData must be used within a DataPasserProvider');
     }
     return context;
 }

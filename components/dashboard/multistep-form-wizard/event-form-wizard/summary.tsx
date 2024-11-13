@@ -1,4 +1,4 @@
-import { useDataPasserContext, useEventFormData } from "@/hooks/useCustomContexts";
+import { useAppData, useEventFormData } from "@/hooks/useCustomContexts";
 import { Api } from '@/lib/api';
 import generateRandomString from '@/lib/random-string-generator';
 import { Text } from '@/components/ui/text';
@@ -17,9 +17,17 @@ import { BiCheck, BiCheckDouble, BiEdit } from "react-icons/bi";
 import { Icons } from "@/components/icons";
 
 const Summary: React.FC<Omit<MultistepFormWizardStepProps, 'nextStep'>> = ({ prevStep }) => {
-    const { formData, updateFormData, tempImages, filesToUpload } = useEventFormData();
-    const { data } = useDataPasserContext();
-    const { onFailure, onSuccess } = data as { onFailure?: Callback, onSuccess?: Callback };
+    const {
+        formData,
+        updateFormData,
+        tempImages,
+        updateTempImages,
+        filesToUpload,
+        updateFilesToUpload,
+        updatePosterPreviewList
+    } = useEventFormData();
+    const { pageDataBag } = useAppData();
+    const { onFailure, onSuccess } = pageDataBag.create_event as { onFailure?: Callback, onSuccess?: Callback } || {};
     const [existingImages] = useState<{ eventBanner: ImageInfo, posters: ImageInfo[] }>(
         { ...formData as SingleEvent }
     );
@@ -135,12 +143,20 @@ const Summary: React.FC<Omit<MultistepFormWizardStepProps, 'nextStep'>> = ({ pre
                     }
                     setIsLoading(false);
                     setIsSuccessful(true);
-                    if (!onSuccess) {
-                        const msg = <span className="text-green-800">Event {isNew ? 'created' : 'updated'}. {actor?.isSuperOwner && 'Attach a user to this event'}</span>
+                    if (onSuccess) {
+                        onSuccess(eventResponse.data);
+                    } else {
+                        const msg = <span className="text-green-800">
+                            Event {isNew ? 'created' : 'updated'}.
+                            {actor?.isSuperOwner && 'Attach a user to this event'}
+                        </span>
                         toast(msg);
-                        return router.push(`/events/${eventResponse.data.eventId}`);
                     }
-                    onSuccess(eventResponse.data);
+                    updateFormData && updateFormData({});
+                    updateTempImages && updateTempImages({});
+                    updateFilesToUpload && updateFilesToUpload({});
+                    updatePosterPreviewList && updatePosterPreviewList([]);
+                    // return router.push(`/events/${eventResponse.data.eventId}`);
                 }
             } catch (error) {
                 const { eventBanner, posters = [] } = data as SingleEvent;

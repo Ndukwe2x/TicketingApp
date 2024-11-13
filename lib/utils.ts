@@ -347,6 +347,8 @@ declare global {
 
     interface String {
         stripSpecialChar(replacement?: string, ignore?: string): string;
+        truncateAt(length: number): string;
+
     }
 }
 
@@ -396,3 +398,7 @@ String.prototype.stripSpecialChar = function (replacement: string = '', ignore: 
 
     return this.replace(regEx, replacement);
 };
+
+String.prototype.truncateAt = function (length: number) {
+    return this.substring(0, length);
+}

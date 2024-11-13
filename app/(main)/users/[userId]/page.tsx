@@ -103,7 +103,7 @@ const Profile = ({ params }: { params: { userId: string } }) => {
                             <MyEvents layout={eventsLayout}
                                 isFilteringEnabled={true}
                                 filterParams={[]}
-                                gridColumnRule={{ lg: 2, xl: 2, xxl: 3 }}
+                                gridColumnRule={{ lg: 2, xl: undefined, xxl: undefined }}
                                 owner={user} />
                         </CardContent>
                     </Card>
@@ -128,7 +128,7 @@ const Profile = ({ params }: { params: { userId: string } }) => {
         }
     }
 
-    return output
+    return output;
 }
 
 export default Profile;

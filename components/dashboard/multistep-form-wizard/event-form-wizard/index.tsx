@@ -7,7 +7,7 @@ import Step3 from "./step3";
 import Step4 from "./step4";
 import Step5 from "./step5";
 import Summary from "./summary";
-import { DataPasserProvider } from "@/app/providers/data-passer-provider";
+import { useAppData } from "@/hooks/useCustomContexts";
 
 const RenderPage: React.FC<MultistepFormWizardStepProps & {
     pageId: number;
@@ -47,6 +47,15 @@ const EventForm = (
         ? Api.server + Api.endpoints.admin.events
         : Api.server + Api.endpoints.admin.event.replace(':id', event?._id as string);
     const [pageNumber, setPageNumber] = useState<number>(1);
+    const { pageDataBag, setPageData } = useAppData();
+
+    useEffect(() => {
+        // Only set page data if it hasn't been set yet 
+        if (!pageDataBag.create_event) {
+            setPageData('create_event', { onFailure, onSuccess });
+        }
+    }, [setPageData, pageDataBag.create_event, onFailure, onSuccess]);
+
 
     const minSteps = 1;
     const maxSteps = 6;
@@ -67,13 +76,11 @@ const EventForm = (
 
     return (
         <EventFormDataProvider defaultData={event}>
-            <DataPasserProvider data={{ onFailure, onSuccess }}>
-                <RenderPage
-                    pageId={pageNumber}
-                    event={event}
-                    prevStep={() => prevStep()}
-                    nextStep={() => nextStep()} />
-            </DataPasserProvider>
+            <RenderPage
+                pageId={pageNumber}
+                event={event}
+                prevStep={() => prevStep()}
+                nextStep={() => nextStep()} />
         </EventFormDataProvider>
     )
 }

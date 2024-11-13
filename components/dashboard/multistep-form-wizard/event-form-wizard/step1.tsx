@@ -1,5 +1,5 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { useFormContext, useDataPasserContext, useEventFormData } from "@/hooks/useCustomContexts";
+import { useEventFormData } from "@/hooks/useCustomContexts";
 import { Api } from '@/lib/api';
 import generateRandomString from '@/lib/random-string-generator';
 import { Input } from '@/components/ui/input';
@@ -15,13 +15,8 @@ import { FormEventHandler, useRef, useEffect } from 'react';
 
 
 const Step1: React.FC<Omit<MultistepFormWizardStepProps, 'prevStep'> & { event?: SingleEvent }> = ({ nextStep, event }) => {
-    // const { register, formState: { errors } } = useForm<Step1FormValues>();
-    // const { formData, updateFormData } = useFormContext();
     const formId: string = 'event_form_' + generateRandomString(32, 'mixed_lower', false);
     const isNew: boolean = event ? false : true;
-    // const formAction = isNew
-    //     ? Api.server + Api.endpoints.admin.events
-    //     : Api.server + Api.endpoints.admin.event.replace(':id', event?._id as string);
     const pageBaseClass = styles.event_form_page;
     const pageActiveClass = styles.current;
     const form = useRef<HTMLFormElement>(null);

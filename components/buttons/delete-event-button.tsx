@@ -8,6 +8,7 @@ import { deleteEvent, deleteEventTickets } from "@/hooks/useGetEvent";
 import { dissociateUserFromEvent, fetchUsersByEventId } from "@/hooks/useGetUsers";
 import { Icons } from "../icons";
 import { useRouter } from "next/navigation";
+import { useAppData } from "@/hooks/useCustomContexts";
 
 interface ButtonProps extends HtmlHTMLAttributes<HTMLButtonElement> {
     actor: AppUser;
@@ -31,20 +32,20 @@ const DeleteEventButton: React.FC<ButtonProps> = ({
     const [isLoading, setIsLoading] = useState(false);
     const [isSuccessful, setIsSuccessful] = useState(false);
     const route = useRouter();
+    const { setPageData } = useAppData();
 
     const handleDeleteAction = async (ev: MouseEvent) => {
-        const confirmed = confirm(`Are you sure you want to delete ${event.title}?`);
+        const confirmed = confirm(`Are you sure you want to delete the event "${event.title}"?`);
         if (!confirmed) {
             return;
         }
         setIsLoading(true);
-
         onInit && onInit();
         const shouldTicketBeDeleted: boolean = await new Promise((resolve, reject) => {
             setTimeout(() => {
                 const shouldTicketBeDeleted = confirm(`Would you like to also delete associated tickets for this event?`);
                 return resolve(shouldTicketBeDeleted);
-            }, 1000);
+            }, 500);
         });
 
         if (shouldTicketBeDeleted) {
@@ -99,15 +100,20 @@ const DeleteEventButton: React.FC<ButtonProps> = ({
         toast(<span className="text-green-800">Event deleted.</span>);
         setIsLoading(false);
         setIsSuccessful(true);
+
         if (onAfterDelete) {
             onAfterDelete(event._id);
-        } else {
-            route.push('/events');
         }
+        setPageData('page_activity', { deletedEvent: event._id });
+
+        // else {
+        //     route.push('/events');
+        // }
     }
 
     return (
-        <Button onClick={handleDeleteAction} className={className} variant={variant || 'destructive'} type="button" {...props}>
+        <Button onClick={handleDeleteAction} className={className} variant={variant || 'destructive'}
+            type="button" {...props}>
             {isLoading && <>Deleting... <Icons.spinner className='mr-2 h-4 w-4 animate-spin' /></>}
             {!isLoading && (children || <>Delete<MdDelete size={18} className="ml-2" /></>)}
         </Button>

@@ -162,11 +162,11 @@ const UserForm = (
                 }
             });
 
+            console.log('Account created successfully');
+            toast('Account created successfully');
             if (onSuccess) {
                 onSuccess(apiRes.data);
             } else {
-                console.log('Account created successfully');
-                toast('Account created successfully');
                 setIsLoading(false);
                 router.push('/users');
             }

@@ -8,6 +8,7 @@ import CreateEventForUser from "../buttons/create-event-for-user";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 import ActionButtons from "./profile-action-buttons-dropdown";
 import AddTeamMember from "../buttons/add-team-member";
+import { useAppData } from "@/hooks/useCustomContexts";
 
 
 interface CompProps {
@@ -16,7 +17,6 @@ interface CompProps {
 const ProfileHeader: React.FC<React.HTMLAttributes<HTMLDivElement> & CompProps> = ({ children, account, ...props }) => {
 
     const actor = useAuthenticatedUser();
-    // const [isLoading, user] = useGetUserById(userId, actor as AppUser);
     const handleAfterDelete = (deletedUserId: string) => {
         // let t = toast('Account deleted successfully');
         // if (t) location.assign('/users');

@@ -369,3 +369,12 @@ interface MultistepFormWizardStepProps {
     prevStep: () => void;
     nextStep: () => void;
 }
+
+interface AppDataState {
+    globalDataBag: Record<string, any>;
+    pageDataBag: Record<string, Record<string, any>>;
+}
+interface AppDataContextProps extends AppDataState {
+    setGlobalData: (data: Record<string, any>) => void;
+    setPageData: (page: string, data: Record<string, any>) => void;
+}

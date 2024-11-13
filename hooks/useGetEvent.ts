@@ -84,7 +84,7 @@ export const deleteEventTickets = async (eventId: string, actor: AppUser) => {
     }
     try {
         await Promise.all(
-            tickets.map(ticket => ticket.referenceNo).map(deleteTicket)
+            tickets.map(ticket => ticket._id).map(deleteTicket)
         );
 
         return true;

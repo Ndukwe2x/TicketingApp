@@ -25,7 +25,6 @@ const MyTickets: React.FC<HtmlHTMLAttributes<HTMLDivElement> & { layout: string;
             setFallback(<RenderPrettyError error={error} />);
             return;
         }
-
         if (userTickets.length < 1) {
             setFallback(<div className="text-center">No tickets to show</div>);
             return;
@@ -62,7 +61,7 @@ const MyTickets: React.FC<HtmlHTMLAttributes<HTMLDivElement> & { layout: string;
                         <DataGrid
                             Template={TicketGridTemplate}
                             data={tickets}
-                            columnRule={{ sm: 2, md: 2, lg: 3, xl: 3 }}
+                            columnRule={{ sm: 2, md: 2, lg: 3, xl: 3, xxl: undefined }}
                             fallback="Loading..." />
                     )
             ) : (

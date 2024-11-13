@@ -1,6 +1,6 @@
 "use client";
 
-import React, { HtmlHTMLAttributes, useState } from "react";
+import React, { HtmlHTMLAttributes, useEffect, useState } from "react";
 import { DataTable, DataTableLoading } from "../ui/data-table";
 import { useGetEvents, useGetEventsByIds, useGetEventsByUser } from "@/hooks/useGetEvents";
 import { columns } from "./table-columns/events";
@@ -10,6 +10,7 @@ import EventGridTemplate from "./grid-data-templates/event";
 import { orderByDate } from "@/lib/utils";
 import { APPCONFIG } from "@/lib/app-config";
 import RenderPrettyError from "../render-pretty-error";
+import { useAppData } from "@/hooks/useCustomContexts";
 
 const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & {
     layout: string;
@@ -32,12 +33,14 @@ const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & {
     const [isLoading, rawEvents, error] = useGetEventsByUser(owner as AppUser, actor as AppUser, true);
     const [events, setEvents] = useState<SingleEvent[] | []>([]);
     const [fallback, setFallback] = useState(<div className="text-center">Fetching events, please wait...</div>);
+    const { pageDataBag } = useAppData();
     const defaultGridColumnRule = {
         xs: 1,
         sm: 2,
         md: 2,
         lg: 3,
         xl: 3,
+        xxl: undefined,
         ...(gridColumnRule && gridColumnRule)
     }
 
@@ -62,6 +65,17 @@ const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & {
             // Clean up every possible side-effects
         }
     }, [isLoading, error, rawEvents]);
+
+    useEffect(() => {
+        if (pageDataBag.page_activity) {
+            const activity = pageDataBag.page_activity;
+            if (activity.newEvent) {
+                setEvents(events => ([activity.newEvent, ...events]))
+            } else if (activity.deletedEvent) {
+                setEvents(state => state.filter(event => event._id !== activity.deletedEvent));
+            }
+        }
+    }, [pageDataBag.page_activity])
 
     return (
         (events.length > 0) ? (

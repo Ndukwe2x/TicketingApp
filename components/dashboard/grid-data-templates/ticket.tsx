@@ -1,54 +1,42 @@
 import DeleteTicket from "@/components/buttons/ticket/delete-ticket";
 import SendTicketToCustomer from "@/components/buttons/ticket/resend-ticket";
 import { GridCard, GridCardBody, GridCardFooter, GridCardHeader, GridContent } from "@/components/ui/rix-ui/data-layouts/grid/grid";
-import { ImageSkeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/sonner";
 import { Text } from "@/components/ui/text";
-import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
-import { useGetEventById } from "@/hooks/useGetEvents";
 import { cn } from "@/lib/utils";
-import { isAxiosError } from "axios";
-import Image from "next/image";
 import Link from "next/link";
-import React, { ReactNode } from "react";
+import React from "react";
 import { FiEye } from "react-icons/fi";
+import RenderEventBanner from "../render-event-banner";
 
-const RenderEventMedia: React.FC<{ eventId: string }> = ({ eventId }) => {
-    const actor = useAuthenticatedUser() as AppUser;
-    const [isLoading, event, error] = useGetEventById(eventId, actor);
-    let output: ReactNode = null;
-    if (isLoading) {
-        output = <ImageSkeleton width={280} height={160} />;
-    } else if (event !== null) {
-        output = (<div>
-            <Image src={event.eventBanner.url} alt={event.title} width={280} height={160} />
-        </div>)
-    } else {
-        if (isAxiosError(error)) {
 
-        }
-    }
-    return output;
-}
 const TicketGridTemplate: React.FC<{ data: Ticket }> = ({ data }) => {
-
     const ticket: Ticket = { ...data };
+    const mediaHeight = '14.270625rem';
+    const mediaBox = {
+        height: mediaHeight,
+        minHeight: mediaHeight,
+        maxHeight: mediaHeight
+    };
 
     return (
         <React.Fragment>
             <GridContent id={`tkt__${ticket._id}`}>
                 <GridCard>
-                    <GridCardHeader>
-                        <RenderEventMedia eventId={ticket.eventRef} />
-                        <div className="flex flex-col gap-5 py-2 border-b">
-                            <Text>{ticket.ticketCategory} to for:</Text>
-                            <Text variant='h3'>{ticket.eventTitle}</Text>
+                    <GridCardHeader className="p-0">
+                        <div style={mediaBox}>
+                            <RenderEventBanner eventId={ticket.eventRef} className="card-img" />
                         </div>
+
                         {/* <div className="flex gap-5 py-2 border-b">
                         <Text className="font-semibold text-muted-foreground">Ticket Category:</Text>
                     </div> */}
                     </GridCardHeader>
-                    <GridCardBody>
+                    <GridCardBody className="p-4">
+                        <div className="flex flex-col py-2">
+                            <Text><strong>{ticket.ticketCategory}</strong> ticket to:</Text>
+                            <Text variant='h3' title={ticket.eventTitle}>{ticket.eventTitle?.truncateAt(27)}</Text>
+                        </div>
                         <div className="flex gap-5 py-2 border-b">
                             <Text className="font-semibold text-muted-foreground">Customer:</Text>
                             <Text>{ticket.name}</Text>
@@ -69,8 +57,8 @@ const TicketGridTemplate: React.FC<{ data: Ticket }> = ({ data }) => {
                         <Text>{ticket.referenceNo}</Text>
                     </div> */}
                     </GridCardBody>
-                    <GridCardFooter>
-                        <div className='flex gap-3 items-center justify-between px-2'>
+                    <GridCardFooter className="p-4 bg-accent">
+                        <div className='flex gap-3 items-center justify-between px-2 w-full'>
                             <Link href={`/tickets/${ticket.referenceNo}/`}
                                 className={cn('border border-primary flex flex-row gap-1.5 hover:bg-primary',
                                     'hover:text-primary-foreground md:px-2 md:py-1 px-1.5 py-1 h-9',

@@ -23,7 +23,7 @@ import AddTeamMember from '@/components/buttons/add-team-member';
 import Link from 'next/link';
 import { MdDelete, MdEdit } from 'react-icons/md';
 import RenderPrettyError from '@/components/render-pretty-error';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { useDeviceDetector, useMediaQuery } from '@/hooks/useMediaQuery';
 
 export default function ViewEvent({ params }: { params: { eventId: string } }) {
     const actor = useAuthenticatedUser();
@@ -33,10 +33,18 @@ export default function ViewEvent({ params }: { params: { eventId: string } }) {
     const [teamFallback, setTeamFallback] = useState('Loading team, please wait...');
     const { setPageTitle, setIsPageTitleEnabled, setWidget } = usePageHeader();
 
-    const isMobile = useMediaQuery('(min-width:320px)');
-    const isTablet = useMediaQuery('(min-width:768px)');
-    const isDesktop = useMediaQuery('(min-width:1024px)');
-    const isLargeDesktop = useMediaQuery('(min-width:1200px)');
+    // const isMobile = useMediaQuery('(min-width:320px)');
+    // const isTablet = useMediaQuery('(min-width:768px)');
+    // const isDesktop = useMediaQuery('(min-width:1024px)');
+    // const isLargeDesktop = useMediaQuery('(min-width:1200px)');
+
+    const {
+        isMobile,
+        isTablet,
+        isDesktop,
+        isLargeDesktop
+    } = useDeviceDetector() as Record<string, boolean>;
+
 
     useEffect(() => {
         if (teamError) {
@@ -195,7 +203,7 @@ export default function ViewEvent({ params }: { params: { eventId: string } }) {
                         <Card>
                             <CardContent className='p-3'>
                                 <Text variant='h3' className='mb-3'>Posters</Text>
-                                <EventPosters posters={event.posters} className='mb-5' />
+                                <EventPosters posters={event.posters} className='grid grid-cols-2 mb-5 md:grid-cols-3' />
                             </CardContent>
                         </Card>
                         {/* <ReserveSpotCard event={event} /> */}
