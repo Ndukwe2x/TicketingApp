@@ -7,7 +7,7 @@ import { FaClock } from "react-icons/fa6";
 import { CalendarIcon, ClockIcon } from "@radix-ui/react-icons";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { DatePicker, MobileTimePicker, renderTimeViewClock, TimePicker } from "@mui/x-date-pickers";
-import { useDataPasserContext, useEventFormData } from "@/hooks/useCustomContexts";
+import { useEventFormData } from "@/hooks/useCustomContexts";
 
 interface DateTimeProps extends Partial<HTMLInputElement> {
     datetime: string | Date
