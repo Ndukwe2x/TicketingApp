@@ -30,47 +30,21 @@ const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & {
     owner = owner ?? actor;
     const { maxItemsPerPage = 10 } = APPCONFIG.paginationOptions;
     const { pageDataBag, setPageData } = useAppData();
-    // const cachedEventsRef = useRef<MultipleEvents>([]);
     const [events, setEvents] = useState<MultipleEvents>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<any>(null);
-
-    // const [fetchingEvents, events, eventsFetchError] = useGetEventsByUser(
-    //     owner as AppUser,
-    //     actor as AppUser,
-    //     true,
-    //     [pageDataBag.page_activity],
-    //     onOrderedEvents => orderByDate(onOrderedEvents as any)
-    // );
-
-    // const [isLoading, setIsLoading] = useState(fetchingEvents);
-    // const [events, setEvents] = useState<MultipleEvents>([]);
-    // const [error, setError] = useState<any>(null);
     const [fallback, setFallback] = useState(
         <div className="text-center">Fetching events, please wait...</div>
     );
 
-    // useEffect(() => {
-    //     cachedEventsRef.current = pageDataBag.my_events.items ?? [];
-    //     setPageData('my_events', { items: events, totalEvents: events.length })
-    // }, [events, setPageData]);
-
     useEffect(() => {
         if (owner === null || actor === null) {
-            // setIsLoading(false);
             return;
         }
-        // if (pageDataBag.page_activity) {
-        //     const { newEvent, deletedEvent } = pageDataBag.page_activity as { newEvent: SingleEvent; deletedEvent: string }
-        //     if (!(newEvent || deletedEvent)) {
-        //         return;
-        //     }
-        // }
+
         setIsLoading(true);
 
         (async () => {
-            // setIsLoading(true);
-            // setEvents([]);
             setError(null);
 
             try {
@@ -102,11 +76,6 @@ const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & {
         ...(gridColumnRule && gridColumnRule)
     }
 
-
-    // useEffect(() => {
-    //     setEvents(eventsFetched);
-    // }, [eventsFetched]);
-
     useEffect(() => {
         setIsLoading(true);
         if (pageDataBag.page_activity) {
@@ -120,27 +89,6 @@ const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & {
             setIsLoading(false);
         }
     }, [pageDataBag.page_activity, events]);
-
-    // React.useEffect(() => {
-    //     if (isLoading) {
-    //         return;
-    //     }
-    //     if (error) {
-    //         setFallback(<RenderPrettyError error={error} />);
-    //         return;
-    //     }
-    //     if (rawEvents.length < 1) {
-    //         setFallback(<div className="text-center">No event to show.</div>);
-    //         return;
-    //     }
-
-    //     const orderedByDate: Record<string, string>[] = orderByDate((rawEvents as unknown) as any);
-    //     setEvents((orderedByDate as unknown) as MultipleEvents);
-
-    //     return function cleanup() {
-    //         // Clean up every possible side-effects
-    //     }
-    // }, [isLoading, error, rawEvents]);
 
     return (
         (events.length > 0) ? (

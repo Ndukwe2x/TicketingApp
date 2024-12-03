@@ -1,47 +1,17 @@
-import React, { LegacyRef, ReactElement, ReactEventHandler } from "react";
+import React, { ReactEventHandler, HTMLAttributes, ReactNode, useRef, useState } from "react";
 import { useDeviceDetector } from "@/hooks/useMediaQuery";
 import { ImageSkeleton } from "../ui/skeleton";
-import { HTMLAttributes, ReactNode, useEffect, useRef, useState } from "react";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
-import { fetchEventById, useGetEventById } from "@/hooks/useGetEvents";
 import * as NextImage from "next/image";
-import { isAxiosError } from "axios";
 import { cn } from "@/lib/utils";
 import { MdSignalWifiConnectedNoInternet0 } from "react-icons/md";
 
 const RenderEventBanner: React.FC<HTMLAttributes<HTMLImageElement> & { imgSrc: string, imgAltText: string }> = ({ className, imgSrc, imgAltText, ...props }) => {
     const actor = useAuthenticatedUser() as AppUser;
-    // const [isLoading, event, eventError] = useGetEventById(eventId, actor);
     const [isLoading, setIsLoading] = useState(true);
     const [isError, setIsError] = useState(false);
     let output = useRef<ReactNode>(null);
     const mediaRef = useRef<HTMLImageElement>(null);
-    // const [event, setEvent] = useState<SingleEvent | null>(null);
-    // const [isLoading, setIsLoading] = useState<boolean>(true);
-    // const [fetchError, setFetchError] = useState<unknown>(null);
-    // const [output, setOutput] = useState<ReactNode>(null);
-
-    // useEffect(() => {
-    //     const fetchEvent = async (eventId: string) => {
-    //         try {
-    //             const ev = await fetchEventById(eventId, true);
-    //             if (ev?._id === eventId) {
-    //                 setEvent(ev);
-    //                 setIsLoading(false)
-    //             }
-    //         } catch (error) {
-    //             setFetchError(error);
-    //             console.error(error)
-    //         } finally {
-    //             setIsLoading(false)
-    //         }
-    //     }
-
-    //     fetchEvent(eventId);
-
-    //     return () => { }
-    // }, [eventId])
-
     const {
         isMobile,
         isTablet,
@@ -58,22 +28,6 @@ const RenderEventBanner: React.FC<HTMLAttributes<HTMLImageElement> & { imgSrc: s
         mediaWidth = 285
     }
     let mediaHeight: number = mediaWidth / 3 * 2 - 30;
-
-
-    // const htmlImage = new Image(mediaWidth, mediaHeight);
-
-    // if (isLoading) {
-    //     output.current = <ImageSkeleton className={className} width={mediaWidth} height={mediaHeight} />;
-    // } else if (event !== null) {
-    //     const timestamp = new Date().getTime();
-    //     output.current = <NextImage.default ref={ } src={event.eventBanner.url + `?=${timestamp}`} alt={event.title}
-    //         width={mediaWidth} height={mediaHeight}
-    //         className={className} {...props} />
-    // } else {
-    //     if (isAxiosError(eventError)) {
-
-    //     }
-    // }
 
     const handleImageLoad = () => {
         if (!mediaRef.current) return;
