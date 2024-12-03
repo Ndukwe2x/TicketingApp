@@ -104,6 +104,7 @@ const DeleteEventButton: React.FC<ButtonProps> = ({
         if (onAfterDelete) {
             onAfterDelete(event._id);
         }
+        console.log(event);
         setPageData('page_activity', { deletedEvent: event._id });
 
         // else {

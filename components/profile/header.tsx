@@ -58,4 +58,4 @@ const ProfileHeader: React.FC<React.HTMLAttributes<HTMLDivElement> & CompProps> 
     )
 }
 
-export default memo(ProfileHeader);
+export default ProfileHeader;

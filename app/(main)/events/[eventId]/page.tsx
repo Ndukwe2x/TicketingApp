@@ -24,6 +24,8 @@ import Link from 'next/link';
 import { MdDelete, MdEdit } from 'react-icons/md';
 import RenderPrettyError from '@/components/render-pretty-error';
 import { useDeviceDetector, useMediaQuery } from '@/hooks/useMediaQuery';
+import { useRouter } from 'next/navigation';
+import { toast } from '@/components/ui/sonner';
 
 export default function ViewEvent({ params }: { params: { eventId: string } }) {
     const actor = useAuthenticatedUser();
@@ -32,6 +34,7 @@ export default function ViewEvent({ params }: { params: { eventId: string } }) {
     const [teamLoading, organizingTeam, teamError] = useGetUsersByEvent(eventId, actor as AppUser);
     const [teamFallback, setTeamFallback] = useState('Loading team, please wait...');
     const { setPageTitle, setIsPageTitleEnabled, setWidget } = usePageHeader();
+    const router = useRouter();
 
     // const isMobile = useMediaQuery('(min-width:320px)');
     // const isTablet = useMediaQuery('(min-width:768px)');
@@ -45,6 +48,10 @@ export default function ViewEvent({ params }: { params: { eventId: string } }) {
         isLargeDesktop
     } = useDeviceDetector() as Record<string, boolean>;
 
+    const handleDeleteSuccess = (eventId: string) => {
+        toast(<div className='text-primary'>Redirecting you, please wait...</div>);
+        router.push('/events')
+    }
 
     useEffect(() => {
         if (teamError) {
@@ -54,6 +61,7 @@ export default function ViewEvent({ params }: { params: { eventId: string } }) {
         }
         // setIsPageTitleEnabled && setIsPageTitleEnabled(false);
         setPageTitle(null);
+
         if (!eventLoading && !eventError) {
             setWidget((
                 <React.Fragment>
@@ -69,7 +77,10 @@ export default function ViewEvent({ params }: { params: { eventId: string } }) {
                         <EditEventButton event={event as SingleEvent} actor={actor as AppUser} variant='outline' className='px-2 md:px-3 lg:px-4'>
                             <span className='hidden md:inline-flex mr-2'>Edit</span><MdEdit size={18} />
                         </EditEventButton>
-                        <DeleteEventButton actor={actor as AppUser} event={event as SingleEvent} className='px-2 md:px-3 lg:px-4'>
+                        <DeleteEventButton onAfterDelete={handleDeleteSuccess}
+                            actor={actor as AppUser}
+                            event={event as SingleEvent}
+                            className='px-2 md:px-3 lg:px-4'>
                             <span className='hidden md:inline-flex mr-2'>Delete</span><MdDelete size={18} />
                         </DeleteEventButton>
                     </div>
@@ -203,7 +214,9 @@ export default function ViewEvent({ params }: { params: { eventId: string } }) {
                         <Card>
                             <CardContent className='p-3'>
                                 <Text variant='h3' className='mb-3'>Posters</Text>
-                                <EventPosters posters={event.posters} className='grid grid-cols-2 mb-5 md:grid-cols-3' />
+                                <EventPosters
+                                    posters={event.posters}
+                                    className='grid grid-cols-2 mb-5 md:grid-cols-3 gap-2' />
                             </CardContent>
                         </Card>
                         {/* <ReserveSpotCard event={event} /> */}

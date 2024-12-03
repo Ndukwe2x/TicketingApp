@@ -83,12 +83,12 @@ const UserForm = (
 
     const [formData, setFormData] = useState<FormDataProps>({
         user_avatar: null,
-        firstName: null,
-        lastName: null,
-        email: null,
-        phone: null,
-        accountType: null,
-        role: null,
+        firstName: account?.firstname || null,
+        lastName: account?.lastname || null,
+        email: account?.email || null,
+        phone: account?.phone || null,
+        accountType: account?.accountType || null,
+        role: account?.role || null,
         password: password,
         re_password: password
     });
@@ -155,8 +155,8 @@ const UserForm = (
             if (eventsToAttach?.length > 0) {
                 finalData = { ...finalData, eventRef: eventsToAttach }
             }
-
-            const apiRes = await axios.post(formAction, finalData, {
+            const handleRequest = isNew ? axios.post : axios.patch;
+            const apiRes = await handleRequest(formAction, finalData, {
                 headers: {
                     Authorization: `Bearer ${actor?.token}`
                 }
@@ -197,6 +197,7 @@ const UserForm = (
                         {/* <Text variant='h3'>User Info</Text> */}
                         <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-3">
                             <aside className="avatar-section md:order-1">
+
                                 <AccountAvatar onSelection={(file) => { handleSelectedAvatar(file as File) }} account={account} />
                             </aside>
                             <aside className="input-section grid gap-5">
@@ -368,11 +369,13 @@ function AccountAvatar({ onSelection, account }: { onSelection: Callback; accoun
 
     const handlePickAvatar = (ev: ChangeEvent<HTMLInputElement>) => {
         const files = ev.target.files;
+        console.log(files);
         if (!files?.length || !selectedFilePreviewRef.current) {
             return;
         }
         const avatarPreview = selectedFilePreviewRef.current as HTMLSpanElement;
         const file = files[0];
+        console.log(file);
         parseFileToDataUri(file)
             .then((dataUri) => {
                 const img = avatarPreview.querySelector('img') ?? new Image(200, 200);
@@ -384,6 +387,7 @@ function AccountAvatar({ onSelection, account }: { onSelection: Callback; accoun
                 if (!avatarPreview.querySelector('img')) {
                     avatarPreview.appendChild(img);
                 }
+                console.log(dataUri);
                 setSelection(dataUri);
             })
             .catch((error) => {
@@ -412,7 +416,7 @@ function AccountAvatar({ onSelection, account }: { onSelection: Callback; accoun
                     avatar.url && avatar.alt ? (
                         <React.Fragment>
                             <Input type='hidden' name="avatar" value={account ? account.avatar : ''} />
-                            <span className={cn(
+                            <span ref={selectedFilePreviewRef} className={cn(
                                 'avatar-upload-preview flex items-center loaded'
                             )} style={{ backgroundImage: `url(${avatar.url})` }}>
                                 <NextImage src={avatar.url} alt={avatar.alt} title={avatar.alt} width={200} height={200} />

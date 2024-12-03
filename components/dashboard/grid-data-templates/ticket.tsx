@@ -24,8 +24,11 @@ const TicketGridTemplate: React.FC<{ data: Ticket }> = ({ data }) => {
             <GridContent id={`tkt__${ticket._id}`}>
                 <GridCard>
                     <GridCardHeader className="p-0">
-                        <div style={mediaBox}>
-                            <RenderEventBanner eventId={ticket.eventRef} className="card-img" />
+                        <div style={mediaBox} className="relative">
+                            <RenderEventBanner
+                                imgSrc={ticket.event?.eventBanner.url as string}
+                                imgAltText={ticket.event?.title as string}
+                                className="card-img" />
                         </div>
 
                         {/* <div className="flex gap-5 py-2 border-b">
@@ -35,7 +38,10 @@ const TicketGridTemplate: React.FC<{ data: Ticket }> = ({ data }) => {
                     <GridCardBody className="p-4">
                         <div className="flex flex-col py-2">
                             <Text><strong>{ticket.ticketCategory}</strong> ticket to:</Text>
-                            <Text variant='h3' title={ticket.eventTitle}>{ticket.eventTitle?.truncateAt(27)}</Text>
+                            <Text variant='h3' className="flex-1 auto-truncate">
+                                <Link title={ticket.eventTitle}
+                                    href={`/events/${ticket.eventRef}`}>{ticket.eventTitle}</Link>
+                            </Text>
                         </div>
                         <div className="flex gap-5 py-2 border-b">
                             <Text className="font-semibold text-muted-foreground">Customer:</Text>
