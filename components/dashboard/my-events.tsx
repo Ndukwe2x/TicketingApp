@@ -119,7 +119,7 @@ const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & {
             }
             setIsLoading(false);
         }
-    }, [pageDataBag.page_activity]);
+    }, [pageDataBag.page_activity, events]);
 
     // React.useEffect(() => {
     //     if (isLoading) {

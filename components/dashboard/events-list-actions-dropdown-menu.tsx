@@ -73,7 +73,7 @@ const EventsListActionsDropdownMenu = React.forwardRef<
     });
 
 
-
+EventsListActionsDropdownMenu.displayName = 'EventsListActionsDropdownMenu';
 export default EventsListActionsDropdownMenu;
         // <div>
         //         <CommonDropdownMenu 

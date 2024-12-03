@@ -87,7 +87,18 @@ export default function ViewEvent({ params }: { params: { eventId: string } }) {
                 </React.Fragment>
             ));
         }
-    }, [teamLoading, organizingTeam, teamError, setPageTitle, setWidget, actor, eventLoading, eventError, event]);
+    }, [
+        teamLoading,
+        organizingTeam,
+        teamError,
+        setPageTitle,
+        setWidget,
+        actor,
+        eventLoading,
+        eventError,
+        event,
+        handleDeleteSuccess
+    ]);
 
     if (eventError) {
         return <RenderPrettyError error={eventError} />
