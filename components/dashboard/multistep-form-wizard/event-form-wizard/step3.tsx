@@ -1,26 +1,17 @@
-// import { useForm, SubmitHandler } from 'react-hook-form';
 import { useEventFormData } from "@/hooks/useCustomContexts";
-import { Api } from '@/lib/api';
 import generateRandomString from '@/lib/random-string-generator';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Text } from '@/components/ui/text';
-import DateTimeControls from '../../event-form-datetime-control';
 import styles from '../../../styles/styles.module.css';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/icons';
-import React, { useRef, useEffect, FormEventHandler, HTMLAttributes } from 'react';
+import React, { useRef, useEffect, FormEventHandler } from 'react';
 import { cn, getEmptyFormFields, parseFileToDataUri } from '@/lib/utils';
-import AddTicketCategory from '../../add-ticket-category';
-import { MdClose } from 'react-icons/md';
 import * as NextImage from "next/image";
 import { EditButton, UploadButton } from "@/components/buttons/media-uploader";
 import { toast } from "@/components/ui/sonner";
-import { useCallback } from "react";
 
+const Step3: React.FC<MultistepFormWizardStepProps> = ({ prevStep, nextStep }) => {
 
-const Step3: React.FC<MultistepFormWizardStepProps & { event?: SingleEvent }> = ({ prevStep, nextStep, event }) => {
-    // const { register, formState: { errors } } = useForm<TicketCategories>();
     const {
         formData,
         updateFormData,
@@ -29,18 +20,13 @@ const Step3: React.FC<MultistepFormWizardStepProps & { event?: SingleEvent }> = 
         filesToUpload,
         updateFilesToUpload
     } = useEventFormData();
+
     const formId: string = 'event_form_' + generateRandomString(32, 'mixed_lower', false);
-    // const isNew: boolean = event ? false : true;
-    // const formAction = isNew
-    //     ? Api.server + Api.endpoints.admin.events
-    //     : Api.server + Api.endpoints.admin.event.replace(':id', event?._id as string);
     const pageBaseClass = styles.event_form_page;
     const pageActiveClass = styles.current;
     const form = useRef<HTMLFormElement>(null);
     const forwardButton = useRef<HTMLButtonElement>(null);
     const bannerRef = useRef<HTMLDivElement>(null);
-    // const [tempImages, setTempImages] = React.useState<Partial<TempImagesProps>>({});
-    // const [filesToUpload, addFilesToUpload] = React.useState<SelectedUploadFilesProps>({});
 
     useEffect(() => {
         if (!(form.current && forwardButton.current)) {
@@ -76,8 +62,9 @@ const Step3: React.FC<MultistepFormWizardStepProps & { event?: SingleEvent }> = 
             new FormData(ev.target as HTMLFormElement).entries()
         );
         for (const [name, value] of data) {
-            updateFormData && updateFormData({ [name]: value.toString() });
+            updateFormData && updateFormData({ [name]: value.valueOf() });
         }
+
         nextStep();
         ev.preventDefault();
     };
@@ -167,7 +154,11 @@ const Step3: React.FC<MultistepFormWizardStepProps & { event?: SingleEvent }> = 
 
     }
 
-    const sampleBanner = useRef<ImageInfo | null>(tempImages?.eventBanner ?? formData.eventBanner ?? null);
+    const sampleBanner = useRef<ImageInfo | null>(
+        tempImages?.eventBanner ??
+        formData.eventBanner ??
+        null
+    );
 
     return (
         <form id={formId}
@@ -183,10 +174,10 @@ const Step3: React.FC<MultistepFormWizardStepProps & { event?: SingleEvent }> = 
                             title={formData.title ?? ''}
                             alt={sampleBanner.current?.public_id ?? formData.title ?? 'New Banner Image'}
                             width="280" height="200" />}
-                        <EditButton name="eventBanner" onFileSelection={previewBanner}
+                        <EditButton onFileSelection={previewBanner}
                             className={cn(sampleBanner.current?.url && 'block')} />
                     </div>
-                    {!sampleBanner.current?.url && <UploadButton name="eventBanner"
+                    {!sampleBanner.current?.url && <UploadButton
                         onFileSelection={previewBanner}
                         required={true}
                         className={cn(styles.banner)} />}

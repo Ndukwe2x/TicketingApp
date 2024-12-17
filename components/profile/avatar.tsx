@@ -48,4 +48,4 @@ const Avatar: React.FC<React.HTMLAttributes<HTMLImageElement> & CompProps> = ({ 
     )
 }
 
-export default memo(Avatar);
+export default Avatar;

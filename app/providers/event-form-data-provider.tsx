@@ -11,7 +11,7 @@ interface FormProviderProps {
 
 export const EventFormDataProvider: React.FC<FormProviderProps> = ({ children, defaultData = {}, onPending, onSuccess, onFailure }) => {
     const [formData, setFormData] = useState<SingleEvent | Record<string, any>>(defaultData);
-    const [posterPreviewList, setPosterPreviewList] = useState<ImageInfo[]>([]);
+    const [posterPreviewList, setPosterPreviewList] = useState<ImageInfo[]>(defaultData?.posters || []);
     const [tempImages, setTempImages] = useState<TempImagesProps>({});
     const [filesToUpload, addFilesToUpload] = useState<SelectedUploadFilesProps>({});
 

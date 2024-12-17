@@ -55,7 +55,7 @@ export default function PageHeader({ children, className, ...props }: PageHeader
     return (
         <div className={cn('flex items-center mb-4 gap-3', className)} {...props}>
             <NavigateBack />
-            {isPageTitleEnabled && (title) && <Heading variant='h1' className='page-title responsive-title'>{capitalCase(title)}</Heading>}
+            {isPageTitleEnabled && (title) && <Heading variant='h1' className='font-semibold tracking-normal page-title responsive-title'>{capitalCase(title)}</Heading>}
             {widget}
         </div>
     )

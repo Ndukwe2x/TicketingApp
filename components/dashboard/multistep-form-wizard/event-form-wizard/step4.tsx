@@ -4,7 +4,7 @@ import { Text } from '@/components/ui/text';
 import styles from '../../../styles/styles.module.css';
 import { Button } from '@/components/ui/button';
 import { Icons } from '@/components/icons';
-import React, { useRef, useEffect, FormEventHandler, HTMLAttributes } from 'react';
+import React, { useRef, useEffect, FormEventHandler, HTMLAttributes, useState } from 'react';
 import { cn, getEmptyFormFields, parseFileToDataUri } from '@/lib/utils';
 import { MdClose } from 'react-icons/md';
 import * as NextImage from "next/image";
@@ -14,8 +14,10 @@ import { toast } from "@/components/ui/sonner";
 
 const Step4: React.FC<MultistepFormWizardStepProps> = ({ prevStep, nextStep }) => {
     const {
+        formData,
         posterPreviewList = [],
         updatePosterPreviewList,
+        tempImages,
         updateTempImages,
         updateFilesToUpload
     } = useEventFormData();
@@ -25,6 +27,13 @@ const Step4: React.FC<MultistepFormWizardStepProps> = ({ prevStep, nextStep }) =
     // const [isFormCompleted, setIsFormCompleted] = useState<boolean>(false);
     const form = useRef<HTMLFormElement>(null);
     const forwardButton = useRef<HTMLButtonElement>(null);
+    const [posters, setPosters] = useState<ImageInfo[]>([]);
+
+    useEffect(() => {
+        setPosters(
+            posterPreviewList
+        );
+    }, [tempImages, posterPreviewList]);
 
     useEffect(() => {
         if (!(form.current && forwardButton.current)) {
@@ -105,7 +114,7 @@ const Step4: React.FC<MultistepFormWizardStepProps> = ({ prevStep, nextStep }) =
             <div className='flex flex-col gap-2'>
                 <div id="posters" className="poster-groups gap-3 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
                     {
-                        posterPreviewList && posterPreviewList.map((poster, index) => (
+                        posters && posters.map((poster, index) => (
                             <React.Fragment key={index}>
                                 <CreatePosterPreview poster={poster} index={index}>
                                     <input type="hidden" name={`posters[${index}][url]`} defaultValue={poster.url} />
@@ -115,7 +124,7 @@ const Step4: React.FC<MultistepFormWizardStepProps> = ({ prevStep, nextStep }) =
                             </React.Fragment>
                         ))
                     }
-                    <UploadButton name="posters" onFileSelection={previewPoster}
+                    <UploadButton onFileSelection={previewPoster}
                         required={false}
                         aria-required={false}
                         className={styles.poster} />

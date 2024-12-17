@@ -265,15 +265,26 @@ export const useGetEventsWithoutAuthorization = (): [isLoading: boolean, events:
 /**
  * Fetch all events belonging to a particular user
  * 
- * @param theUser `AppUser` The user who's events are to be fetched
+ * @param theUser AppUser The user who's events are to be fetched
  * @param actor `AppUser` The current user of the application
+ * @param ignoreFetchError A boolean option that specifies whether the hook
+ * should proceed or abort if an error occurs in the process.
+ * @param deps A list of dependencies that could force the hook to rerun. 
+ * The deps array is parsed to the useEffect hook deps array.
  * @returns Returns an array of `SingleEvent` on success and an empty array `[]` otherwise 
  */
-export const useGetEventsByUser = (theUser: AppUser, actor: AppUser, ignoreFetchError: boolean = false): [
-    isLoading: boolean,
-    events: MultipleEvents | [],
-    error: any
-] => {
+export const useGetEventsByUser = (
+    theUser: AppUser,
+    actor: AppUser,
+    ignoreFetchError: boolean = false,
+    deps: unknown[] = [],
+    onSuccess?: Callback,
+    onFailure?: Callback,
+): [
+        isLoading: boolean,
+        events: MultipleEvents | [],
+        error: any
+    ] => {
     const [isLoading, setIsLoading] = useState(true);
     const [events, setEvents] = useState<MultipleEvents>([]);
     const [error, setError] = useState<any>(null);
@@ -285,12 +296,16 @@ export const useGetEventsByUser = (theUser: AppUser, actor: AppUser, ignoreFetch
         }
 
         (async () => {
+            // setIsLoading(true);
+            // setEvents([]);
+            // setError(null);
             try {
-                const fetchedEvents = await fetchUserEvents(theUser.id, actor, ignoreFetchError);
+                let fetchedEvents = await fetchUserEvents(theUser.id, actor, ignoreFetchError);
                 if (fetchedEvents instanceof Array) {
-                    if ([...fetchedEvents].shift()?._id) {
-                        setEvents(fetchedEvents);
+                    if (onSuccess) {
+                        fetchedEvents = onSuccess(fetchedEvents);
                     }
+                    setEvents(fetchedEvents);
                 }
             } catch (err) {
                 console.error(err);
@@ -303,8 +318,11 @@ export const useGetEventsByUser = (theUser: AppUser, actor: AppUser, ignoreFetch
         return function cleanup() {
 
         }
-    }, [theUser, actor, setError, setEvents]);
+    }, [theUser, actor, ...deps]);
 
+    // useEffect(() => { 
+
+    // }, deps);
 
     return [isLoading, events, error];
 }

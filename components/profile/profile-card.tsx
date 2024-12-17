@@ -112,7 +112,7 @@ const ProfileCard: React.FC<React.HTMLAttributes<HTMLDivElement> & CompProps> = 
     )
 }
 
-export default memo(ProfileCard);
+export default ProfileCard;
 
 function RenderDataCount(
     { children, className, data, isPending, isError = false, ...props }:

@@ -1,8 +1,8 @@
 "use client";
 
-import React, { HtmlHTMLAttributes, useEffect, useState } from "react";
+import React, { HtmlHTMLAttributes, useEffect, useRef, useState } from "react";
 import { DataTable, DataTableLoading } from "../ui/data-table";
-import { useGetEvents, useGetEventsByIds, useGetEventsByUser } from "@/hooks/useGetEvents";
+import { fetchUserEvents, useGetEvents, useGetEventsByIds, useGetEventsByUser } from "@/hooks/useGetEvents";
 import { columns } from "./table-columns/events";
 import { DataGrid } from "../ui/data-grid";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
@@ -29,11 +29,43 @@ const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & {
     const actor = useAuthenticatedUser();
     owner = owner ?? actor;
     const { maxItemsPerPage = 10 } = APPCONFIG.paginationOptions;
+    const { pageDataBag, setPageData } = useAppData();
+    const [events, setEvents] = useState<MultipleEvents>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<any>(null);
+    const [fallback, setFallback] = useState(
+        <div className="text-center">Fetching events, please wait...</div>
+    );
 
-    const [isLoading, rawEvents, error] = useGetEventsByUser(owner as AppUser, actor as AppUser, true);
-    const [events, setEvents] = useState<SingleEvent[] | []>([]);
-    const [fallback, setFallback] = useState(<div className="text-center">Fetching events, please wait...</div>);
-    const { pageDataBag } = useAppData();
+    useEffect(() => {
+        if (owner === null || actor === null) {
+            return;
+        }
+
+        setIsLoading(true);
+
+        (async () => {
+            setError(null);
+
+            try {
+                const fetchedEvents = await fetchUserEvents(owner.id, actor, true);
+                if (fetchedEvents instanceof Array) {
+                    const orderedByDate: Record<string, string>[] = orderByDate(fetchedEvents);
+                    setEvents((orderedByDate as unknown) as MultipleEvents);
+                }
+            } catch (err) {
+                console.error(err);
+                setError(err);
+            } finally {
+                setIsLoading(false);
+            }
+        })();
+
+        return function cleanup() {
+
+        }
+    }, [owner, actor]);
+
     const defaultGridColumnRule = {
         xs: 1,
         sm: 2,
@@ -44,38 +76,19 @@ const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & {
         ...(gridColumnRule && gridColumnRule)
     }
 
-    React.useEffect(() => {
-        if (isLoading) {
-            return;
-        }
-        if (error) {
-            setFallback(<RenderPrettyError error={error} />);
-            return;
-        }
-
-        if (rawEvents.length < 1) {
-            setFallback(<div className="text-center">No event to show.</div>);
-            return;
-        }
-
-        const orderedByDate: Record<string, string>[] = orderByDate((rawEvents as unknown) as any);
-        setEvents((orderedByDate as unknown) as SingleEvent[]);
-
-        return function cleanup() {
-            // Clean up every possible side-effects
-        }
-    }, [isLoading, error, rawEvents]);
-
     useEffect(() => {
+        setIsLoading(true);
         if (pageDataBag.page_activity) {
             const activity = pageDataBag.page_activity;
             if (activity.newEvent) {
-                setEvents(events => ([activity.newEvent, ...events]))
+                console.log(activity.newEvent);
+                setEvents([activity.newEvent, ...events])
             } else if (activity.deletedEvent) {
-                setEvents(state => state.filter(event => event._id !== activity.deletedEvent));
+                setEvents(events.filter(event => event._id !== activity.deletedEvent));
             }
+            setIsLoading(false);
         }
-    }, [pageDataBag.page_activity])
+    }, [pageDataBag.page_activity, events]);
 
     return (
         (events.length > 0) ? (

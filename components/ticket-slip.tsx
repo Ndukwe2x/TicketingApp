@@ -6,8 +6,12 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { FaClock } from "react-icons/fa6";
 import { IoLocationSharp } from "react-icons/io5";
 
-const TicketSlip = ({ ticket, event, cardRef }: {ticket: Ticket; event: SingleEvent, cardRef?: React.RefObject<HTMLDivElement>}) => {
+const TicketSlip = ({ ticket, event, cardRef }: { ticket: Ticket; event: SingleEvent, cardRef?: React.RefObject<HTMLDivElement> }) => {
 
+    const unitPrice: number = ((ev: SingleEvent, ticket: Ticket) => {
+        const cat = ev.ticketCategories.find(tc => tc.name === ticket.ticketCategory);
+        return cat?.price as number;
+    })(event, ticket);
 
     return (
         <Card className='w-min max-w-96 rounded-none'>
@@ -55,17 +59,29 @@ const TicketSlip = ({ ticket, event, cardRef }: {ticket: Ticket; event: SingleEv
                         </div>
                     </div>
 
-                    <div className='flex flex-col justify-between items-start border-t pt-5'>
-                        <div className='flex gap-1'>
-                            <Text>Category: </Text>
-                            <Text variant='h4'>
+                    <div className='flex flex-col gap-2 justify-between border-t pt-5'>
+                        <div className='flex justify-between'>
+                            <Text className="font-semibold text-muted-foreground">Category: </Text>
+                            <Text variant='h4' >
                                 {ticket.ticketCategory} &nbsp;|&nbsp;{' '}
-                                {formatCurrency(ticket.amountPaid)}
+                                {formatCurrency(unitPrice)}
                             </Text>
                         </div>
-                        <div className='flex gap-1'>
-                            <Text>Ticket No: </Text>
-                            <Text variant='h4'>{ ticket.referenceNo }</Text>
+                        <div className="flex justify-between">
+                            <Text className="font-semibold text-muted-foreground">Number of Tickets:</Text>
+                            <Text>{ticket.numberOfTickets}</Text>
+                        </div>
+                        <div className="flex justify-between">
+                            <Text className="font-semibold text-muted-foreground">Amount Paid:</Text>
+                            <Text>{formatCurrency(ticket.amountPaid)}</Text>
+                        </div>
+                        <div className="flex justify-between">
+                            <Text className="font-semibold text-muted-foreground">Date of Purchase:</Text>
+                            <Text>{formatDate(new Date(ticket.dateOfPurchase), 'DD MMM, YYYY at hh:mm A')}</Text>
+                        </div>
+                        <div className='flex justify-between'>
+                            <Text className="font-semibold text-muted-foreground">Ticket No: </Text>
+                            <Text>{ticket.referenceNo}</Text>
                         </div>
                     </div>
                 </CardContent>

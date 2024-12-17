@@ -24,13 +24,13 @@ export default function AuthenticationPage() {
                     <LoginForm />
 
                     <p className='px-8 text-center text-sm text-muted-foreground'>
-                        By clicking continue, you agree to our{' '}
-                        <Link href='/terms' className='underline underline-offset-4 hover:text-primary'>
+                        {`By clicking/tapping on the "Sign In" button above, you agree to have read, understood, and accepted our`}{' '}
+                        <Link href='/legal/terms-of-service' className='underline underline-offset-4 hover:text-primary'>
                             Terms of Service
                         </Link>{' '}
                         and{' '}
                         <Link
-                            href='/privacy'
+                            href='/legal/privacy-policy'
                             className='underline underline-offset-4 hover:text-primary'
                         >
                             Privacy Policy

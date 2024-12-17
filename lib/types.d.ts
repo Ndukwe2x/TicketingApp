@@ -207,7 +207,7 @@ type NewlyCreatedUserAccountData = {
     status: string
 }
 
-type Callback = <T, TNext = any> (param?: T, ...rest: TNext[]) => void;
+type Callback = <T, TNext = any> (param?: T, ...rest: TNext[]) => any;
 
 interface CloudinaryUploadResponseData {
     asset_id: string;

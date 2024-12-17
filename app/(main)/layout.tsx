@@ -75,12 +75,9 @@ export default function MainLayout({
                                     </Text>
                                 </div>
                                 <div className='flex gap-x-3 justify-center md:justify-start items-center'>
-                                    <a href='/legal/privacy-policy' className='text-muted-foreground'>
-                                        Privacy Policy
-                                    </a>
-                                    <a href='/legal/terms-of-service' className='text-muted-foreground'>
-                                        Terms of Service
-                                    </a>
+                                    <a href='/legal/privacy-policy' className='text-muted-foreground hover:text-primary'>Privacy Policy</a>
+                                    |
+                                    <a href='/legal/terms-of-service' className='text-muted-foreground hover:text-primary'>Terms of Service</a>
                                 </div>
                             </div>
                             <div className='flex flex-col gap-x-5 justify-end w-full md:items-end'>

@@ -14,7 +14,7 @@ import { ReactNode } from "react";
 
 interface UploaderProps extends HTMLAttributes<HTMLInputElement> {
     onFileSelection: (ev: React.ChangeEvent<HTMLInputElement>) => void;
-    name: string;
+    name?: string;
     required?: true | false;
 };
 
@@ -24,7 +24,7 @@ const UploadButton: React.FC<UploaderProps> = ({ className, name, onFileSelectio
             <div className={cn(styles.media_frame, 'image-picker-facade', className)}>
                 <Icons.plus className="text-muted-foreground" height="50" width="50" />
             </div>
-            <Input type="file" className="input hidden file_uploader"
+            <Input type="file" name={name} className="input hidden file_uploader"
                 accept="image/jpg, image/jpeg, image/png"
                 onChange={(e) => onFileSelection(e)} {...props} />
         </Label>
@@ -32,7 +32,7 @@ const UploadButton: React.FC<UploaderProps> = ({ className, name, onFileSelectio
 };
 
 
-const EditButton: React.FC<UploaderProps> = ({ children, className, onFileSelection, ...props }) => {
+const EditButton: React.FC<UploaderProps> = ({ children, className, name, onFileSelection, ...props }) => {
     // const props = { ...rest, className: `${styles.media_frame} ${rest.className} image-picker-facade`};
 
     return (
@@ -40,7 +40,7 @@ const EditButton: React.FC<UploaderProps> = ({ children, className, onFileSelect
             <div className={styles.icon_box}>
                 <Icons.edit />
             </div>
-            <Input type="file" className="input hidden file_uploader edit-image"
+            <Input type="file" name={name} className="input hidden file_uploader edit-image"
                 accept="image/jpg, image/jpeg, image/png"
                 onChange={(e) => onFileSelection(e)} {...props} />
         </Label>

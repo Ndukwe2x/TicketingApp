@@ -744,4 +744,12 @@
         text-align: center;
         border: solid 1px currentColor;
     }
+
+    .auto-truncate {
+        white-space: nowrap;
+        display: block;
+        text-overflow: ellipsis;
+        max-width: 85%;
+        overflow-x: hidden;
+    }
 }

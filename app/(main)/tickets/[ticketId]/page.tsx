@@ -11,6 +11,7 @@ import { MdArrowDropDown, MdFileDownload } from "react-icons/md";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 import TicketResendForm from "@/components/dashboard/ticket-resend-form";
+import { usePageHeader } from "@/hooks/usePageHeaderContext";
 
 
 export default function ViewTicket({ params }: { params: { ticketId: string } }) {
@@ -21,6 +22,7 @@ export default function ViewTicket({ params }: { params: { ticketId: string } })
     const [isSendOptionsTrayOpen, toggleSendOptionsTray] = React.useReducer(state => !state, false);
     const actor = useAuthenticatedUser();
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const { pageTitle, setPageTitle } = usePageHeader();
 
 
     const fetchTicketEvent = async (url: string, config: {}) => {
@@ -34,6 +36,11 @@ export default function ViewTicket({ params }: { params: { ticketId: string } })
 
 
     React.useEffect(() => {
+        setPageTitle('Ticket Info');
+
+        if (!actor) {
+            return;
+        }
         const fetchTicketData = async (url: string, actor: AppUser) => {
             setIsLoading(true);
             const config = {
@@ -64,10 +71,8 @@ export default function ViewTicket({ params }: { params: { ticketId: string } })
         }
         let url: string = [Api.server, Api.endpoints.admin.searchTickets, '?referenceNo=', ticketId].join('');
 
-        if (actor != null) {
-            fetchTicketData(url, actor);
-        }
-    }, [actor, ticketId]);
+        fetchTicketData(url, actor);
+    }, [actor, ticketId, setPageTitle]);
 
 
     const cardRef = React.useRef<HTMLDivElement>(null);
@@ -77,7 +82,7 @@ export default function ViewTicket({ params }: { params: { ticketId: string } })
         html2PDF(cardRef.current, {
             jsPDF: {
                 unit: 'in',
-                format: 'letter',
+                format: 'legal',
                 orientation: 'portrait',
             },
             html2canvas: {
@@ -87,7 +92,6 @@ export default function ViewTicket({ params }: { params: { ticketId: string } })
             output: `${ticket.ticketCategory} Ticket to ${event.title}`,
         });
     }, [ticket, event]);
-
 
     return (
         <>

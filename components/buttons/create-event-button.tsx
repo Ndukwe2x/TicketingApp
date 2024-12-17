@@ -73,7 +73,9 @@ const CreateEventButton: React.FC<CreateEventButtonProps> = ({ displayText }) =>
         }
         toggleDialogOpenState();
         const createdEvent = await fetchEventById(data.eventId, true);
-        createdEvent && setPageData('page_activity', { newEvent: createdEvent });
+        if (createdEvent) {
+            setPageData('page_activity', { newEvent: createdEvent });
+        }
         // location.assign('/events/' + data.eventId);
     };
 
