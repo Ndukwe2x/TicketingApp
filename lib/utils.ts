@@ -5,6 +5,29 @@ import { setCookie } from 'cookies-next';
 import { APPCONFIG } from './app-config';
 import { toast } from '@/components/ui/sonner';
 
+function isBool(data: unknown) {
+    return typeof data === 'boolean';
+}
+function isString(data: unknown) {
+    return typeof data === 'string';
+}
+
+function isNumber(data: unknown) {
+    return typeof data === 'number';
+}
+
+function isNumeric(data: string) {
+    return isString(data) && data.match(/^[\d+]/g);
+}
+
+function isFunction(data: unknown) {
+    return typeof data === 'function';
+}
+
+function isDate(input: unknown) {
+    return input instanceof Date;
+}
+
 function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }
@@ -135,7 +158,7 @@ function formDataToObjects(formData: IterableIterator<[string, FormDataEntryValu
 
 //     return result;
 // }
-function parseFormFields(formFields: { name: string; value: string }[], inputObject?: Record<string, any>
+function parseFormFields(formFields: { name: string; value: string | number }[], inputObject?: Record<string, any>
 ): Record<string, any> {
     const outputObject: Record<string, any> = { ...inputObject };
 
@@ -206,8 +229,64 @@ function copyLink(link: string) {
     toast('Link copied!', { position: 'top-center' });
 }
 
-function parseFileToDataUri(file: File): Promise<string> {
+// interface FileReaderProps {
+//     file: File;
+//     options?: {
+//         minSize?: number | string;
+//         maxSize?: number | string;
+//     };
+//     sizeUnit?: 'KB' | 'MB' | 'GB' | 'TB';
+// }
+function parseFileToDataUri(
+    file: File,
+    options?: {
+        minSize?: {
+            size: number;
+            unit: string
+        };
+        maxSize?: {
+            size: number;
+            unit: string
+        }
+    }
+): Promise<string> {
+    const checkFileSize = () => {
+        let isTooSmall: boolean = false;
+        let isTooLarge: boolean = false;
+
+        if (options) {
+            const {
+                minSize = { size: 5, unit: 'KB' },
+                maxSize = { size: 5, unit: 'MB' }
+            } = options;
+
+            const minSizeInBytes = minSize.unit === 'KB'
+                ? minSize.size * 1024
+                : minSize.size * 1024 * 1024;
+            const maxSizeInBytes = maxSize.unit === 'KB'
+                ? maxSize.size * 1024
+                : maxSize.size * 1024 * 1024;
+
+            if (file.size < minSizeInBytes) {
+                isTooSmall = true;
+            }
+            if (file.size > maxSizeInBytes) {
+                isTooLarge = true;
+            }
+        }
+
+        return { isTooSmall, isTooLarge };
+    }
+
     return new Promise((resolve, reject) => {
+        const fileSize = checkFileSize();
+        if (fileSize.isTooSmall) {
+            reject(new Error('File size smaller than ' + (options?.minSize ?? '5KB')));
+            return;
+        } else if (fileSize.isTooLarge) {
+            reject(new Error('File size larger than ' + (options?.maxSize ?? '5MB')));
+            return;
+        }
         const reader = new FileReader();
         reader.onload = () => {
             if (typeof reader.result === 'string') {
@@ -216,6 +295,7 @@ function parseFileToDataUri(file: File): Promise<string> {
                 reject(new Error('Failed to read data from file.'));
             }
         };
+
         reader.onerror = (error) => {
             reject(error);
         };
@@ -239,13 +319,47 @@ function defineStaticVariable<T>(iniValue: T): [T, StaticVariableSetterAction<T>
     return [data, setter];
 }
 
+const getEmptyFormFields = (form: HTMLFormElement, requiredOnly: boolean = false): TypeOfFormControl[] => {
+    const formElements = Array.from(form.elements);
+    var emptyFields = [];
+    for (const element of formElements) {
+        const input = element as TypeOfFormControl;
+        if (requiredOnly && !input.required) {
+            continue;
+        }
+        if (input.value === "") {
+            emptyFields.push(input);
+        }
+    }
+
+    return emptyFields;
+}
+
+const parseDate = (datetime: string | Date, format: string = 'DD/MM/YYYY H:i:s A') => {
+    datetime = isDate(datetime) ? datetime : new Date(datetime);
+    const formattedDate = formatDate(datetime, format);
+    const [date, time, meridian] = formattedDate.split(' ');
+    const dateSeparator = formattedDate.search('/') ? '/' : (formattedDate.search('-') ? '-' : '/');
+    const [day, month, year] = date.split(dateSeparator);
+    const yearArr = year.split('').chunk(2).map(chunk => chunk.join(''));
+
+    return { day, month, year, yearArr, time, meridian }
+}
+
 export {
+    isString,
+    isNumber,
+    isNumeric,
+    isFunction,
+    isDate,
+    isBool,
     cn,
     formatNumber,
     formatCurrency,
     formatDate,
     humanReadableDateFormat,
     getElementSiblings,
+    getEmptyFormFields,
     formDataToObjects,
     parseFormFields,
     convertToDotNotation,
@@ -253,7 +367,8 @@ export {
     calculateTimeDifference,
     copyLink,
     parseFileToDataUri,
-    defineStaticVariable
+    defineStaticVariable,
+    parseDate
 }
 
 
@@ -265,11 +380,15 @@ declare global {
          * @returns An array of arrays, where each inner array contains `size` elements.
          */
         chunk(size: number): T[][];
-        removeDuplicates(keys?: (keyof T)[] | keyof T | string): T[]
+        removeDuplicates(keys?: (keyof T)[] | keyof T | string): T[];
     }
 
     interface String {
         stripSpecialChar(replacement?: string, ignore?: string): string;
+        truncateAt(length: number): string;
+        isNumeric(this: string): boolean;
+        isAlphanumeric(this: string): boolean;
+
     }
 }
 
@@ -318,4 +437,16 @@ String.prototype.stripSpecialChar = function (replacement: string = '', ignore: 
     // }
 
     return this.replace(regEx, replacement);
+};
+
+String.prototype.truncateAt = function (length: number) {
+    return this.substring(0, length);
+}
+
+String.prototype.isNumeric = function (): boolean {
+    return /^[0-9]+$/.test(this);
+};
+
+String.prototype.isAlphanumeric = function (): boolean {
+    return /^[a-zA-Z0-9]+$/.test(this);
 };

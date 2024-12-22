@@ -13,7 +13,7 @@ const actor = getCookieUser();
 
 export default function UserSearchForm({ children, className, ...props }: UserSearchFormProps) {
     const [searchResults, setSearchResults] = useState<UserInfo[] | []>([]);
-    const [usersLoading, prefetchedUsers, usersPrefetchError] = useGetUsers(actor);
+    const [usersLoading, prefetchedUsers, usersPrefetchError] = useGetUsers(actor as AppUser);
     const route = usePathname();
     const router = useRouter();
     let searchParams = useSearchParams();
@@ -62,10 +62,6 @@ export default function UserSearchForm({ children, className, ...props }: UserSe
         // resultConsumer && resultConsumer(uniqueResults);
     }, [keyword, prefetchedUsers]);
 
-    // useEffect(() => {
-    //     setKeyword();
-    // }, []);
-
 
     return (
         <Card>
@@ -111,7 +107,7 @@ function RenderSearchResult({ results }: { results: UserInfo[] }) {
             {
                 results.map((user, index) => (
                     <li key={index} className="border-b">
-                        <Link href={`/${actor.isOwner ? 'users' : 'team'}/${user.id}`} className="text-primary py-2">{user.firstname + ' ' + user.lastname}</Link>
+                        <Link href={`/${actor?.isOwner ? 'users' : 'team'}/${user.id}`} className="text-primary py-2">{user.firstname + ' ' + user.lastname}</Link>
                     </li>
                 ))
             }

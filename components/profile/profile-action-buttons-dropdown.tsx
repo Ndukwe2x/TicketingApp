@@ -34,7 +34,7 @@ const ActionButtons: React.FC<HtmlHTMLAttributes<HTMLElement> & { user: AppUser 
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="md:hidden">
                     {
-                        actor && actor.canUpdateUser && <EditUserButton variant="link" userId={user.id} actor={actor}
+                        actor && actor.canUpdateUser && <EditUserButton variant="link" user={user} actor={actor}
                             className="w-full text-accent-foreground hover:text-primary hover:bg-accent justify-between items-center" />
                     }
                     {

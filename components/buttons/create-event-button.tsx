@@ -1,44 +1,51 @@
 "use client";
 
-import React, { MouseEvent, ReactHTMLElement, ReactNode, useState } from "react"
+import React, { ReactNode, useReducer, useState } from "react"
 import Modal from "../ui/modal";
 import Link from "next/link";
 import { MdEvent } from "react-icons/md";
-import EventForm from "../dashboard/event-form";
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios from "axios";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 import { toast } from "../ui/sonner";
 import { Api } from "@/lib/api";
 import { Skeleton } from "../ui/skeleton";
+import EventForm from "../dashboard/multistep-form-wizard/event-form-wizard";
+import { useAppData } from "@/hooks/useCustomContexts";
+import { fetchEventById } from "@/hooks/useGetEvents";
 
 interface CreateEventButtonProps extends React.HtmlHTMLAttributes<HTMLButtonElement> {
     displayText?: ReactNode | string | null;
 }
 const CreateEventButton: React.FC<CreateEventButtonProps> = ({ displayText }) => {
-    const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+    const [isDialogOpen, toggleDialogOpenState] = useReducer(state => !state, false);
     const [isSuccessful, setIsSuccessful] = useState(false);
     const actor = useAuthenticatedUser();
+    const { setPageData } = useAppData();
 
     const initDialog = () => {
-        setIsDialogOpen(true);
+        toggleDialogOpenState();
     }
 
     const handleClose = () => {
-        setIsDialogOpen(false);
+        toggleDialogOpenState();
     }
 
     const handleSave = () => {
-        setIsDialogOpen(false);
+        toggleDialogOpenState();
     }
 
     const handleUserUpdate = async (modifiedUserData: Record<string, string>) => {
         const url = Api.server + Api.endpoints.admin.singleUser.replace(':id', actor?.id as string);
         try {
-            const userUpdated = await axios.patch(url, modifiedUserData, {
+            const userUpdated = await axios.patch(url, JSON.stringify(modifiedUserData), {
                 headers: {
-                    Authorization: `Bearer ${actor?.token}`
+                    Authorization: `Bearer ${actor?.token}`,
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
                 }
             });
+            console.log(userUpdated);
+            return;
             if (userUpdated.data.status === 'success') {
                 return true;
             }
@@ -51,17 +58,25 @@ const CreateEventButton: React.FC<CreateEventButtonProps> = ({ displayText }) =>
     //"667bf46d9910e0fbed8c6833"
     const handleSuccess = async (data: Record<string, any>) => {
         toast('Event created');
-        setIsDialogOpen(false);
-        const modifiedUserData: Record<string, any> = {
-            ...actor?.getRawData(),
-            eventRef: [...actor?.eventRef as string[], data.eventId, "667bf46d9910e0fbed8c6833"]
-        }
 
-        if (! await handleUserUpdate(modifiedUserData)) {
-            return false;
-        }
+        // If the app user is a user other than an admin, we attribute the event to them,
+        // otherwise, if it is a site admin, we leave it unassigned and allow the admin
+        // to assign a user manually.
+        if (actor?.isUser) {
+            const modifiedUserData: Record<string, any> = {
+                eventRef: [...actor?.eventRef as string[], data.eventId] // "667bf46d9910e0fbed8c6833"
+            }
 
-        location.assign('/events/' + data.eventId);
+            if (!await handleUserUpdate(modifiedUserData)) {
+                return false;
+            }
+        }
+        toggleDialogOpenState();
+        const createdEvent = await fetchEventById(data.eventId, true);
+        if (createdEvent) {
+            setPageData('page_activity', { newEvent: createdEvent });
+        }
+        // location.assign('/events/' + data.eventId);
     };
 
     const handleFailure = (error?: any) => {
@@ -71,7 +86,10 @@ const CreateEventButton: React.FC<CreateEventButtonProps> = ({ displayText }) =>
     return (
         actor ? (
             <Modal title="Create Event"
+                open={isDialogOpen}
+                onOpenChange={toggleDialogOpenState}
                 displayText={displayText || <Link href={'#'}
+                    // onClick={toggleDialogOpenState}
                     className={`bg-primary border border-primary flex flex-row gap-1.5 
                 hover:bg-primary/90 items-end px-1 md:px-2 lg:px-4 py-1 md:py-2 rounded-full text-white`}>
                     <MdEvent size={24} />
@@ -87,14 +105,5 @@ const CreateEventButton: React.FC<CreateEventButtonProps> = ({ displayText }) =>
     )
 }
 
-
-
-// npm i @cloudinary/url-gen @cloudinary/react
-
-// import {Cloudinary} from "@cloudinary/url-gen";
-
-// const App = () => {
-//   const cld = new Cloudinary({cloud: {cloudName: 'dtuznvywy'}});
-// };
 
 export default CreateEventButton;

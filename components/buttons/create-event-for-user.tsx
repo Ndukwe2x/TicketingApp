@@ -1,14 +1,15 @@
-import React, { HtmlHTMLAttributes, MouseEvent, ReactHTMLElement } from "react"
+import React, { HtmlHTMLAttributes, useEffect, useReducer } from "react"
 import Modal from "../ui/modal";
-import Link from "next/link";
 import { MdEditCalendar, MdEvent } from "react-icons/md";
-import EventForm from "../dashboard/event-form";
-import styles from '@/components/styles/styles.module.css';
 import { Button } from "../ui/button";
 import axios, { AxiosResponse } from "axios";
 import { Api } from "@/lib/api";
 import { toast } from "../ui/sonner";
 import { cn } from "@/lib/utils";
+import EventForm from "../dashboard/multistep-form-wizard/event-form-wizard";
+import { useRouter } from "next/navigation";
+import { useAppData } from "@/hooks/useCustomContexts";
+import { fetchEventById } from "@/hooks/useGetEvents";
 
 interface CreateButtonProps extends HtmlHTMLAttributes<HTMLButtonElement> {
     actor: AppUser;
@@ -16,43 +17,60 @@ interface CreateButtonProps extends HtmlHTMLAttributes<HTMLButtonElement> {
     variant?: any;
 }
 const CreateEventForUser: React.FC<CreateButtonProps> = ({ children, className, actor, user, variant, ...props }) => {
-    const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+
+    const [isDialogOpen, toggleDialogOpenState] = useReducer(state => !state, false);
+    const { setPageData } = useAppData();
+
+    const router = useRouter();
 
     const initDialog = () => {
-        setIsDialogOpen(true);
+        toggleDialogOpenState();
     }
 
     const handleClose = () => {
-        setIsDialogOpen(false);
+        toggleDialogOpenState();
     }
 
     const handleSave = () => {
-        setIsDialogOpen(false);
+        toggleDialogOpenState();
     }
 
     const handleSuccess = async (data: Record<string, any>) => {
-        // user.setProperty('eventRef', [data.eventId, ...user.eventRef]);
-        const modUser = Object.defineProperty(user, 'eventRef', [data.eventId, ...user.eventRef]);
-        const url = Api.server + Api.endpoints.admin.singleUser.replace(':id', modUser.id);
-
         try {
-            const post = await axios.patch(url, { eventRef: modUser.eventRef }, {
-                headers: {
-                    Authorization: `Bearer ${actor.token}`
+            const createdEvent = await fetchEventById(data.eventId, true);
+            const url = Api.server + Api.endpoints.admin.singleUser.replace(':id', user.id);
+            const updatedEventRef = [...user.eventRef, data.eventId];
+            toast(`Assigning event to ${user.firstname}`);
+            const post = await axios.patch(
+                url,
+                JSON.stringify({ eventRef: updatedEventRef }),
+                {
+                    headers: {
+                        Authorization: `Bearer ${actor.token}`,
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    }
                 }
-            });
+            );
             if (post.status === 200) {
-                toast('Event added successfully.');
+                toast(<span>Event successfully assigned to {user.firstname}.</span>);
+                createdEvent && setPageData('page_activity', { newEvent: createdEvent });
+                // return location.reload();
+                return true;
             }
+            toggleDialogOpenState();
         } catch (error) {
             toast('Unable to attach event');
             console.error(error);
+            return false;
         }
     }
 
     return (
         <>
             <Modal title="Create Event"
+                open={isDialogOpen}
+                onOpenChange={toggleDialogOpenState}
                 displayText={<Button variant={variant || 'default'} type="button" className={cn(className)} {...props}>
                     {children || 'Create Event'}
                     <MdEditCalendar size={18} /></Button>
@@ -64,15 +82,5 @@ const CreateEventForUser: React.FC<CreateButtonProps> = ({ children, className, 
         </>
     )
 }
-
-
-
-// npm i @cloudinary/url-gen @cloudinary/react
-
-// import {Cloudinary} from "@cloudinary/url-gen";
-
-// const App = () => {
-//   const cld = new Cloudinary({cloud: {cloudName: 'dtuznvywy'}});
-// };
 
 export default CreateEventForUser;

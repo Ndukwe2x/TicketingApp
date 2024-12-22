@@ -4,10 +4,12 @@ import React, { memo, useEffect, useState } from "react";
 import { Card, CardContent } from "../ui/card";
 import { Text } from "../ui/text";
 import { useGetUserTeams } from "@/hooks/useGetUsers";
-import { useGetEventsByIds, useGetEventsByUser } from "@/hooks/useGetEvents";
+import { useGetEventsByUser } from "@/hooks/useGetEvents";
 import Avatar from '@/components/profile/avatar';
-import { formatDate } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
+import { useAppData } from "@/hooks/useCustomContexts";
+import { Skeleton } from "../ui/skeleton";
 
 interface CompProps {
     user: AppUser | UserInfo;
@@ -15,35 +17,69 @@ interface CompProps {
 const ProfileCard: React.FC<React.HTMLAttributes<HTMLDivElement> & CompProps> = ({ user }) => {
 
     const actor = useAuthenticatedUser();
-
-    const [isEventsLoading, events, error] = useGetEventsByUser(user as AppUser, actor as AppUser);
-    const [teams] = useGetUserTeams(user as AppUser, actor as AppUser);
+    const [events, setEvents] = useState<MultipleEvents>([]);
+    const [isEventsLoading, rawEvents, eventsError] = useGetEventsByUser(user as AppUser, actor as AppUser, true);
+    const [isTeamsLoading, teams, teamsError] = useGetUserTeams(user as AppUser, actor as AppUser, true);
     const [teamMembers, setTeamMembers] = useState<AppUser[]>([]);
+    // const [totalEvents, setTotalEvents] = useState<number | string>('Unverified');
+    // const [totalTeamMembers, setTotalTeamMembers] = useState<number | string>('Unverified');
+    const { pageDataBag } = useAppData();
+    const [timestamp, setTimestamp] = useState<number>(Date.now())
 
     useEffect(() => {
-        for (const [key, value] of Object.entries(teams)) {
-            setTeamMembers(state => [...state, ...value]);
+        if (!teams.length) {
+            return;
         }
-    }, [teams])
+        for (const eachTeam of teams) {
+            setTeamMembers(state => [...state, ...eachTeam.teamMembers]);
+        }
+        // setTimestamp(Date.now());
+    }, [teams]);
+
+    useEffect(() => {
+        if (rawEvents.length) {
+            setEvents(rawEvents);
+        }
+    }, [rawEvents]);
+
+    useEffect(() => {
+        if (pageDataBag.page_activity) {
+            const activity = pageDataBag.page_activity;
+            if (activity.newEvent) {
+                setEvents(state => ([activity.newEvent, ...state]));
+            } else if (activity.deletedEvent) {
+                setEvents(state => state.filter(ev => ev._id !== activity.deletedEvent));
+            }
+        }
+    }, [pageDataBag.page_activity])
+
+    // useEffect(() => {
+    //     if (events.length) {
+    //         setTotalEvents(events.length);
+    //     }
+    //     if (teamMembers.length) {
+    //         setTotalTeamMembers(teamMembers.length);
+    //     }
+    // }, [events, teamMembers]);
 
     return (
-        events && !isEventsLoading &&
+        user &&
         <Card>
             <CardContent>
                 <Avatar user={user as AppUser} size={100} className="profile-card-avatar" />
                 <div className='grid grid-cols-2 gap-5'>
                     <div className="flex flex-col items-center">
                         <Text variant='h4' className="responsive-text">Events</Text>
-                        <span className='counter'>{events.length}</span>
+                        <RenderDataCount data={events} isPending={isEventsLoading} isError={eventsError !== null} />
                     </div>
                     <div className="flex flex-col items-center">
                         <Text variant='h4' className="responsive-text">Team Members</Text>
-                        <span>{teamMembers.length}</span>
+                        {actor?.isUser ? (
+                            <RenderDataCount data={teamMembers} isPending={isTeamsLoading} isError={teamsError !== null} />
+                        ) : (
+                            <span className="text-red-800 text-sm">N/A</span>
+                        )}
                     </div>
-                    {/* <div className="flex flex-col items-center">
-                        <Text variant='h4' className="responsive-text">Events</Text>
-                        <span>5</span>
-                    </div> */}
                 </div>
                 <hr className="my-3" />
                 <div>
@@ -72,8 +108,28 @@ const ProfileCard: React.FC<React.HTMLAttributes<HTMLDivElement> & CompProps> = 
                     </div>
                 </div>
             </CardContent>
-        </Card>
+        </Card >
     )
 }
 
-export default memo(ProfileCard);
+export default ProfileCard;
+
+function RenderDataCount(
+    { children, className, data, isPending, isError = false, ...props }:
+        React.HTMLAttributes<HTMLSpanElement> & { data: Record<string, any>[], isPending: boolean, isError?: boolean }) {
+    // const { user } = data as Record<string, AppUser>;
+    // const actor = useAuthenticatedUser();
+    // const [isEventsLoading, events, error] = useGetEventsByUser(user as AppUser, actor as AppUser, true);
+
+    return (
+        isPending ? (
+            <Skeleton className={
+                cn('animate-spin bg-transparent border-b border-l border-t h-3.5 rounded-full w-3.5')
+            } />
+        ) : (
+            <span className={cn('counter text-sm', !data.length ? 'text-red-800' : '')} {...props}>
+                {isError ? 'Unverified' : data.length}
+            </span>
+        )
+    )
+}

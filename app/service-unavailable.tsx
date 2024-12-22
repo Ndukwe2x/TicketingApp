@@ -6,7 +6,7 @@ import { BiGlobe } from 'react-icons/bi';
 
 export default function ServiceUnavailable() {
     return (
-        <div className='h-[90dvh] flex flex-col items-center justify-center gap-2 mx-10'>
+        <div className='min-h-72 flex flex-col items-center justify-center gap-2 mx-10'>
             <BiGlobe size={42} />
 
             <Text variant='h3' className='text-center'>

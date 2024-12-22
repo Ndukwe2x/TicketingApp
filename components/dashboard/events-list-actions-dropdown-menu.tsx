@@ -24,18 +24,20 @@ interface EventsListActionsMenuProps extends HTMLAttributes<HTMLDivElement> {
     onActionSuccess(data: any, action: string): void;
     onActionFailure?(action: string, error?: Error | unknown): void;
 }
-const EventsListActionsDropdownMenu = ({ event, onBeforeAction, onActionSuccess, onActionFailure, ...props }: EventsListActionsMenuProps) => {
-    const [isOpen, setIsOpen] = React.useState(false);
-    const actor = useAuthenticatedUser();
+const EventsListActionsDropdownMenu = React.forwardRef<
+    HTMLDivElement,
+    HTMLAttributes<HTMLDivElement> & EventsListActionsMenuProps>(({ event, onBeforeAction, onActionSuccess, onActionFailure, ...props }, ref) => {
+        const [isOpen, setIsOpen] = React.useState(false);
+        const actor = useAuthenticatedUser();
 
-    return (
-        actor &&
-        <div {...props}>
+        return (
+            actor &&
+            <div {...props} ref={ref}>
                 <DropdownMenu onOpenChange={setIsOpen} open={isOpen}>
                     <DropdownMenuTrigger asChild>
                         <Button variant='ghost' className='h-8 w-8 p-0'>
                             <span className='sr-only'>Open menu</span>
-                            <MdMoreVert className='h-4 w-4' />
+                            <MdMoreVert className='h-4 w-4' fontSize={24} />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align='end'>
@@ -60,18 +62,18 @@ const EventsListActionsDropdownMenu = ({ event, onBeforeAction, onActionSuccess,
                             event={event}
                             actor={actor}
                             variant={null}
-                            onInit={ () => (onBeforeAction && onBeforeAction('delete')) as boolean }
+                            onInit={() => (onBeforeAction && onBeforeAction('delete')) as boolean}
                             onAfterDelete={eventId => { onActionSuccess && onActionSuccess(eventId, 'delete'); setIsOpen(false) }}
                             onFailure={() => onActionFailure && onActionFailure('delete')}
                             className='bg-white shadow-none text-destructive flex justify-between items-center w-full hover:bg-accent px-2 gap-5' />}
                     </DropdownMenuContent>
                 </DropdownMenu>
-        </div>
-    )
-}
+            </div>
+        )
+    });
 
 
-
+EventsListActionsDropdownMenu.displayName = 'EventsListActionsDropdownMenu';
 export default EventsListActionsDropdownMenu;
         // <div>
         //         <CommonDropdownMenu 

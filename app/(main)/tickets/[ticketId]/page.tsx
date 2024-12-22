@@ -2,7 +2,7 @@
 
 import { Api } from "@/lib/api";
 import axios, { AxiosError } from "axios";
-import React, { FormEvent, useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 import html2PDF from "jspdf-html2canvas";
 import { Text } from "@/components/ui/text";
 import TicketSlip from "@/components/ticket-slip";
@@ -11,6 +11,7 @@ import { MdArrowDropDown, MdFileDownload } from "react-icons/md";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 import TicketResendForm from "@/components/dashboard/ticket-resend-form";
+import { usePageHeader } from "@/hooks/usePageHeaderContext";
 
 
 export default function ViewTicket({ params }: { params: { ticketId: string } }) {
@@ -21,6 +22,7 @@ export default function ViewTicket({ params }: { params: { ticketId: string } })
     const [isSendOptionsTrayOpen, toggleSendOptionsTray] = React.useReducer(state => !state, false);
     const actor = useAuthenticatedUser();
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const { pageTitle, setPageTitle, setDocTitle, setIsPageTitleEnabled } = usePageHeader();
 
 
     const fetchTicketEvent = async (url: string, config: {}) => {
@@ -33,7 +35,20 @@ export default function ViewTicket({ params }: { params: { ticketId: string } })
     }
 
 
+    useEffect(() => {
+        if (!ticket) {
+            return;
+        }
+        setPageTitle('Ticket Info');
+        const docTitle = `"${ticket?.ticketCategory}" ticket to ${ticket?.eventTitle}`;
+        setDocTitle(docTitle);
+        return () => { }
+    }, [ticket]);
+
     React.useEffect(() => {
+        if (!actor) {
+            return;
+        }
         const fetchTicketData = async (url: string, actor: AppUser) => {
             setIsLoading(true);
             const config = {
@@ -64,10 +79,9 @@ export default function ViewTicket({ params }: { params: { ticketId: string } })
         }
         let url: string = [Api.server, Api.endpoints.admin.searchTickets, '?referenceNo=', ticketId].join('');
 
-        if (actor != null) {
-            fetchTicketData(url, actor);
-        }
-    }, [actor, ticketId]);
+        fetchTicketData(url, actor);
+        return () => { }
+    }, [actor, ticketId, setPageTitle]);
 
 
     const cardRef = React.useRef<HTMLDivElement>(null);
@@ -77,7 +91,7 @@ export default function ViewTicket({ params }: { params: { ticketId: string } })
         html2PDF(cardRef.current, {
             jsPDF: {
                 unit: 'in',
-                format: 'letter',
+                format: 'legal',
                 orientation: 'portrait',
             },
             html2canvas: {
@@ -88,14 +102,15 @@ export default function ViewTicket({ params }: { params: { ticketId: string } })
         });
     }, [ticket, event]);
 
-
     return (
         <>
-            <div className='flex flex-col gap-5'>
+            <div className='mt-10 flex flex-col gap-5'>
                 {
                     ticket && event &&
                     <div className='grid lg:grid-cols-[3fr_2fr] gap-7'>
                         <div id="ticket-info">
+                            <Text variant='h3'>{`"${ticket.ticketCategory}" ticket to`}</Text>
+                            <Text variant='h1' className="mb-5">{`${ticket.eventTitle}`}</Text>
                             <Card>
                                 <CardHeader>Details</CardHeader>
                                 <CardContent>

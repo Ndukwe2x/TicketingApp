@@ -13,7 +13,7 @@ import RenderPrettyError from "../render-pretty-error";
 const MyTickets: React.FC<HtmlHTMLAttributes<HTMLDivElement> & { layout: string; isFilteringEnabled: boolean; filterParams: string[] }> = ({ children, layout, isFilteringEnabled = false, filterParams = [], ...props }) => {
     const actor = useAuthenticatedUser();
 
-    const [isLoading, userTickets, error] = useGetTicketSales(actor as AppUser);
+    const [isLoading, userTickets, error] = useGetTicketSales(actor as AppUser, undefined, true);
     const [tickets, setTickets] = useState<Ticket[]>([]);
     const [fallback, setFallback] = useState(<div className="text-center">Fetching tickets, please wait...</div>);
 
@@ -25,7 +25,6 @@ const MyTickets: React.FC<HtmlHTMLAttributes<HTMLDivElement> & { layout: string;
             setFallback(<RenderPrettyError error={error} />);
             return;
         }
-
         if (userTickets.length < 1) {
             setFallback(<div className="text-center">No tickets to show</div>);
             return;
@@ -59,7 +58,11 @@ const MyTickets: React.FC<HtmlHTMLAttributes<HTMLDivElement> & { layout: string;
                             </colgroup>
                         </DataTable>
                     ) : (
-                        <DataGrid Template={TicketGridTemplate} data={tickets} columnRule={{ sm: 2, md: 2, lg: 3, xl: 3 }} fallback="Loading..." />
+                        <DataGrid
+                            Template={TicketGridTemplate}
+                            data={tickets}
+                            columnRule={{ sm: 2, md: 2, lg: 3, xl: 3, xxl: undefined }}
+                            fallback="Loading..." />
                     )
             ) : (
                 fallback

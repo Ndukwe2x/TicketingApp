@@ -15,7 +15,7 @@ type PaginationResult<T> = {
 };
 
 function usePagination<T>(data: T[], options: PaginationOptions = {}): PaginationResult<T> {
-    const { itemsPerPage = 10 } = options;
+    const { itemsPerPage = 12 } = options;
     const [currentPage, setCurrentPage] = useState(1);
 
     // Calculate the total number of pages

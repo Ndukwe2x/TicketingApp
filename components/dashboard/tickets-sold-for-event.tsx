@@ -1,18 +1,21 @@
-import React, { HtmlHTMLAttributes, useCallback, useEffect, useState } from "react";
+import React, { HtmlHTMLAttributes, ReactNode, useCallback, useEffect, useState } from "react";
 import { useGetTicketSales } from "@/hooks/useGetEvents";
 import { DataTable } from "../ui/data-table";
 import { columns } from "./table-columns/sales";
 import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
+import RenderPrettyError from "../render-pretty-error";
 
 const TicketsSoldForEvent: React.FC<HtmlHTMLAttributes<HTMLDivElement> &
 { event: SingleEvent & { ticketsSold: Ticket[] | [] } }> = ({ children, className, event }) => {
     const actor = useAuthenticatedUser();
-    const [fallback, setFallback] = useState('Fetching tickets, please wait. This may take a moment...');
-    const [isLoading, tickets, error] = useGetTicketSales(actor as AppUser, event);
+    const [fallback, setFallback] = useState<ReactNode>('Fetching tickets, please wait. This may take a moment...');
+    const [isLoading, tickets, error] = useGetTicketSales(actor as AppUser, event, true);
 
     useEffect(() => {
         if (error) {
-            setFallback('Unable to fetch tickets, something went wrong');
+            setFallback(
+                <RenderPrettyError error={error} />
+            );
             return;
         }
         if (!isLoading && tickets.length == 0) {

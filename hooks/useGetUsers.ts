@@ -7,8 +7,11 @@ import { orderByDate } from "@/lib/utils";
 import { getCookie } from "cookies-next";
 import { cookieOptions } from "@/lib/app-config";
 
-const getCookieUser = (): AppUser => {
+const getCookieUser = (): AppUser | null => {
     const cookie: string = getCookie('app_user', { ...cookieOptions, maxAge: undefined, expires: undefined }) as string;
+    if (!cookie) {
+        return null;
+    }
     const loggedUser: UserInfo = JSON.parse(cookie);
     return new UserClass(loggedUser);
 }
@@ -214,7 +217,7 @@ const getAuthenticatedUserFullData = async (email: string, token: string): Promi
             user = result.data.accounts.shift() || null;
         }
     } catch (error) {
-        console.log(error)
+        console.error(error)
     }
 
     return user;
@@ -259,42 +262,32 @@ const useGetUserTeams = (user: AppUser | null, actor: AppUser | null, ignoreErro
     const [error, setError] = useState<any>(null);
 
     const fetchTeams = async (userId: string, actor: AppUser) => {
-        const userEvents = await fetchUserEvents(userId, actor) as any;
-        if (userEvents instanceof Error) {
-            setError(userEvents);
-            setIsLoading(false);
-            return;
-        }
-        if (!userEvents?.length) {
-            setIsLoading(false);
-            return;
-        }
-        const eventIds: string[] = userEvents.map((event: SingleEvent) => event._id);
-
-        // const fetchUsersByEventId = async (eventId: string) => {
-        //     const url = Api.server + Api.endpoints.admin.search + '?eventRef=' + eventId;
-        //     const res = await axios.get(url, {
-        //         headers: {
-        //             Authorization: `Bearer ${actor?.token}`
-        //         }
-        //     });
-        //     const data = res.data.data || {};
-        //     return { [eventId]: data.accounts || [] };
-        // }
-
         try {
+            const userEvents: MultipleEvents = await fetchUserEvents(userId, actor, ignoreError);
+            if (!userEvents?.length) {
+                setIsLoading(false);
+                return;
+            }
+            const eventIds: string[] = userEvents.map((event) => event._id);
             const batchResponse = await Promise.all(eventIds.map(
                 async id => {
-                    return { [id]: await fetchUsersByEventId(id, actor as AppUser) };
+                    const usersByEvent = await fetchUsersByEventId(id, actor as AppUser);
+                    // const classifiedUsers: AppUser[] = usersByEvent.map(user => new UserClass(user));
+                    const filteredUsers = usersByEvent.filter(
+                        theUser => actor.isUser && theUser.id !== userId
+                    );
+                    return { [id]: filteredUsers };
                 }
             ));
-            batchResponse.forEach((data) => {
+            batchResponse.forEach(data => {
                 for (const [key, value] of Object.entries(data)) {
-                    setTeams(state => ([...state, {
+                    const teams = {
                         eventId: key,
-                        eventTitle: (userEvents.find((ev: SingleEvent) => ev._id === key)).title,
+                        eventTitle: (userEvents.find(ev => ev._id === key))?.title,
                         teamMembers: value
-                    }]));
+                    };
+
+                    setTeams(state => ([...state, teams]));
                 }
             })
         } catch (err) {

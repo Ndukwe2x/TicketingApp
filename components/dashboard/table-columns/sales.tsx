@@ -89,29 +89,29 @@ export const columns: ColumnDef<Ticket>[] = [
             const ticket = row.original;
 
             return (
-                <div id={`ticket_${ticket._id}`} className='flex gap-3 items-center justify-between px-2'>
+                <div id={`tkt_${ticket._id}`} className='flex gap-3 items-center justify-between px-2'>
                     <Link href={`/tickets/${ticket.referenceNo}/`}
                         className={cn('border border-primary flex flex-row gap-1.5 hover:bg-primary',
                             'hover:text-primary-foreground md:px-2 md:py-1 px-1.5 py-1 h-9',
                             'rounded-md text-primary whitespace-nowrap shadow items-center')}>
-                        <span className='sr' aria-description='View ticket'>View</span>
+                        <span className='sr' aria-label='View ticket'>View</span>
                         <FiEye size={20} />
                     </Link>
                     <SendTicketToCustomer ticketId={ticket._id} variant={null}
                         className={cn('border flex flex-row gap-1.5 bg-white hover:bg-secondary',
                             'hover:text-secondary-foreground items-center md:px-2 md:py-1 px-1.5 py-1 ',
                             'rounded-md text-foreground whitespace-nowrap')}>
-                        <span className='sr' aria-description='Send ticket to customer'>Send</span>
+                        <span className='sr' aria-label='Send ticket to customer'>Send</span>
                     </SendTicketToCustomer>
                     <DeleteTicket ticketId={ticket._id}
-                        onPending={() => handlePendingDeleteState(`#ticket_${ticket._id}`)}
-                        onSuccess={data => handleDeleteSuccessStat(data, `#ticket_${ticket._id}`)}
-                        onFailure={error => handleDeleteFailure(error, `#ticket_${ticket._id}`)}
+                        onPending={() => handlePendingDeleteState(`#tkt_${ticket._id}`)}
+                        onSuccess={data => handleDeleteSuccessState(data, `#tkt_${ticket._id}`)}
+                        onFailure={error => handleDeleteFailure(error, `#tkt_${ticket._id}`)}
                         variant={null}
                         className={cn('border border-destructive flex flex-row gap-1.5 bg-destructive',
                             'hover:bg-accent-destructive text-white items-center md:px-2 md:py-1 px-1.5 py-1 ',
                             'rounded-md text-white whitespace-nowrap')}>
-                        <span className='sr' aria-description='Delete Ticket'>Delete</span>
+                        <span className='sr' aria-label='Delete Ticket'>Delete</span>
                     </DeleteTicket>
                 </div>
             )
@@ -128,7 +128,7 @@ const handlePendingDeleteState = (rowFinder: string) => {
     row.ariaDisabled = 'true';
 }
 
-const handleDeleteSuccessStat = (data: any, rowFinder: string) => {
+const handleDeleteSuccessState = (data: any, rowFinder: string) => {
     const row = document.querySelector(rowFinder)?.closest('tr');
     if (!row) {
         return;

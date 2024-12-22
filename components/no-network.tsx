@@ -9,6 +9,7 @@ interface NetworkErrorProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 const NoNetwork: React.FC<NetworkErrorProps> = ({ children, className, showRefreshButton = true, ...props }) => {
     const router = useRouter();
+
     return (
         <div className={cn('flex flex-col gap-2 items-center justify-center responsive-text-2 text-muted-foreground ' + (className || ''))} {...props}>
             <MdSignalWifiConnectedNoInternet0 size={85} />
@@ -16,7 +17,7 @@ const NoNetwork: React.FC<NetworkErrorProps> = ({ children, className, showRefre
                 {children || <p className="text-center">Sorry, it appears you are offline. <br />Please check your internet connection and refresh the page.</p>}
             </div>
             {
-                showRefreshButton && <Button type="button" onClick={() => { location.reload() }}>Refresh</Button>
+                showRefreshButton && <Button type="button" onClick={() => { router.refresh() }}>Refresh</Button>
             }
         </div>
     )

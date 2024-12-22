@@ -1,4 +1,4 @@
-import React, { HtmlHTMLAttributes, MouseEvent, MouseEventHandler } from "react";
+import React, { HtmlHTMLAttributes, MouseEvent, MouseEventHandler, useState } from "react";
 import { Button } from "../../ui/button";
 import { cn } from "@/lib/utils";
 import { BiTrash } from "react-icons/bi";
@@ -18,20 +18,23 @@ const DeleteTicket: React.FC<HtmlHTMLAttributes<HTMLButtonElement> & {
     children, className, ticketId, variant, onPending, onSuccess, onFailure, ...props
 }) => {
         const actor = useAuthenticatedUser();
+        const [isPending, setIsPending] = useState(false);
 
         const handleDelete: React.MouseEventHandler<HTMLButtonElement> = async (ev: MouseEvent) => {
             if (!ev.isDefaultPrevented()) {
                 ev.preventDefault();
                 ev.stopPropagation();
             }
+            setIsPending(true);
             if (!confirm('Are you sure you want to delete this ticket?')) {
                 return;
             }
             toast(<div className="text-destructive">Deleting ticket</div>)
-            onPending && onPending(null);
-
+            onPending && onPending();
             const url = Api.server + Api.endpoints.admin.singleTicket.replace(':id', ticketId);
+
             try {
+                onSuccess && onSuccess({ ticketId: ticketId });
                 const response = await axios.delete(url, {
                     headers: { Authorization: `Bearer ${actor?.token}` }
                 });

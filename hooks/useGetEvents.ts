@@ -95,7 +95,7 @@ export const decorateTickets = async (tickets: Tickets | []) => {
     return decoratedTickets.filter(ticket => ticket.eventTitle != null);
 };
 
-export const fetchEventTickets = async (eventId: string, actor: AppUser): Promise<Tickets | []> => {
+export const fetchEventTickets = async (eventId: string, actor: AppUser, ignoreError: boolean = false): Promise<Tickets | []> => {
     let url = [Api.server, Api.endpoints.admin.searchTickets, '?eventRef=', eventId].join('');
 
     const options = {
@@ -107,23 +107,26 @@ export const fetchEventTickets = async (eventId: string, actor: AppUser): Promis
     // if (preflightRes.status !== 200) {
     //     return [];
     // }
-    const res = await axios.get(url, options);
-    // if (res.status !== 200) {
-    //     return [];
-    // }
-    const data = res.data.data || {};
-    let tickets: Tickets | [] = data.tickets || [];
+    try {
+        const res = await axios.get(url, options);
+        const data = res.data.data || {};
+        let tickets: Tickets | [] = data.tickets || [];
 
-    if (tickets.length) {
-        // tickets = decorate ? await decorateTickets(tickets) : tickets;
+        if (tickets.length) {
+            // tickets = decorate ? await decorateTickets(tickets) : tickets;
 
-        tickets = (orderByDate(
-            (tickets as unknown) as { key: string, value: string }[],
-            'dateOfPurchase', 'asc'
-        ) as unknown) as Tickets;
+            tickets = (orderByDate(
+                (tickets as unknown) as { key: string, value: string }[],
+                'dateOfPurchase', 'asc'
+            ) as unknown) as Tickets;
+        }
+        return tickets;
+    } catch (error) {
+        if (ignoreError) {
+            return [];
+        }
+        throw error;
     }
-
-    return tickets;
 }
 
 /**
@@ -262,15 +265,26 @@ export const useGetEventsWithoutAuthorization = (): [isLoading: boolean, events:
 /**
  * Fetch all events belonging to a particular user
  * 
- * @param theUser `AppUser` The user who's events are to be fetched
+ * @param theUser AppUser The user who's events are to be fetched
  * @param actor `AppUser` The current user of the application
+ * @param ignoreFetchError A boolean option that specifies whether the hook
+ * should proceed or abort if an error occurs in the process.
+ * @param deps A list of dependencies that could force the hook to rerun. 
+ * The deps array is parsed to the useEffect hook deps array.
  * @returns Returns an array of `SingleEvent` on success and an empty array `[]` otherwise 
  */
-export const useGetEventsByUser = (theUser: AppUser, actor: AppUser, ignoreFetchError: boolean = false): [
-    isLoading: boolean,
-    events: MultipleEvents | [],
-    error: any
-] => {
+export const useGetEventsByUser = (
+    theUser: AppUser,
+    actor: AppUser,
+    ignoreFetchError: boolean = false,
+    deps: unknown[] = [],
+    onSuccess?: Callback,
+    onFailure?: Callback,
+): [
+        isLoading: boolean,
+        events: MultipleEvents | [],
+        error: any
+    ] => {
     const [isLoading, setIsLoading] = useState(true);
     const [events, setEvents] = useState<MultipleEvents>([]);
     const [error, setError] = useState<any>(null);
@@ -282,12 +296,16 @@ export const useGetEventsByUser = (theUser: AppUser, actor: AppUser, ignoreFetch
         }
 
         (async () => {
+            // setIsLoading(true);
+            // setEvents([]);
+            // setError(null);
             try {
-                const fetchedEvents = await fetchUserEvents(theUser.id, actor, ignoreFetchError);
+                let fetchedEvents = await fetchUserEvents(theUser.id, actor, ignoreFetchError);
                 if (fetchedEvents instanceof Array) {
-                    if ([...fetchedEvents].shift()?._id) {
-                        setEvents(fetchedEvents);
+                    if (onSuccess) {
+                        fetchedEvents = onSuccess(fetchedEvents);
                     }
+                    setEvents(fetchedEvents);
                 }
             } catch (err) {
                 console.error(err);
@@ -300,8 +318,11 @@ export const useGetEventsByUser = (theUser: AppUser, actor: AppUser, ignoreFetch
         return function cleanup() {
 
         }
-    }, [theUser, actor, setError, setEvents]);
+    }, [theUser, actor, ...deps]);
 
+    // useEffect(() => { 
+
+    // }, deps);
 
     return [isLoading, events, error];
 }
@@ -351,55 +372,57 @@ export const useGetEventsByIds = (eventIds: string[], actor: AppUser): [
     return [isLoading, events, error];
 }
 
-export const useGetTicketSales = (actor: AppUser, event?: SingleEvent, ignoreError: boolean = false):
+export const useGetTicketSales = (targetUser: AppUser, event?: SingleEvent, ignoreError: boolean = false):
     [
         isLoading: boolean,
         tickets: Tickets | [],
         error: any
     ] => {
 
+    const actor = useAuthenticatedUser();
     const [tickets, setTickets] = useState<Tickets | []>([]);
     const [error, setError] = useState<any>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        if (actor === null) {
+        if (!actor || !targetUser) {
             return;
         }
 
         const fetchTickets = async () => {
             try {
-                // let eventIds: string[] = [];
-                // if (event) {
-                //     eventIds.push(event._id);
-                // } else {
-                //     const userEvents = await fetchUserEvents(actor.id, actor, true);
-                //     if (!userEvents.length) {
-                //         setIsLoading(false);
-                //         return;
-                //     }
-                //     // eventIds = [...eventIds, ...actor.eventRef];
-                //     eventIds = userEvents.map(event => event._id);
-                // }
+                let eventIds: string[] = [];
+                if (event) {
+                    eventIds.push(event._id);
+                } else {
+                    const userEvents = await fetchUserEvents(targetUser.id, actor, true);
+                    if (!userEvents.length) {
+                        setIsLoading(false);
+                        return;
+                    }
+                    // eventIds = [...eventIds, ...actor.eventRef];
+                    eventIds = userEvents.map(event => event._id);
+                }
 
-                // let allTickets: any[] = [];
-                // if (eventIds.length) {
-                //     const eventsTickets: Tickets[] | [] = await Promise.all(
-                //         eventIds.map(async eventId => {
-                //             return await fetchEventTickets(eventId, actor);
-                //         })
-                //     );
+                let allTickets: any[] = [];
+                if (eventIds.length) {
+                    const eventsTickets: Tickets[] | [] = await Promise.all(
+                        eventIds.map(async eventId => {
+                            return await fetchEventTickets(eventId, actor, ignoreError);
+                        })
+                    );
 
-                //     for (const eventTickets of eventsTickets) {
-                //         for (const eventTicket of eventTickets) {
-                //             allTickets.push(eventTicket);
-                //         }
-                //     }
-                // } else if (actor.isOwner) {
+                    for (const eventTickets of eventsTickets) {
+                        for (const eventTicket of eventTickets) {
+                            allTickets.push(eventTicket);
+                        }
+                    }
+                }
+                // else if (actor.isOwner) {
                 //     allTickets = await fetchUserTickets(actor);
                 // }
-                const userTickets = await fetchUserTickets(actor);
-                setTickets(userTickets);
+                // const userTickets = await fetchUserTickets(actor);
+                setTickets(allTickets);
             } catch (err) {
                 setError(err);
                 console.error(err);

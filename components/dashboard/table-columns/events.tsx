@@ -7,6 +7,7 @@ import { Text } from '@/components/ui/text';
 import CountTicketsSoldForEvent from '../count-tickets-sold-for-event';
 import EventsListActionsDropdownMenu from '../events-list-actions-dropdown-menu';
 import generateRandomString from '@/lib/random-string-generator';
+import { useAppData } from '@/hooks/useCustomContexts';
 
 export const columns: ColumnDef<SingleEvent>[] = [
     {
@@ -112,14 +113,17 @@ export const columns: ColumnDef<SingleEvent>[] = [
         cell: ({ row }) => {
             const event = row.original;
             const actionMenuId = 'eve-' + generateRandomString(32, 'alphanumeric', false);
-
+            // const { setPageData } = useAppData();
             return (
                 <EventsListActionsDropdownMenu
                     id={actionMenuId}
                     event={event}
                     onBeforeAction={action => handleBeforeAction(action, actionMenuId)}
                     onActionSuccess={
-                        (eventId, action) => handleActionSuccess(eventId, action, actionMenuId)
+                        (eventId, action) => {
+                            handleActionSuccess(eventId, action, actionMenuId);
+                            // setPageData('page_activity', { deletedEvent: eventId })
+                        }
                     }
                     onActionFailure={(action, error) => handleActionFailure(action, actionMenuId, error)} />
             );
@@ -159,9 +163,6 @@ function handleActionSuccess(response: any, action: string, menuId: string): voi
                 }, 1000);
             }).then(() => {
                 row.remove();
-                // popper?.remove();
-                // document.body.removeAttribute('data-scroll-locked');
-                // document.body.style.pointerEvents = 'auto';
             });
             break;
 

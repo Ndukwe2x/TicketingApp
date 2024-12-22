@@ -207,7 +207,7 @@ type NewlyCreatedUserAccountData = {
     status: string
 }
 
-type Callback = (param: Any, ...rest: any[]) => void;
+type Callback = <T, TNext = any> (param?: T, ...rest: TNext[]) => any;
 
 interface CloudinaryUploadResponseData {
     asset_id: string;
@@ -318,18 +318,44 @@ type GridComponentOptions<TData> = {
     state: {},
 }
 
+interface TempImagesProps {
+    eventBanner?: Partial<ImageInfo>;
+    posters?: Partial<ImageInfo>[];
+};
+
+interface SelectedUploadFilesProps {
+    banner?: File,
+    posters?: File[]
+}
+
+interface UploadResponseDataProps {
+    banner?: Partial<CloudinaryUploadResponseData>;
+    posters?: Partial<CloudinaryUploadResponseData>[];
+}
+
 interface PageHeaderContextType {
     pageTitle: string | null | undefined;
     setPageTitle: (title: string | null) => void;
+    docTitle: string | null | undefined;
+    setDocTitle: (title: string | null) => void;
     isPageTitleEnabled: boolean;
     setIsPageTitleEnabled: (option: boolean) => void;
     widget: React.ReactNode;
     setWidget: (widget: React.ReactNode) => void;
 }
 
-interface FormDataContextType {
-    formData: Record<string, any>;
-    setFormData: React.Dispatch<React.SetStateAction<Record<string, any>>>;
+interface EventFormDataContextType {
+    formData: SingleEvent | Record<string, any>;
+    updateFormData?: (data: Record<string, any> | Callback) => void;
+    posterPreviewList?: ImageInfo[];
+    updatePosterPreviewList?: (data: ImageInfo | ImageInfo[], overwrite?: boolean) => void;
+    tempImages?: TempImagesProps;
+    updateTempImages?: (data: TempImagesProps) => void;
+    filesToUpload?: SelectedUploadFilesProps;
+    updateFilesToUpload?: (data: SelectedUploadFilesProps) => void;
+    onPending?: Callback;
+    onSuccess?: Callback;
+    onFailure?: Callback;
 }
 
 type TypeOfFormControl = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
@@ -341,3 +367,16 @@ interface ToggleViewProps {
     setExternalViewType: React.Dispatch<React.SetStateAction<ViewType>>;
 }
 
+interface MultistepFormWizardStepProps {
+    prevStep: () => void;
+    nextStep: () => void;
+}
+
+interface AppDataState {
+    globalDataBag: Record<string, any>;
+    pageDataBag: Record<string, Record<string, any>>;
+}
+interface AppDataContextProps extends AppDataState {
+    setGlobalData: (data: Record<string, any>) => void;
+    setPageData: (page: string, data: Record<string, any>) => void;
+}
