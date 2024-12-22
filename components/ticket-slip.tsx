@@ -14,7 +14,7 @@ const TicketSlip = ({ ticket, event, cardRef }: { ticket: Ticket; event: SingleE
     })(event, ticket);
 
     return (
-        <Card className='w-min max-w-96 rounded-none'>
+        <Card className='w-auto max-w-96 rounded-none'>
             <div ref={cardRef}>
                 <CardHeader className='relative h-44 overflow-hidden'>
                     <Image src={event.eventBanner.url} alt={event.title} fill objectFit='cover' />
@@ -24,8 +24,8 @@ const TicketSlip = ({ ticket, event, cardRef }: { ticket: Ticket; event: SingleE
                         {event.title}
                     </Text>
 
-                    <div className='flex gap-3'>
-                        <div>
+                    <div className='flex flex-col gap-5'>
+                        <div className="flex gap-5 items-start">
                             <div className='flex items-start gap-1'>
                                 <MdEvent className='text-4xl -ml-1' />
                                 <span className='flex items-start gap-2'>

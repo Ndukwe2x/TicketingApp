@@ -336,6 +336,8 @@ interface UploadResponseDataProps {
 interface PageHeaderContextType {
     pageTitle: string | null | undefined;
     setPageTitle: (title: string | null) => void;
+    docTitle: string | null | undefined;
+    setDocTitle: (title: string | null) => void;
     isPageTitleEnabled: boolean;
     setIsPageTitleEnabled: (option: boolean) => void;
     widget: React.ReactNode;

@@ -47,7 +47,7 @@ const RenderEventBanner: React.FC<HTMLAttributes<HTMLImageElement> & { imgSrc: s
 
     return (
         <React.Fragment>
-            {isLoading && <ImageSkeleton className={className} width={mediaWidth} height={mediaHeight} />}
+            {(isLoading || isError) && <ImageSkeleton className={className} width={mediaWidth} height={mediaHeight} />}
             <NextImage.default ref={mediaRef} src={imgSrc + `?t=${Date.now()}`}
                 alt={imgAltText}
                 width={mediaWidth} height={mediaHeight}
@@ -58,12 +58,12 @@ const RenderEventBanner: React.FC<HTMLAttributes<HTMLImageElement> & { imgSrc: s
                 onError={handleLoadError}
                 unoptimized={true}
                 {...props} />
-            {isError && (
+            {/* {isError && (
                 <span className="absolute text-center top-1/2 flex flex-col items-center">
                     <MdSignalWifiConnectedNoInternet0 size={60} />
                     Unable to load image. Please check your connection and/or refresh the page.
                 </span>
-            )}
+            )} */}
         </React.Fragment>
     )
 }

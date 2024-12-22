@@ -2,12 +2,12 @@ import React, { FormEvent, FormEventHandler, useEffect, useRef, useState } from 
 import { Api } from "@/lib/api";
 import Step1 from "./step1";
 import Step2 from "./step2";
-import { EventFormDataProvider } from "@/app/providers/event-form-data-provider";
 import Step3 from "./step3";
 import Step4 from "./step4";
 import Step5 from "./step5";
 import Summary from "./summary";
 import { useAppData } from "@/hooks/useCustomContexts";
+import { EventFormDataProvider } from "@/app/providers/event-form-data-provider";
 
 const RenderPage: React.FC<MultistepFormWizardStepProps & {
     pageId: number;

@@ -2,7 +2,7 @@
 
 import { Api } from "@/lib/api";
 import axios, { AxiosError } from "axios";
-import React, { FormEvent, useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 import html2PDF from "jspdf-html2canvas";
 import { Text } from "@/components/ui/text";
 import TicketSlip from "@/components/ticket-slip";
@@ -22,7 +22,7 @@ export default function ViewTicket({ params }: { params: { ticketId: string } })
     const [isSendOptionsTrayOpen, toggleSendOptionsTray] = React.useReducer(state => !state, false);
     const actor = useAuthenticatedUser();
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const { pageTitle, setPageTitle } = usePageHeader();
+    const { pageTitle, setPageTitle, setDocTitle, setIsPageTitleEnabled } = usePageHeader();
 
 
     const fetchTicketEvent = async (url: string, config: {}) => {
@@ -35,9 +35,17 @@ export default function ViewTicket({ params }: { params: { ticketId: string } })
     }
 
 
-    React.useEffect(() => {
+    useEffect(() => {
+        if (!ticket) {
+            return;
+        }
         setPageTitle('Ticket Info');
+        const docTitle = `"${ticket?.ticketCategory}" ticket to ${ticket?.eventTitle}`;
+        setDocTitle(docTitle);
+        return () => { }
+    }, [ticket]);
 
+    React.useEffect(() => {
         if (!actor) {
             return;
         }
@@ -72,6 +80,7 @@ export default function ViewTicket({ params }: { params: { ticketId: string } })
         let url: string = [Api.server, Api.endpoints.admin.searchTickets, '?referenceNo=', ticketId].join('');
 
         fetchTicketData(url, actor);
+        return () => { }
     }, [actor, ticketId, setPageTitle]);
 
 
@@ -95,11 +104,13 @@ export default function ViewTicket({ params }: { params: { ticketId: string } })
 
     return (
         <>
-            <div className='flex flex-col gap-5'>
+            <div className='mt-10 flex flex-col gap-5'>
                 {
                     ticket && event &&
                     <div className='grid lg:grid-cols-[3fr_2fr] gap-7'>
                         <div id="ticket-info">
+                            <Text variant='h3'>{`"${ticket.ticketCategory}" ticket to`}</Text>
+                            <Text variant='h1' className="mb-5">{`${ticket.eventTitle}`}</Text>
                             <Card>
                                 <CardHeader>Details</CardHeader>
                                 <CardContent>

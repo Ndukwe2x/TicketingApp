@@ -8,10 +8,16 @@ import Link from "next/link";
 import React from "react";
 import { FiEye } from "react-icons/fi";
 import RenderEventBanner from "../render-event-banner";
+import { useGetEventById } from "@/hooks/useGetEvents";
+import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
+import { getCookieUser } from "@/hooks/useGetUsers";
 
 
+// const user: AppUser = getCookieUser();
 const TicketGridTemplate: React.FC<{ data: Ticket }> = ({ data }) => {
+    const actor = useAuthenticatedUser();
     const ticket: Ticket = { ...data };
+    const [eventLoading, event, eventError] = useGetEventById(ticket.eventRef, actor as AppUser);
     const mediaHeight = '14.270625rem';
     const mediaBox = {
         height: mediaHeight,
@@ -26,8 +32,8 @@ const TicketGridTemplate: React.FC<{ data: Ticket }> = ({ data }) => {
                     <GridCardHeader className="p-0">
                         <div style={mediaBox} className="relative">
                             <RenderEventBanner
-                                imgSrc={ticket.event?.eventBanner.url as string}
-                                imgAltText={ticket.event?.title as string}
+                                imgSrc={event?.eventBanner.url as string}
+                                imgAltText={event?.title as string}
                                 className="card-img" />
                         </div>
 

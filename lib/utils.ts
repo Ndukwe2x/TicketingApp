@@ -240,15 +240,52 @@ function copyLink(link: string) {
 function parseFileToDataUri(
     file: File,
     options?: {
-        minSize?: number | string,
-        maxSize?: number | string,
-    },
-    sizeUnit?: 'KB' | 'MB' | 'GB' | 'TB'
+        minSize?: {
+            size: number;
+            unit: string
+        };
+        maxSize?: {
+            size: number;
+            unit: string
+        }
+    }
 ): Promise<string> {
-    return new Promise((resolve, reject) => {
-        if (options) {
-            const { minSize, maxSize } = options;
+    const checkFileSize = () => {
+        let isTooSmall: boolean = false;
+        let isTooLarge: boolean = false;
 
+        if (options) {
+            const {
+                minSize = { size: 5, unit: 'KB' },
+                maxSize = { size: 5, unit: 'MB' }
+            } = options;
+
+            const minSizeInBytes = minSize.unit === 'KB'
+                ? minSize.size * 1024
+                : minSize.size * 1024 * 1024;
+            const maxSizeInBytes = maxSize.unit === 'KB'
+                ? maxSize.size * 1024
+                : maxSize.size * 1024 * 1024;
+
+            if (file.size < minSizeInBytes) {
+                isTooSmall = true;
+            }
+            if (file.size > maxSizeInBytes) {
+                isTooLarge = true;
+            }
+        }
+
+        return { isTooSmall, isTooLarge };
+    }
+
+    return new Promise((resolve, reject) => {
+        const fileSize = checkFileSize();
+        if (fileSize.isTooSmall) {
+            reject(new Error('File size smaller than ' + (options?.minSize ?? '5KB')));
+            return;
+        } else if (fileSize.isTooLarge) {
+            reject(new Error('File size larger than ' + (options?.maxSize ?? '5MB')));
+            return;
         }
         const reader = new FileReader();
         reader.onload = () => {
@@ -258,6 +295,7 @@ function parseFileToDataUri(
                 reject(new Error('Failed to read data from file.'));
             }
         };
+
         reader.onerror = (error) => {
             reject(error);
         };
@@ -348,6 +386,8 @@ declare global {
     interface String {
         stripSpecialChar(replacement?: string, ignore?: string): string;
         truncateAt(length: number): string;
+        isNumeric(this: string): boolean;
+        isAlphanumeric(this: string): boolean;
 
     }
 }
@@ -402,3 +442,11 @@ String.prototype.stripSpecialChar = function (replacement: string = '', ignore: 
 String.prototype.truncateAt = function (length: number) {
     return this.substring(0, length);
 }
+
+String.prototype.isNumeric = function (): boolean {
+    return /^[0-9]+$/.test(this);
+};
+
+String.prototype.isAlphanumeric = function (): boolean {
+    return /^[a-zA-Z0-9]+$/.test(this);
+};

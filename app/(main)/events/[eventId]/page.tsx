@@ -26,6 +26,7 @@ import RenderPrettyError from '@/components/render-pretty-error';
 import { useDeviceDetector, useMediaQuery } from '@/hooks/useMediaQuery';
 import { useRouter } from 'next/navigation';
 import { toast } from '@/components/ui/sonner';
+import { APPCONFIG } from '@/lib/app-config';
 
 export default function ViewEvent({ params }: { params: { eventId: string } }) {
     const actor = useAuthenticatedUser();
@@ -35,11 +36,6 @@ export default function ViewEvent({ params }: { params: { eventId: string } }) {
     const [teamFallback, setTeamFallback] = useState('Loading team, please wait...');
     const { setPageTitle, setIsPageTitleEnabled, setWidget } = usePageHeader();
     const router = useRouter();
-
-    // const isMobile = useMediaQuery('(min-width:320px)');
-    // const isTablet = useMediaQuery('(min-width:768px)');
-    // const isDesktop = useMediaQuery('(min-width:1024px)');
-    // const isLargeDesktop = useMediaQuery('(min-width:1200px)');
 
     const {
         isMobile,
@@ -52,6 +48,12 @@ export default function ViewEvent({ params }: { params: { eventId: string } }) {
         toast(<div className='text-primary'>Redirecting you, please wait...</div>);
         router.push('/events')
     }
+    useEffect(() => {
+        if (!event) {
+            return;
+        }
+        document.title = event.title + ' - ' + APPCONFIG.title;
+    }, [event]);
 
     useEffect(() => {
         if (teamError) {
@@ -59,7 +61,7 @@ export default function ViewEvent({ params }: { params: { eventId: string } }) {
         } else if (!(teamLoading && organizingTeam?.length)) {
             setTeamFallback('No team memebers found.');
         }
-        // setIsPageTitleEnabled && setIsPageTitleEnabled(false);
+        setIsPageTitleEnabled && setIsPageTitleEnabled(false);
         setPageTitle(null);
 
         if (!eventLoading && !eventError) {
@@ -96,8 +98,7 @@ export default function ViewEvent({ params }: { params: { eventId: string } }) {
         actor,
         eventLoading,
         eventError,
-        event,
-        handleDeleteSuccess
+        event
     ]);
 
     if (eventError) {
@@ -136,89 +137,81 @@ export default function ViewEvent({ params }: { params: { eventId: string } }) {
                             width={bannerImgDimensions.width}
                             height={bannerImgDimensions.height}
                         />
-                        {/* <Image
-                            src={event.eventBanner.url}
-                            alt={event.title}
-                            className='rounded-lg card-img event-page_event-banner'
-                            width={1000}
-                            height={400}
-                        />
-                        <Image
-                            src={event.eventBanner.url}
-                            alt={event.title}
-                            className='rounded-lg card-img event-page_event-banner'
-                            width={1000}
-                            height={400}
-                        /> */}
                     </CardContent>
                 </Card>
 
 
                 <div className='flex-cols-[3:1] justify-between mt-10 gap-5 relative'>
-                    <div className='flex flex-col gap-10 mb-10'>
-                        <Text variant='h1'>{event.title}</Text>
-                        <section className='relative h-fit grid grid-cols-2 max-w-2xl gap-4'>
-                            <div className='flex gap-2'>
-                                <CalendarIcon className='h-6 w-6' />
-                                <div className='flex flex-col gap-2'>
-                                    <Text variant='h4'>Date & Time</Text>
-                                    <Text>
-                                        {formatDate(new Date(event.eventDate), 'dddd, MMMM DD YYYY')}
-                                        <br />
-                                        {formatDate(new Date(event.eventDate), 'hh:mm A')}
-                                    </Text>
-                                </div>
-                            </div>
+                    <div>
+                        <Card>
+                            <CardContent className='p-5'>
+                                <div className='flex flex-col gap-5 mb-10'>
+                                    <Text variant='h1'>{event.title}</Text>
+                                    <section className='relative h-fit grid grid-cols-2 max-w-2xl gap-4'>
+                                        <div className='flex gap-2'>
+                                            <CalendarIcon className='h-6 w-6' />
+                                            <div className='flex flex-col gap-2'>
+                                                <Text variant='h4'>Date & Time</Text>
+                                                <Text>
+                                                    {formatDate(new Date(event.eventDate), 'dddd, MMMM DD YYYY')}
+                                                    <br />
+                                                    {formatDate(new Date(event.eventDate), 'hh:mm A')}
+                                                </Text>
+                                            </div>
+                                        </div>
 
-                            <div className='flex gap-1 border-l pl-[5%]'>
-                                <div>
-                                    <IoLocationSharp className='h-6 w-6' />
-                                </div>
-                                <div className='flex flex-col gap-2'>
-                                    <Text variant='h4'>Venue</Text>
+                                        <div className='flex gap-1 border-l pl-[5%]'>
+                                            <div>
+                                                <IoLocationSharp className='h-6 w-6' />
+                                            </div>
+                                            <div className='flex flex-col gap-2'>
+                                                <Text variant='h4'>Venue</Text>
 
-                                    <Text>{event.address}</Text>
-                                </div>
-                            </div>
-                        </section>
-                        {/* {
+                                                <Text>{event.address}</Text>
+                                            </div>
+                                        </div>
+                                    </section>
+                                    {/* {
                             (event.description) &&
                             <section className='flex flex-col gap-4'>
                                 <Text variant='h3'>About this event</Text>
                                 <Text>{event.description}</Text>
                             </section>
                         } */}
-                        <section>
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Tickets Categories</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <DataTable columns={ticketCategoryColumns}
-                                        data={event.ticketCategories} fallback='Loading, please wait...' />
-                                </CardContent>
-                            </Card>
-                        </section>
-                        <section>
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Tickets Sold</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <TicketsSoldForEvent event={event as SingleEvent & { ticketsSold: [] | Ticket[] }} />
-                                </CardContent>
-                            </Card>
-                        </section>
-                        <section>
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Organizing Team</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <DataTable columns={columns} data={organizingTeam as AppUser[]} fallback={teamFallback} />
-                                </CardContent>
-                            </Card>
-                        </section>
+                                    <section>
+                                        <Card>
+                                            <CardHeader>
+                                                <CardTitle>Tickets Categories</CardTitle>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <DataTable columns={ticketCategoryColumns}
+                                                    data={event.ticketCategories} fallback='Loading, please wait...' />
+                                            </CardContent>
+                                        </Card>
+                                    </section>
+                                    <section>
+                                        <Card>
+                                            <CardHeader>
+                                                <CardTitle>Tickets Sold</CardTitle>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <TicketsSoldForEvent event={event as SingleEvent & { ticketsSold: [] | Ticket[] }} />
+                                            </CardContent>
+                                        </Card>
+                                    </section>
+                                    <section>
+                                        <Card>
+                                            <CardHeader>
+                                                <CardTitle>Organizing Team</CardTitle>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <DataTable columns={columns} data={organizingTeam as AppUser[]} fallback={teamFallback} />
+                                            </CardContent>
+                                        </Card>
+                                    </section>
+                                </div>
+                            </CardContent>
+                        </Card>
                     </div>
 
                     <aside className='h-fit bottom-2 left-0 right-0 md:top-24'>
@@ -230,7 +223,6 @@ export default function ViewEvent({ params }: { params: { eventId: string } }) {
                                     className='grid grid-cols-2 mb-5 md:grid-cols-3 gap-2' />
                             </CardContent>
                         </Card>
-                        {/* <ReserveSpotCard event={event} /> */}
                     </aside>
                 </div>
             </div>

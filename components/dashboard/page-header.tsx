@@ -11,7 +11,7 @@ interface PageHeaderProps extends React.HTMLAttributes<HTMLElement> {
 }
 
 export default function PageHeader({ children, className, ...props }: PageHeaderProps) {
-    const { pageTitle, setPageTitle, isPageTitleEnabled, setIsPageTitleEnabled, widget, setWidget } = usePageHeader() as PageHeaderContextType;
+    const { pageTitle, setPageTitle, docTitle, setDocTitle, isPageTitleEnabled, setIsPageTitleEnabled, widget, setWidget } = usePageHeader() as PageHeaderContextType;
     const path = usePathname();
     const titleRef = useRef<string | null>(null);
     const [title, setTitle] = useState<string | null>(null);
@@ -26,7 +26,7 @@ export default function PageHeader({ children, className, ...props }: PageHeader
         const routeArr = route.split('/');
         let page = routeArr[0] || 'dashboard';
 
-        // if title is null or empty, that means this page has no title defined.
+        // if title is undefined or empty, that means this page has no title specified.
         // So we use the route
         if (pageTitle === undefined || pageTitle === '') {
             titleRef.current = page;
@@ -45,12 +45,12 @@ export default function PageHeader({ children, className, ...props }: PageHeader
         }
     }, [path, titleRef, , pageTitle, setIsPageTitleEnabled]);
 
-    useCallback(() => {
+    useEffect(() => {
         if (title == null) {
             return;
         }
-        document.title = `${pascalCase(title as string)} - ${APPCONFIG.title}`;
-    }, [title])();
+        document.title = `${docTitle ?? title as string} - ${APPCONFIG.title}`;
+    }, [title]);
 
     return (
         <div className={cn('flex items-center mb-4 gap-3', className)} {...props}>

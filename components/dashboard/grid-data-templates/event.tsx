@@ -11,6 +11,7 @@ import generateRandomString from "@/lib/random-string-generator";
 import BrickwallDateTime from "../brickwall-datetime";
 import RenderEventBanner from "../render-event-banner";
 import { useAppData } from "@/hooks/useCustomContexts";
+import { toast } from "@/components/ui/sonner";
 
 const EventGridTemplate: React.FC<{ data: SingleEvent }> = ({ data }) => {
     const actor = useAuthenticatedUser();
@@ -55,6 +56,7 @@ const EventGridTemplate: React.FC<{ data: SingleEvent }> = ({ data }) => {
                 }).then(() => {
                     column.remove();
                 });
+                toast(<span className="text-green-800">Event Deleted.</span>)
                 // setPageData('page_activity', { deletedEvent: response.eventId })
                 break;
 

@@ -87,6 +87,10 @@ const Summary: React.FC<Omit<MultistepFormWizardStepProps, 'nextStep'>> = ({ pre
         if (!ev.isDefaultPrevented()) {
             ev.preventDefault();
         }
+        if (!navigator.onLine) {
+            toast("It appears you're offline. Please check your connection and try again.");
+            return;
+        }
 
         try {
             setIsLoading(true);
@@ -98,36 +102,29 @@ const Summary: React.FC<Omit<MultistepFormWizardStepProps, 'nextStep'>> = ({ pre
                     throw new Error('Image upload failed');
                 }
                 const { banner = {}, posters = [] }: UploadResponseDataProps = uploadResponse;
-
                 if (banner?.public_id) {
                     data = {
                         ...data,
-                        ...{
-                            eventBanner: { url: banner.secure_url as string, public_id: banner.public_id as string }
-                        }
+                        eventBanner: { url: banner.secure_url as string, public_id: banner.public_id as string }
                     };
                 }
                 if (posters) {
                     data = {
                         ...data,
-                        ...{
-                            posters: [
-                                ...data.posters || [],
-                                ...posters.map(
-                                    poster => ({
-                                        url: poster.secure_url as string,
-                                        public_id: poster.public_id as string
-                                    })
-                                )
-                            ],
-                        }
+                        posters: [
+                            ...data.posters || [],
+                            ...posters.map(
+                                poster => ({
+                                    url: poster.secure_url as string,
+                                    public_id: poster.public_id as string
+                                })
+                            )
+                        ],
                     };
                 }
 
                 updateFormData && updateFormData(data);
             }
-
-
             try {
                 const requestHandler = isNew ? axios.post : axios.patch;
                 const eventResponse = await requestHandler(formAction, data, {
@@ -156,12 +153,12 @@ const Summary: React.FC<Omit<MultistepFormWizardStepProps, 'nextStep'>> = ({ pre
                     updateTempImages && updateTempImages({});
                     updateFilesToUpload && updateFilesToUpload({});
                     updatePosterPreviewList && updatePosterPreviewList([]);
-                    // return router.push(`/events/${eventResponse.data.eventId}`);
+                    return router.push(`/events/${eventResponse.data.eventId}`);
                 }
             } catch (error) {
                 const { eventBanner, posters = [] } = data as SingleEvent;
-
                 MediaUploader.deleteRecentlyUploadedImages([eventBanner, ...posters]);
+
                 toast(<div className="text-destructive">Unable to create event. An unexpected error has occured.</div>);
                 console.error(error);
                 setIsLoading(false);

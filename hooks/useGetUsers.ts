@@ -7,8 +7,11 @@ import { orderByDate } from "@/lib/utils";
 import { getCookie } from "cookies-next";
 import { cookieOptions } from "@/lib/app-config";
 
-const getCookieUser = (): AppUser => {
+const getCookieUser = (): AppUser | null => {
     const cookie: string = getCookie('app_user', { ...cookieOptions, maxAge: undefined, expires: undefined }) as string;
+    if (!cookie) {
+        return null;
+    }
     const loggedUser: UserInfo = JSON.parse(cookie);
     return new UserClass(loggedUser);
 }

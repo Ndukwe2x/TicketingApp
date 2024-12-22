@@ -34,7 +34,7 @@ const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<any>(null);
     const [fallback, setFallback] = useState(
-        <div className="text-center">Fetching events, please wait...</div>
+        'Fetching events, please wait...'
     );
 
     useEffect(() => {
@@ -51,11 +51,15 @@ const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & {
                 const fetchedEvents = await fetchUserEvents(owner.id, actor, true);
                 if (fetchedEvents instanceof Array) {
                     const orderedByDate: Record<string, string>[] = orderByDate(fetchedEvents);
+                    if (!orderedByDate.length) {
+                        setFallback('There is no event at them moment.');
+                    }
                     setEvents((orderedByDate as unknown) as MultipleEvents);
                 }
             } catch (err) {
                 console.error(err);
                 setError(err);
+                setFallback('Unable to fetch events. The server encountered an error.')
             } finally {
                 setIsLoading(false);
             }
@@ -108,7 +112,7 @@ const MyEvents: React.FC<HtmlHTMLAttributes<HTMLDivElement> & {
                     <DataGrid Template={EventGridTemplate} data={events} columnRule={defaultGridColumnRule} paginationOptions={{ itemsPerPage: maxItemsPerPage }} fallback="Loading... Please wait" />
                 )
         ) : (
-            fallback
+            <div className="text-center">{ fallback }</div>
         )
     )
 }

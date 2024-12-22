@@ -17,13 +17,11 @@ import useAuthenticatedUser from "@/hooks/useAuthenticatedUser";
 import generator from "generate-password";
 import { BiUser } from "react-icons/bi";
 import * as NextImageAlias from "next/image";
-import { cn, getEmptyFormFields, parseFileToDataUri } from "@/lib/utils";
+import { cn, parseFileToDataUri } from "@/lib/utils";
 import { toast } from "../ui/sonner";
 import { MdOutlineCancel } from "react-icons/md";
 import MediaUploader from "../buttons/media-uploader";
 import { useRouter } from "next/navigation";
-import { useCallback } from "react";
-import { useFormContext } from "@/hooks/useCustomContexts";
 
 const NextImage = NextImageAlias.default;
 
@@ -35,16 +33,19 @@ type SubmittedData = UserInfo & {
 };
 
 type FormDataProps = {
-    user_avatar?: File | null;
     firstName?: string | null;
     lastName?: string | null;
     email?: string | null;
     phone?: string | null;
     accountType?: string | null;
     role?: string | null;
+    user_avatar?: File | null;
     password?: string | null;
     re_password?: string | null
 }
+
+type PostReadyFormData = Omit<FormDataProps, 'user_avatar' | 're_password'> & { avatar: string; eventRef: string[] };
+
 
 const UserForm = (
     { onSuccess, onFailure, action, isNew = true, account = null, eventsToAttach = [] }:
@@ -68,7 +69,7 @@ const UserForm = (
     const router = useRouter();
     const submitBtnRef = useRef<HTMLButtonElement>(null);
     const formAction = isNew
-        ? Api.server + Api.endpoints.admin.register
+        ? Api.server + Api.endpoints.admin.register + '/fake-url'
         : Api.server + Api.endpoints.admin.singleUser.replace(':id', account?.id as string)
 
     const strongPassword = {
@@ -81,17 +82,21 @@ const UserForm = (
 
     const password = generator.generate(strongPassword);
 
-    const [formData, setFormData] = useState<FormDataProps>({
+    let defaultData: FormDataProps = {
         user_avatar: null,
         firstName: account?.firstname || null,
         lastName: account?.lastname || null,
         email: account?.email || null,
         phone: account?.phone || null,
         accountType: account?.accountType || null,
-        role: account?.role || null,
-        password: password,
-        re_password: password
-    });
+        role: account?.role || null
+    };
+    if (isNew) {
+        defaultData = { ...defaultData, password: password, re_password: password };
+    }
+
+    const [formData, setFormData] = useState<FormDataProps>(defaultData);
+    const [showPasswordFields, toggleShowPasswordFields] = useReducer(state => !state, isNew ? true : false);
 
     useEffect(() => {
         const frm = formRef.current as HTMLFormElement;
@@ -126,48 +131,56 @@ const UserForm = (
             ev.preventDefault();
         }
         if (!navigator.onLine) {
-            toast(<p className="text-red-800">{"Sorry, it appears you're offline. Check your internet connectivity and try again."}</p>);
+            toast(<p className="text-red-800">{
+                "Sorry, it appears you're offline. Check your internet connectivity and try again."
+            }</p>);
             return;
         }
 
         setIsLoading(true);
 
-        const rawData = formData as SubmittedData;
-        const refinedData: Omit<SubmittedData, 'user_avatar' | 're_password'> = rawData;
+        const rawData = formData as FormDataProps;
+        let {
+            user_avatar = undefined,
+            re_password = undefined,
+            ...refinedData
+        } = rawData as PostReadyFormData & FormDataProps;
 
-        // Handle avatar image upload at this point and modify
-        // the finalData accordingly, before proceeding to 
-        // create account
         try {
-            const uploadResponse = await MediaUploader.uploadFile(
-                rawData.user_avatar, 0, (refinedData.firstName ?? refinedData.firstname)
-            );
-            if (isAxiosError(uploadResponse)) {
-                throw uploadResponse;
+            if (rawData.user_avatar) {
+                // Handle avatar image upload at this point and modify
+                // the finalData accordingly, before proceeding to 
+                // create account
+                const uploadResponse = await MediaUploader.uploadFile(
+                    rawData.user_avatar, 0, refinedData.firstName as string
+                );
+                if (isAxiosError(uploadResponse)) {
+                    throw uploadResponse;
+                }
+                if (null === uploadResponse) {
+                    throw new Error('Unable to upload avatar. An unknown error has occurred.');
+                }
+                refinedData.avatar = uploadResponse.secure_url;
             }
-            if (null === uploadResponse) {
-                throw new Error('Unable to upload avatar. An unknown error has occurred.');
-            }
-            refinedData.avatar = uploadResponse.secure_url;
 
             // Attach any attachable event IDs to the user
-            let finalData = refinedData;
             if (eventsToAttach?.length > 0) {
-                finalData = { ...finalData, eventRef: eventsToAttach }
+                refinedData = { ...refinedData, eventRef: eventsToAttach }
             }
             const handleRequest = isNew ? axios.post : axios.patch;
-            const apiRes = await handleRequest(formAction, finalData, {
+            const apiRes = await handleRequest(formAction, refinedData, {
                 headers: {
                     Authorization: `Bearer ${actor?.token}`
                 }
             });
 
-            console.log('Account created successfully');
-            toast('Account created successfully');
             if (onSuccess) {
                 onSuccess(apiRes.data);
             } else {
                 setIsLoading(false);
+                const msg = isNew ? 'Account created' : 'Account updated';
+                toast(msg);
+                console.log(msg);
                 router.push('/users');
             }
         } catch (error) {
@@ -200,7 +213,7 @@ const UserForm = (
 
                                 <AccountAvatar onSelection={(file) => { handleSelectedAvatar(file as File) }} account={account} />
                             </aside>
-                            <aside className="input-section grid gap-5">
+                            <div className="input-section grid gap-5">
                                 <p className="text-muted-foreground text-xs required">All fields are required except otherwise indicated</p>
                                 <div className='flex flex-col gap-2 flex-1'>
                                     <Label htmlFor='firstName'>Firstname:</Label>
@@ -274,8 +287,9 @@ const UserForm = (
                                     </div>
                                 </div>
                                 {
-                                    isNew &&
+                                    (isNew || showPasswordFields) &&
                                     <>
+                                        <hr />
                                         <div className='flex flex-col gap-2'>
                                             <Label htmlFor='password'>Password:</Label>
                                             <div className="relative">
@@ -284,7 +298,6 @@ const UserForm = (
                                                     required aria-required='true'
                                                     value={formData.password ?? ''}
                                                     onChange={(ev) => {
-                                                        // setPass(ev.target.value);
                                                         handleInput('password', ev.target.value)
                                                     }} />
                                                 <Button onClick={() => togglePasswordHidden()} variant={null}
@@ -313,18 +326,14 @@ const UserForm = (
                                         </div>
                                         <PasswordGenerator
                                             handleGeneratedPassword={randPass => {
-                                                // setPass(randPass);
-                                                // setRePass(randPass);
-                                                // setFormData(prev => (
-                                                //     { ...prev, password: randPass, re_password: randPass }
-                                                // ))
                                                 handleInput('password', randPass);
                                                 handleInput('re_password', randPass)
                                             }}
                                             options={{ length: 16 }} />
                                     </>
                                 }
-                            </aside>
+                                {!isNew && <Button type="button" onClick={toggleShowPasswordFields} variant='secondary'>{showPasswordFields ? 'Hide password fields' : 'Change password'}</Button>}
+                            </div>
                         </div>
                     </div>
 
@@ -418,7 +427,7 @@ function AccountAvatar({ onSelection, account }: { onSelection: Callback; accoun
                             <Input type='hidden' name="avatar" value={account ? account.avatar : ''} />
                             <span ref={selectedFilePreviewRef} className={cn(
                                 'avatar-upload-preview flex items-center loaded'
-                            )} style={{ backgroundImage: `url(${avatar.url})` }}>
+                            )}>
                                 <NextImage src={avatar.url} alt={avatar.alt} title={avatar.alt} width={200} height={200} />
                                 <span className="flex items-center absolute right-0 left-0 px-4 gap-4 justify-center">
                                     <Label className={cn(editBtnClass, 'bg-black/80 text-white px-2 py-2 rounded-full ')}>

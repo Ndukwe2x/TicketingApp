@@ -75,9 +75,10 @@ const Step5: React.FC<MultistepFormWizardStepProps> = ({ prevStep, nextStep }) =
             </div>
             <div className='flex flex-col gap-2'>
                 <Text variant='h4'>Event Featuring</Text>
-                <Label htmlFor='featured'>
-                    <Checkbox id='featured' name="featured" value='true'
-                        defaultChecked={formData && formData.featured} />Feature this event</Label>
+                <Input type="hidden" name="featured" value="false" className="invisible" />
+                <Label htmlFor='featured' className="flex items-center gap-2 font-normal text-md">
+                    <Checkbox id='featured' name="featured" value={formData && formData.featured ? 'true' : 'false'}
+                        defaultChecked={formData && formData.featured ? true : false} />Feature this event</Label>
                 <p className="text-xs flex items-center gap-2">
                     <MdInfo size={16} className="text-muted-foreground" />
                     Featuring an event puts it in the spotlight and is a great way to make your event reach more people.

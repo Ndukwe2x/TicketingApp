@@ -27,29 +27,8 @@ export const getEventById = async (id: string, user: AuthInfo) => {
     return response.data;
 };
 
-export const deleteEvent = async (eventId: string, actor: AppUser, alsoDeleteTickets: boolean = false) => {
+export const deleteEvent = async (eventId: string, actor: AppUser) => {
     try {
-        // if (alsoDeleteTickets) {
-        //     const users = await fetchUsersByEventId(eventId, actor as AppUser);
-        //     if (users.length) {
-        //         const detachUsers = await Promise.all(users.map(
-        //             async (user: UserInfo) => await dissociateUserFromEvent(user, eventId, actor)
-        //         ));
-        //         if (!detachUsers.length) {
-        //             return false;
-        //         }
-        //     }
-
-        //     try {
-        //         const deleteTickets = await deleteEventTickets(eventId, actor);
-        //         if (!deleteTickets) {
-        //             return false;
-        //         }
-        //     } catch (error) {
-
-        //     }
-        // }
-
         const url = Api.server + Api.endpoints.admin.event.replace(':id', eventId);
         const response = await axios.delete(url, {
             headers: {
@@ -65,26 +44,23 @@ export const deleteEvent = async (eventId: string, actor: AppUser, alsoDeleteTic
 }
 
 export const deleteEventTickets = async (eventId: string, actor: AppUser) => {
-    const deleteTicket = async (ticketId: string | number) => {
-        const url = Api.server + Api.endpoints.admin.singleTicket.replace(':id', ticketId.toString());
+    const deleteTicket = async (ticket: Ticket) => {
+        const url = Api.server + Api.endpoints.admin.singleTicket.replace(':id', ticket._id.toString());
         const config: AxiosRequestConfig = {
             headers: {
                 Authorization: `Bearer ${actor.token}`
             }
         }
         const response = await axios.delete(url, config);
-
         return response.status === 200;
     }
-
-    const tickets: Ticket[] | [] = await fetchEventTickets(eventId, actor);
-
-    if (!tickets.length) {
-        return true;
-    }
     try {
+        const tickets: Ticket[] | [] = await fetchEventTickets(eventId, actor);
+        if (!tickets.length) {
+            return true;
+        }
         await Promise.all(
-            tickets.map(ticket => ticket._id).map(deleteTicket)
+            tickets.map(deleteTicket)
         );
 
         return true;

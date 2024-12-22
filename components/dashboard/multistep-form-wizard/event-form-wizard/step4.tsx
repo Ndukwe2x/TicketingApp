@@ -59,9 +59,7 @@ const Step4: React.FC<MultistepFormWizardStepProps> = ({ prevStep, nextStep }) =
                 }
             });
         });
-        return () => {
-
-        }
+        return () => { }
     }, []);
 
     const handleSubmit: FormEventHandler<HTMLFormElement> = (ev) => {
@@ -76,16 +74,17 @@ const Step4: React.FC<MultistepFormWizardStepProps> = ({ prevStep, nextStep }) =
     };
 
     const previewPoster = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = e.target.files || [];
+        const files = [...(e.target.files || [])];
         if (!files.length) {
             toast('No file selected');
             console.log('No file selected');
             return;
         }
+        e.target.value = '';
 
         try {
             for (const file of files) {
-                const dataUri = await parseFileToDataUri(file, { minSize: '5KB', maxSize: '5MB' });
+                const dataUri = await parseFileToDataUri(file);
                 const imageData: ImageInfo = {
                     url: dataUri,
                     public_id: generateRandomString(32, 'mixed_lower')
